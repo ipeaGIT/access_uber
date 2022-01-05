@@ -4,9 +4,9 @@ grid|stem|0a10764c9afcd362|2eb3a84fbdb7b9bf|ef46db3751d8e999|-491095951|../../da
 graph_dir|stem|69dad59a33fefbc5|addd444b7a660334|ef46db3751d8e999|1477339001|../../data/access_uber/r5/rio|t18997.7740856481s|908ec9ea9f0a90f4|0|file|vector|||0||
 grid_res_9|stem|0a10764c9afcd362|2eb3a84fbdb7b9bf|ef46db3751d8e999|-426584538|../../data/acesso_oport/hex_agregados/2019/hex_agregado_rio_09_2019.rds|t18971.8008564815s|ec897c661ed4e32d|6080534|file|vector|||0||
 grid_res_8|stem|053b0c3d725131f6|a6bc778eeaee57a3|ef46db3751d8e999|-723635523|../../data/acesso_oport/hex_agregados/2019/hex_agregado_rio_08_2019.rds|t18971.8007638889s|93034555ac0bc1fc|865274|file|vector|||0||
-calculate_uber_first_mile|function|f37cbc07111c3913||||||||||||||
-.Random.seed|object|5dcdb35e2e8e06c0||||||||||||||
-generate_r5_points|function|e89896b0f28a3246||||||||||||||
 rapid_transit_stations|stem|b990003d19e2d22c|ed0395e238149f39|ef46db3751d8e999|-964730623|../../data-raw/uber_speed/rapid_transit_stations_city.csv|t18997.8441898148s|fa9fc913b68a479e|11528|file|vector|||0||
 r5_points|stem|a8dbd43eb390c267|3f5d0735d849fa70|d14b7527fa8764de|-1010752099|../../data/access_uber/points_rio_09_2019.csv|t18997.8531828704s|9190e60dde67122a|67404|file|vector|||0.59|st_centroid assumes attributes are constant over geometries of x|
-uber_first_mile_matrix|stem|7e9022edce9996ab|2da95f9fe546bc62|4415360b0b379076|827243224|../../data/access_uber/ttmatrix/uber_first_mile.rds|t18997.8535648148s|5a1f74ced30fefb2|312871|file|vector|||32.51||
+calculate_uber_first_mile|function|c62a00adbd8d70fb||||||||||||||
+.Random.seed|object|577774c4b0c9fb71||||||||||||||
+generate_r5_points|function|e89896b0f28a3246||||||||||||||
+uber_first_mile_matrix|stem|ba1cdb024261414e|2da95f9fe546bc62|4459af6c1c9e0af2|827243224|../../data/access_uber/ttmatrix/uber_first_mile_matrix.rds|t18997.8785648148s|5d7b1d2683d05e2e|4532092|file|vector|||48.72||

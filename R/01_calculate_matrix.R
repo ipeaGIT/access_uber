@@ -87,32 +87,113 @@ calculate_uber_first_mile <- function(uber_data_path,
   setnames(uber_matrix, old = "id", new = "dropoff_station")
   
   # calculate the travel time matrix from the rapid transit stations to all
-  # possible destinations
+  # possible destinations. the departure time depends on the time the uber would
+  # arrive at the station, so for each unique uber trip length we calculate one
+  # matrix
   
   r5r_core <- setup_r5(graph_path, verbose = FALSE)
   
-  remaining_matrix <- travel_time_matrix(
-    r5r_core,
-    origins = stations,
-    destinations = points,
-    mode = c("WALK", "TRANSIT"),
-    departure_datetime = as.POSIXct(
-      "08-01-2020 07:00:00",
-      format = "%d-%m-%Y %H:%M:%S"
-    ),
-    max_walk_dist = 1000,
-    n_threads = getOption("R5R_THREADS"),
-    verbose = FALSE
+  uber_trip_lengths <- unique(uber_matrix$mean_travel_time)
+  
+  remaining_matrix <- lapply(
+    uber_trip_lengths,
+    function(i) {
+      departure_datetime <- as.POSIXct(
+        "08-01-2020 07:00:00",
+        format = "%d-%m-%Y %H:%M:%S"
+      )
+      departure_datetime <- departure_datetime + 60 * i
+      max_trip_duration <- 120L - i
+      
+      if (max_trip_duration > 0) {
+        matrix <- travel_time_matrix(
+          r5r_core,
+          origins = stations,
+          destinations = points,
+          mode = c("WALK", "TRANSIT"),
+          departure_datetime = departure_datetime,
+          max_trip_duration = max_trip_duration,
+          max_walk_dist = 1000,
+          n_threads = getOption("R5R_THREADS"),
+          verbose = FALSE
+        )
+      } else {
+        matrix <- data.table(
+          fromId = character(),
+          toId = character(),
+          travel_time = character()
+        )
+      }
+      
+      matrix
+    }
   )
   
-  # TODO: bind the remaining_matrix with the uber_first_mile matrix
+  names(remaining_matrix) <- uber_trip_lengths
+  remaining_matrix <- rbindlist(remaining_matrix, idcol = "departure_minute")
+  remaining_matrix[, departure_minute := as.integer(departure_minute)]
+  
+  # bind remaining_matrix with uber_matrix, calculate the total travel time and
+  # keep only the fastest trip between two hexagons
+  
+  matrix <- merge(
+    uber_matrix,
+    remaining_matrix,
+    by.x = c("dropoff_station", "mean_travel_time"),
+    by.y = c("fromId", "departure_minute"),
+    allow.cartesian = TRUE
+  )
+  
+  setnames(
+    matrix,
+    old = c(
+      "dropoff_station",
+      "mean_travel_time",
+      "pickup_hex8",
+      "dropoff_hex8",
+      "toId",
+      "travel_time"
+    ),
+    new = c(
+      "intermediate_station",
+      "first_mile_time",
+      "from_id",
+      "intermediate_hex",
+      "to_id",
+      "remaining_time"
+    )
+  )
+  setcolorder(
+    matrix,
+    c(
+      "from_id",
+      "intermediate_hex",
+      "intermediate_station",
+      "to_id",
+      "first_mile_time",
+      "remaining_time"
+    )
+  )
+  matrix[, travel_time := first_mile_time + remaining_time]
+  matrix <- matrix[
+    matrix[, .I[travel_time == min(travel_time)], by = .(from_id, to_id)]$V1
+  ]
+  
+  # there may be many trips between the same two points whose travel time equals
+  # the minimum travel time (e.g. imagine that you can get from point A to point
+  # B using 3 stations as possible intermediates and two of those trips have the
+  # same total travel time, which is lower than the third). therefore we need to
+  # filter 'matrix' to keep only one entry for each pair, otherwise we will
+  # double (triple, quadruple, ...) count the opportunities when estimating the
+  # accessibility.
+  
+  matrix <- matrix[matrix[, .I[1], by = .(from_id, to_id)]$V1]
   
   matrix_dir <- "../../data/access_uber/ttmatrix"
   if (!dir.exists(matrix_dir)) dir.create(matrix_dir)
   
-  matrix_basename <- "uber_first_mile.rds"
-  matrix_path <- file.path(matrix_dir, matrix_basename)
-  saveRDS(remaining_matrix, matrix_path)
+  matrix_path <- file.path(matrix_dir, "uber_first_mile_matrix.rds")
+  saveRDS(matrix, matrix_path)
   
   return(matrix_path)
 }
