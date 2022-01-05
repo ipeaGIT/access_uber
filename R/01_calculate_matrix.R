@@ -1,4 +1,4 @@
-# grid_path <- tar_read(grid)
+# grid_path <- tar_read(grid_res_8)
 generate_r5_points <- function(grid_path) {
   grid <- setDT(readRDS(grid_path))
   
@@ -37,15 +37,54 @@ generate_r5_points <- function(grid_path) {
 # stations_path <- tar_read(rapid_transit_stations)
 # graph_path <- tar_read(graph_dir)
 # points_path <- tar_read(r5_points)
+# grid_path <- tar_read(grid_res_8)
 calculate_uber_first_mile <- function(uber_data_path,
                                       stations_path,
                                       graph_path,
-                                      points_path) {
+                                      points_path,
+                                      grid_path) {
+  uber_data <- readRDS(uber_data_path)
   stations <- fread(stations_path, encoding = "UTF-8")
   points <- fread(points_path)
+  grid <- setDT(readRDS(grid_path))
   
-  # TODO: calculate travel times from the origins to the transit stations,
-  # considering Uber's travel times
+  # find inside which hexagon each station is
+  
+  grid_columns <- c("id_hex", "geometry")
+  grid[, setdiff(names(grid), grid_columns) := NULL]
+  grid <- st_sf(grid)
+  
+  stations_sf <- st_as_sf(stations, coords = c("lon", "lat"), crs = 4326)
+  
+  stations_to_hex <- setDT(st_join(stations_sf, grid))
+  stations_to_hex[, geometry := NULL]
+  
+  # calculate travel times from the origins to the transit stations, considering
+  # Uber's travel times
+  
+  uber_data <- uber_data[
+    date_block_2019 == "mar8_dec20" &
+      weekday_weekend == "weekday" &
+      time_block == "morning_peak"
+  ]
+  uber_data <- uber_data[
+    ,
+    mean_travel_time := (mean_distance_km / mean_trip_speed_kmh) * 60
+  ]
+  desired_uber_columns <- c("pickup_hex8", "dropoff_hex8", "mean_travel_time")
+  uber_data[, setdiff(names(uber_data), desired_uber_columns) := NULL]
+  
+  uber_matrix <- merge(
+    uber_data,
+    stations_to_hex,
+    by.x = "dropoff_hex8",
+    by.y = "id_hex"
+  )
+  setcolorder(
+    uber_matrix,
+    c("pickup_hex8", "dropoff_hex8", "id", "mean_travel_time")
+  )
+  setnames(uber_matrix, old = "id", new = "dropoff_station")
   
   # calculate the travel time matrix from the rapid transit stations to all
   # possible destinations
