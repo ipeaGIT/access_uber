@@ -1,2 +1,4 @@
 name|type|data|command|depend|seed|path|time|size|bytes|format|iteration|parent|children|seconds|warnings|error
 uber_data|stem|d9d48cea137228d6|1099acd0f328774c|ef46db3751d8e999|-513834384|../../data-raw/uber_speed/orig_ds_anonymized.rds|t18976.8357060185s|02b8d7c34cae1595|13497785|file|vector|||0||
+.Random.seed|object|1929f0fcf8ffd6db||||||||||||||
+rapid_transit_stations|stem|e838d9b8a1e6426c|ed0395e238149f39|ef46db3751d8e999|-964730623|../../data-raw/uber_speed/rapid_transit_stations_city.csv|t18997.6239467593s|7fe5adfd704f6f89|11985|file|vector|||0||
