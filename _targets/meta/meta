@@ -1,9 +1,10 @@
 name|type|data|command|depend|seed|path|time|size|bytes|format|iteration|parent|children|seconds|warnings|error
 uber_data|stem|d9d48cea137228d6|1099acd0f328774c|ef46db3751d8e999|-513834384|../../data-raw/uber_speed/orig_ds_anonymized.rds|t18976.8357060185s|02b8d7c34cae1595|13497785|file|vector|||0||
 rapid_transit_stations|stem|e838d9b8a1e6426c|ed0395e238149f39|ef46db3751d8e999|-964730623|../../data-raw/uber_speed/rapid_transit_stations_city.csv|t18997.6239467593s|7fe5adfd704f6f89|11985|file|vector|||0||
-graph_dir|stem|cf8accd4f3d37763|addd444b7a660334|ef46db3751d8e999|1477339001|../../data/access_uber/r5/rio|t18997.6289814815s|908ec9ea9f0a90f4|0|file|vector|||0||
-calculate_uber_first_mile|function|9f7c7d0e5a00c864||||||||||||||
-.Random.seed|object|0b1dd07ab13a6369||||||||||||||
-generate_r5_points|function|2ddf67b9a6c9c227||||||||||||||
 grid|stem|0a10764c9afcd362|2eb3a84fbdb7b9bf|ef46db3751d8e999|-491095951|../../data/acesso_oport/hex_agregados/2019/hex_agregado_rio_09_2019.rds|t18971.8008564815s|ec897c661ed4e32d|6080534|file|vector|||0||
-r5_points|stem|3bffca1c06ffb249|4d7b2c6cb417a79d|2097072009485783|-1010752099|../../data/access_uber/points_rio_09_2019.csv|t18997.7662615741s|65e29afbcec144c7|359247|file|vector|||1.22|st_centroid assumes attributes are constant over geometries of x|
+r5_points|stem|238208747da30efe|4d7b2c6cb417a79d|9add7b81b37b13d7|-1010752099|../../data/access_uber/points_rio_09_2019.csv|t18997.7880208333s|65e29afbcec144c7|359247|file|vector|||1.48|st_centroid assumes attributes are constant over geometries of x|
+calculate_uber_first_mile|function|ee95024956ec740d||||||||||||||
+.Random.seed|object|0c4eacf4048ceb4f||||||||||||||
+generate_r5_points|function|e89896b0f28a3246||||||||||||||
+graph_dir|stem|69dad59a33fefbc5|addd444b7a660334|ef46db3751d8e999|1477339001|../../data/access_uber/r5/rio|t18997.7740856481s|908ec9ea9f0a90f4|0|file|vector|||0||
+uber_first_mile_matrix|stem|a87944e86f7150fc|9de0ec852eb5a310|5a26588406e2ac80|827243224|../../data/access_uber/ttmatrix/uber_first_mile.rds|t18997.7893171296s|146649d3193d78e9|4137628|file|vector|||30.15||
