@@ -1,0 +1,2 @@
+name|type|data|command|depend|seed|path|time|size|bytes|format|iteration|parent|children|seconds|warnings|error
+uber_data|stem|d9d48cea137228d6|1099acd0f328774c|ef46db3751d8e999|-513834384|../../data-raw/uber_speed/orig_ds_anonymized.rds|t18976.8357060185s|02b8d7c34cae1595|13497785|file|vector|||0||
