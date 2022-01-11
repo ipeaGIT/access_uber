@@ -146,7 +146,7 @@ calculate_uber_first_mile <- function(uber_matrix_path,
   # arrive at the station, so for each unique uber trip length we calculate one
   # matrix
   
-  r5r_core <- setup_r5(graph_path, verbose = FALSE)
+  r5r_core <- setup_r5(graph_path, verbose = FALSE, use_elevation = TRUE)
   
   uber_trip_lengths <- unique(first_mile_matrix$travel_time)
   uber_trip_lengths <- uber_trip_lengths[order(uber_trip_lengths)]
@@ -173,6 +173,23 @@ calculate_uber_first_mile <- function(uber_matrix_path,
           n_threads = getOption("N_CORES"),
           verbose = FALSE
         )
+        
+        # capture.output(
+        #   matrix <- pareto_frontier(
+        #     r5r_core,
+        #     origins = stations,
+        #     destinations = points,
+        #     mode = c("WALK", "TRANSIT"),
+        #     departure_datetime = departure_datetime,
+        #     max_trip_duration = max_trip_duration,
+        #     max_walk_dist = 1000,
+        #     monetary_cost_cutoffs = seq(4, 10, 0.5),
+        #     fare_calculator = "rio-de-janeiro",
+        #     n_threads = getOption("N_CORES"),
+        #     verbose = FALSE
+        #   ),
+        #   file = file.path(tempfile("pareto_frontier_log", fileext = ".txt"))
+        # )
       } else {
         matrix <- data.table(
           fromId = character(),
