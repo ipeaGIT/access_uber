@@ -45,22 +45,52 @@ fill_uber_matrix <- function(uber_data_path) {
     ,
     mean_travel_time := (mean_distance_km / mean_trip_speed_kmh) * 60
   ]
-  desired_uber_columns <- c("pickup_hex8", "dropoff_hex8", "mean_travel_time")
+  
+  desired_uber_columns <- c(
+    "pickup_hex8",
+    "dropoff_hex8",
+    "mean_approx_fare_local",
+    "mean_travel_time"
+  )
   uber_data[, setdiff(names(uber_data), desired_uber_columns) := NULL]
   setnames(
     uber_data,
-    old = c("pickup_hex8", "dropoff_hex8", "mean_travel_time"),
-    new = c("from", "to", "dist")
+    old = desired_uber_columns,
+    new = c("from", "to", "cost", "travel_time")
   )
   
-  full_matrix <- as.data.table(dodgr_dists(uber_data), keep.rownames = TRUE)
-  full_matrix <- melt(full_matrix, id.vars = "rn")
+  # dodgr_dists() uses a column name 'dists' to calculate the shortest path
+  # between two edges. but if a 'weights' column is present, it calculates the
+  # shortest path according to those weights, but return the final distance
+  # based on 'dists'.
+  # so here, we calculate two matrices: one to calculate the shortest path based
+  # on the travel time, and another to calculate the cost of this shortest path.
+  # we first calculate a matrix with 'travel_time' as 'dists', and then use
+  # these travel times as the weights when calculating the cost matrix
+  
+  setnames(uber_data, old = "travel_time", new = "dists")
+  travel_time_matrix <- dodgr_dists(uber_data)
+  travel_time_matrix <- as.data.table(travel_time_matrix, keep.rownames = TRUE)
+  travel_time_matrix <- melt(travel_time_matrix, id.vars = "rn")
   setnames(
-    full_matrix,
+    travel_time_matrix,
     c("rn", "variable", "value"),
     c("from_id", "to_id", "travel_time")
   )
-  full_matrix <- full_matrix[!is.na(travel_time)]
+  travel_time_matrix <- travel_time_matrix[!is.na(travel_time)]
+  
+  setnames(uber_data, old = c("dists", "cost"), new = c("weights", "dists"))
+  monetary_matrix <- dodgr_dists(uber_data)
+  monetary_matrix <- as.data.table(monetary_matrix, keep.rownames = TRUE)
+  monetary_matrix <- melt(monetary_matrix, id.vars = "rn")
+  setnames(
+    monetary_matrix,
+    c("rn", "variable", "value"),
+    c("from_id", "to_id", "monetary_cost")
+  )
+  monetary_matrix <- monetary_matrix[!is.na(monetary_cost)]
+  
+  full_matrix <- travel_time_matrix[monetary_matrix, on = c("from_id", "to_id")]
   
   matrix_dir <- "../../data/access_uber/ttmatrix"
   if (!dir.exists(matrix_dir)) dir.create(matrix_dir)
