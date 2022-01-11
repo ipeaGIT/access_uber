@@ -1,13 +1,15 @@
 options(
   java.parameters = "-Xmx100G",
-  R5R_THREADS = 15
+  N_CORES = 15L
 )
+RcppParallel::setThreadOptions(numThreads = getOption("N_CORES"))
 
 suppressPackageStartupMessages({
   library(targets)
   library(data.table)
   library(r5r)
   library(sf)
+  library(dodgr)
 })
 
 source("R/01_calculate_matrix.R", encoding = "UTF-8")
@@ -39,10 +41,11 @@ list(
     format = "file"
   ),
   tar_target(r5_points, generate_r5_points(grid_res_8), format = "file"),
+  tar_target(full_uber_matrix, fill_uber_matrix(uber_data), format = "file"),
   tar_target(
     uber_first_mile_matrix,
     calculate_uber_first_mile(
-      uber_data,
+      full_uber_matrix,
       rapid_transit_stations,
       graph_dir,
       r5_points,

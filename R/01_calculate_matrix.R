@@ -34,16 +34,54 @@ generate_r5_points <- function(grid_path) {
 
 
 # uber_data_path <- tar_read(uber_data)
+fill_uber_matrix <- function(uber_data_path) {
+  uber_data <- readRDS(uber_data_path)
+  uber_data <- uber_data[
+    date_block_2019 == "mar8_dec20" &
+      weekday_weekend == "weekday" &
+      time_block == "morning_peak"
+  ]
+  uber_data <- uber_data[
+    ,
+    mean_travel_time := (mean_distance_km / mean_trip_speed_kmh) * 60
+  ]
+  desired_uber_columns <- c("pickup_hex8", "dropoff_hex8", "mean_travel_time")
+  uber_data[, setdiff(names(uber_data), desired_uber_columns) := NULL]
+  setnames(
+    uber_data,
+    old = c("pickup_hex8", "dropoff_hex8", "mean_travel_time"),
+    new = c("from", "to", "dist")
+  )
+  
+  full_matrix <- as.data.table(dodgr_dists(uber_data), keep.rownames = TRUE)
+  full_matrix <- melt(full_matrix, id.vars = "rn")
+  setnames(
+    full_matrix,
+    c("rn", "variable", "value"),
+    c("from_id", "to_id", "travel_time")
+  )
+  full_matrix <- full_matrix[!is.na(travel_time)]
+  
+  matrix_dir <- "../../data/access_uber/ttmatrix"
+  if (!dir.exists(matrix_dir)) dir.create(matrix_dir)
+  
+  matrix_path <- file.path(matrix_dir, "only_uber_full_matrix.rds")
+  saveRDS(full_matrix, matrix_path)
+  
+  return(matrix_path)
+}
+
+
+# uber_matrix_path <- tar_read(full_uber_matrix)
 # stations_path <- tar_read(rapid_transit_stations)
 # graph_path <- tar_read(graph_dir)
 # points_path <- tar_read(r5_points)
 # grid_path <- tar_read(grid_res_8)
-calculate_uber_first_mile <- function(uber_data_path,
+calculate_uber_first_mile <- function(uber_matrix_path,
                                       stations_path,
                                       graph_path,
                                       points_path,
                                       grid_path) {
-  uber_data <- readRDS(uber_data_path)
   stations <- fread(stations_path, encoding = "UTF-8")
   points <- fread(points_path)
   grid <- setDT(readRDS(grid_path))
@@ -62,29 +100,16 @@ calculate_uber_first_mile <- function(uber_data_path,
   # calculate travel times from the origins to the transit stations, considering
   # Uber's travel times
   
-  uber_data <- uber_data[
-    date_block_2019 == "mar8_dec20" &
-      weekday_weekend == "weekday" &
-      time_block == "morning_peak"
-  ]
-  uber_data <- uber_data[
-    ,
-    mean_travel_time := (mean_distance_km / mean_trip_speed_kmh) * 60
-  ]
-  desired_uber_columns <- c("pickup_hex8", "dropoff_hex8", "mean_travel_time")
-  uber_data[, setdiff(names(uber_data), desired_uber_columns) := NULL]
+  uber_matrix <- readRDS(uber_matrix_path)
   
-  uber_matrix <- merge(
-    uber_data,
+  first_mile_matrix <- merge(
+    uber_matrix,
     stations_to_hex,
-    by.x = "dropoff_hex8",
+    by.x = "to_id",
     by.y = "id_hex"
   )
-  setcolorder(
-    uber_matrix,
-    c("pickup_hex8", "dropoff_hex8", "id", "mean_travel_time")
-  )
-  setnames(uber_matrix, old = "id", new = "dropoff_station")
+  setcolorder(first_mile_matrix, c("from_id", "to_id", "id", "travel_time"))
+  setnames(first_mile_matrix, old = "id", new = "to_station")
   
   # calculate the travel time matrix from the rapid transit stations to all
   # possible destinations. the departure time depends on the time the uber would
@@ -93,7 +118,8 @@ calculate_uber_first_mile <- function(uber_data_path,
   
   r5r_core <- setup_r5(graph_path, verbose = FALSE)
   
-  uber_trip_lengths <- unique(uber_matrix$mean_travel_time)
+  uber_trip_lengths <- unique(first_mile_matrix$travel_time)
+  uber_trip_lengths <- uber_trip_lengths[order(uber_trip_lengths)]
   
   remaining_matrix <- lapply(
     uber_trip_lengths,
@@ -114,7 +140,7 @@ calculate_uber_first_mile <- function(uber_data_path,
           departure_datetime = departure_datetime,
           max_trip_duration = max_trip_duration,
           max_walk_dist = 1000,
-          n_threads = getOption("R5R_THREADS"),
+          n_threads = getOption("N_CORES"),
           verbose = FALSE
         )
       } else {
@@ -133,13 +159,13 @@ calculate_uber_first_mile <- function(uber_data_path,
   remaining_matrix <- rbindlist(remaining_matrix, idcol = "departure_minute")
   remaining_matrix[, departure_minute := as.integer(departure_minute)]
   
-  # bind remaining_matrix with uber_matrix, calculate the total travel time and
-  # keep only the fastest trip between two hexagons
+  # bind remaining_matrix with first_mile_matrix, calculate the total travel
+  # time and keep only the fastest trip between two hexagons
   
   matrix <- merge(
-    uber_matrix,
+    first_mile_matrix,
     remaining_matrix,
-    by.x = c("dropoff_station", "mean_travel_time"),
+    by.x = c("to_station", "travel_time"),
     by.y = c("fromId", "departure_minute"),
     allow.cartesian = TRUE
   )
@@ -147,12 +173,12 @@ calculate_uber_first_mile <- function(uber_data_path,
   setnames(
     matrix,
     old = c(
-      "dropoff_station",
-      "mean_travel_time",
-      "pickup_hex8",
-      "dropoff_hex8",
+      "to_station",
+      "travel_time",
+      "from_id",
+      "to_id",
       "toId",
-      "travel_time"
+      "travel_time.y"
     ),
     new = c(
       "intermediate_station",
