@@ -1,6 +1,6 @@
 options(
   java.parameters = "-Xmx100G",
-  N_CORES = 15L
+  N_CORES = 30L
 )
 RcppParallel::setThreadOptions(numThreads = getOption("N_CORES"))
 

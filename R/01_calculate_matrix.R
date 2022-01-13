@@ -206,13 +206,13 @@ fill_uber_matrix <- function(uber_data_path) {
 # grid_path <- tar_read(grid_res_8)
 # rio_fare_integration_path <- tar_read(rio_fare_integration)
 # rio_routes_info_path <- tar_read(rio_routes_info)
-calculate_uber_first_frontier <- function(uber_matrix_path,
-                                          stations_path,
-                                          graph_path,
-                                          points_path,
-                                          grid_path,
-                                          rio_fare_integration_path,
-                                          rio_routes_info_path) {
+calculate_uber_first_mile_frontier <- function(uber_matrix_path,
+                                               stations_path,
+                                               graph_path,
+                                               points_path,
+                                               grid_path,
+                                               rio_fare_integration_path,
+                                               rio_routes_info_path) {
   stations <- fread(stations_path, encoding = "UTF-8")
   points <- fread(points_path)
   grid <- setDT(readRDS(grid_path))
@@ -267,10 +267,6 @@ calculate_uber_first_frontier <- function(uber_matrix_path,
   
   uber_trip_lengths <- unique(first_mile_matrix$travel_time)
   uber_trip_lengths <- uber_trip_lengths[order(uber_trip_lengths)]
-  
-  # TODO: remove hardcoded uber_trip_lengths values. temporarily using 10 and 30
-  # just to save time
-  uber_trip_lengths <- c(10, 30)
   
   rio_fare_integration <- fread(rio_fare_integration_path)
   rio_routes_info <- fread(rio_routes_info_path)
