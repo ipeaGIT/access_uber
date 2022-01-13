@@ -225,9 +225,19 @@ calculate_uber_first_mile <- function(uber_matrix_path,
   stations_to_hex[, geometry := NULL]
   
   # calculate travel times from the origins to the transit stations, considering
-  # Uber's travel times
+  # Uber's travel times.
+  # first filter uber_matrix to only contain trips with travel time lower than
+  # 120 minutes and hexagons with population/opportunities data.
+  # also, temporarily filtering by the cost as well, but not sure if that makes
+  # sense in the long run
   
   uber_matrix <- readRDS(uber_matrix_path)
+  uber_matrix <- uber_matrix[
+    travel_time < 120 &
+      cost < 30 &
+      from_id %chin% points$id &
+      to_id %chin% points$id
+  ]
   
   first_mile_matrix <- merge(
     uber_matrix,
@@ -235,7 +245,10 @@ calculate_uber_first_mile <- function(uber_matrix_path,
     by.x = "to_id",
     by.y = "id_hex"
   )
-  setcolorder(first_mile_matrix, c("from_id", "to_id", "id", "travel_time"))
+  setcolorder(
+    first_mile_matrix,
+    c("from_id", "to_id", "id", "travel_time", "cost")
+  )
   setnames(first_mile_matrix, old = "id", new = "to_station")
   
   # calculate the travel time matrix from the rapid transit stations to all
@@ -248,9 +261,16 @@ calculate_uber_first_mile <- function(uber_matrix_path,
   uber_trip_lengths <- unique(first_mile_matrix$travel_time)
   uber_trip_lengths <- uber_trip_lengths[order(uber_trip_lengths)]
   
-  remaining_matrix <- lapply(
+  # TODO: remove hardcoded uber_trip_lengths values. temporarily using 10 and 30
+  # just to save time
+  uber_trip_lengths <- c(10, 30)
+  
+  # TODO: calculate monetary cutoffs based on the fares found in rio
+  
+  remaining_frontier <- lapply(
     uber_trip_lengths,
     function(i) {
+      cat("departure minute:", i, "\n")
       departure_datetime <- as.POSIXct(
         "08-01-2020 07:00:00",
         format = "%d-%m-%Y %H:%M:%S"
@@ -258,112 +278,105 @@ calculate_uber_first_mile <- function(uber_matrix_path,
       departure_datetime <- departure_datetime + 60 * i
       max_trip_duration <- 120L - i
       
-      if (max_trip_duration > 0) {
-        matrix <- travel_time_matrix(
-          r5r_core,
-          origins = stations,
-          destinations = points,
-          mode = c("WALK", "TRANSIT"),
-          departure_datetime = departure_datetime,
-          max_trip_duration = max_trip_duration,
-          max_walk_dist = 1000,
-          n_threads = getOption("N_CORES"),
-          verbose = FALSE
-        )
-
-        # capture.output(
-        #   matrix <- pareto_frontier(
-        #     r5r_core,
-        #     origins = stations,
-        #     destinations = points,
-        #     mode = c("WALK", "TRANSIT"),
-        #     departure_datetime = departure_datetime,
-        #     max_trip_duration = max_trip_duration,
-        #     max_walk_dist = 1000,
-        #     monetary_cost_cutoffs = seq(400, 1000, 500),
-        #     fare_calculator = "rio-de-janeiro",
-        #     n_threads = getOption("N_CORES"),
-        #     verbose = FALSE
-        #   ),
-        #   file = file.path(tempfile("pareto_frontier_log", fileext = ".txt"))
-        # )
-      } else {
-        matrix <- data.table(
-          fromId = character(),
-          toId = character(),
-          travel_time = character()
-        )
-      }
+      frontier <- pareto_frontier(
+        r5r_core,
+        origins = stations,
+        destinations = points,
+        mode = c("WALK", "TRANSIT"),
+        departure_datetime = departure_datetime,
+        max_trip_duration = max_trip_duration,
+        max_walk_dist = 1000,
+        monetary_cost_cutoffs = seq(0, 1000, 50),
+        fare_calculator = "rio-de-janeiro",
+        n_threads = getOption("N_CORES"),
+        verbose = FALSE
+      )
+      frontier <- frontier[!is.na(travel_time)]
+      frontier[, c("percentile", "monetary_cost_upper") := NULL]
       
-      matrix
+      frontier
     }
   )
   
-  names(remaining_matrix) <- uber_trip_lengths
-  remaining_matrix <- rbindlist(remaining_matrix, idcol = "departure_minute")
-  remaining_matrix[, departure_minute := as.integer(departure_minute)]
+  names(remaining_frontier) <- uber_trip_lengths
+  remaining_frontier <- rbindlist(
+    remaining_frontier,
+    idcol = "departure_minute"
+  )
+  remaining_frontier[
+    ,
+    `:=`(
+      departure_minute = as.integer(departure_minute),
+      monetary_cost = monetary_cost / 100
+    )
+  ]
   
-  # bind remaining_matrix with first_mile_matrix, calculate the total travel
-  # time and keep only the fastest trip between two hexagons
+  # bind remaining_frontier with first_mile_matrix. calculate the total travel
+  # time and cost, and then keep only the pareto frontier of these new total
+  # travel time and cost values
   
-  matrix <- merge(
+  frontier <- merge(
     first_mile_matrix,
-    remaining_matrix,
+    remaining_frontier,
     by.x = c("to_station", "travel_time"),
-    by.y = c("fromId", "departure_minute"),
+    by.y = c("from_id", "departure_minute"),
     allow.cartesian = TRUE
   )
   
   setnames(
-    matrix,
+    frontier,
     old = c(
       "to_station",
       "travel_time",
       "from_id",
-      "to_id",
-      "toId",
-      "travel_time.y"
+      "to_id.x",
+      "cost",
+      "to_id.y",
+      "travel_time.y",
+      "monetary_cost"
     ),
     new = c(
       "intermediate_station",
       "first_mile_time",
       "from_id",
       "intermediate_hex",
+      "first_mile_cost",
       "to_id",
-      "remaining_time"
+      "remaining_time",
+      "remaining_cost"
     )
   )
   setcolorder(
-    matrix,
+    frontier,
     c(
       "from_id",
       "intermediate_hex",
       "intermediate_station",
       "to_id",
       "first_mile_time",
-      "remaining_time"
+      "remaining_time",
+      "first_mile_cost",
+      "remaining_cost"
     )
   )
-  matrix[, travel_time := first_mile_time + remaining_time]
-  matrix <- matrix[
-    matrix[, .I[travel_time == min(travel_time)], by = .(from_id, to_id)]$V1
+  frontier[
+    ,
+    `:=`(
+      travel_time = first_mile_time + remaining_time,
+      cost = first_mile_cost + remaining_cost
+    )
   ]
   
-  # there may be many trips between the same two points whose travel time equals
-  # the minimum travel time (e.g. imagine that you can get from point A to point
-  # B using 3 stations as possible intermediates and two of those trips have the
-  # same total travel time, which is lower than the third). therefore we need to
-  # filter 'matrix' to keep only one entry for each pair, otherwise we will
-  # double (triple, quadruple, ...) count the opportunities when estimating the
-  # accessibility.
+  # TODO: keep only pareto frontier of travel time and cost
   
-  matrix <- matrix[matrix[, .I[1], by = .(from_id, to_id)]$V1]
+  frontier_dir <- "../../data/access_uber/ttmatrix"
+  if (!dir.exists(frontier_dir)) dir.create(frontier_dir)
   
-  matrix_dir <- "../../data/access_uber/ttmatrix"
-  if (!dir.exists(matrix_dir)) dir.create(matrix_dir)
+  frontier_path <- file.path(
+    frontier_dir,
+    "uber_first_mile_pareto_frontier.rds"
+  )
+  saveRDS(frontier, frontier_path)
   
-  matrix_path <- file.path(matrix_dir, "uber_first_mile_matrix.rds")
-  saveRDS(matrix, matrix_path)
-  
-  return(matrix_path)
+  return(frontier_path)
 }
