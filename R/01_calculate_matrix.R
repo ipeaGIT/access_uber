@@ -77,7 +77,11 @@ fill_uber_matrix <- function(uber_data_path) {
   )
   travel_time_matrix <- dodgr_dists(uber_data)
   travel_time_matrix <- as.data.table(travel_time_matrix, keep.rownames = TRUE)
-  travel_time_matrix <- melt(travel_time_matrix, id.vars = "rn")
+  travel_time_matrix <- melt(
+    travel_time_matrix,
+    id.vars = "rn",
+    variable.factor = FALSE
+  )
   setnames(
     travel_time_matrix,
     c("rn", "variable", "value"),
@@ -88,7 +92,11 @@ fill_uber_matrix <- function(uber_data_path) {
   setnames(uber_data, old = c("dists", "length"), new = c("weights", "dists"))
   distance_matrix <- dodgr_dists(uber_data)
   distance_matrix <- as.data.table(distance_matrix, keep.rownames = TRUE)
-  distance_matrix <- melt(distance_matrix, id.vars = "rn")
+  distance_matrix <- melt(
+    distance_matrix,
+    id.vars = "rn",
+    variable.factor = FALSE
+  )
   setnames(
     distance_matrix,
     c("rn", "variable", "value"),
