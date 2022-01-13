@@ -40,6 +40,16 @@ list(
     "../../data/acesso_oport/hex_agregados/2019/hex_agregado_rio_08_2019.rds",
     format = "file"
   ),
+  tar_target(
+    rio_fare_integration,
+    "../../data/access_uber/rio_fare_integration.csv",
+    format = "file"
+  ),
+  tar_target(
+    rio_routes_info,
+    "../../data/access_uber/rio_routes_info.csv",
+    format = "file"
+  ),
   tar_target(r5_points, generate_r5_points(grid_res_8), format = "file"),
   tar_target(full_uber_matrix, fill_uber_matrix(uber_data), format = "file"),
   tar_target(
