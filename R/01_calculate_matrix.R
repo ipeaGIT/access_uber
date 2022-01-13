@@ -367,7 +367,10 @@ calculate_uber_first_mile <- function(uber_matrix_path,
     )
   ]
   
-  # TODO: keep only pareto frontier of travel time and cost
+  cols_to_keep <- c("from_id", "to_id", "travel_time", "cost")
+  frontier[, setdiff(names(frontier), cols_to_keep) := NULL]
+  
+  frontier <- keep_pareto_frontier(frontier) 
   
   frontier_dir <- "../../data/access_uber/ttmatrix"
   if (!dir.exists(frontier_dir)) dir.create(frontier_dir)
@@ -379,4 +382,73 @@ calculate_uber_first_mile <- function(uber_matrix_path,
   saveRDS(frontier, frontier_path)
   
   return(frontier_path)
+}
+
+
+# f <- copy(frontier)
+keep_pareto_frontier <- function(f) {
+  # for each OD-pair, keep only the fastest trip for each value of cost
+  
+  f <- f[
+    f[, .I[travel_time == min(travel_time)], by = .(from_id, to_id, cost)]$V1
+  ]
+  f <- f[f[, .I[1], by = .(from_id, to_id, cost)]$V1]
+  
+  # that filters out a lot of entries already, but it doesn't solve the problem.
+  # to keep only the entries that dominate all the others, we look at each entry
+  # individually to check if it's dominated by previously seen entries.
+  # we can save some time here and do this only to OD pairs that have more than
+  # 1 entry (afterall, the ones with only one entry will be kept intact)
+  
+  index_appearing_once <- f[, .I[.N == 1], by = .(from_id, to_id)]$V1
+  
+  appear_once <- f[index_appearing_once]
+  appear_many_times <- f[!index_appearing_once]
+  
+  appear_many_times <- appear_many_times[order(from_id, to_id, cost)]
+  appear_many_times <- appear_many_times[
+    ,
+    .(data = list(.SD)),
+    by = .(from_id, to_id)
+  ]
+  
+  future::plan(future::multisession, workers = getOption("N_CORES"))
+  appear_many_times[, relevant_entries := lapply(data, find_relevant_entries)]
+  future::plan(future::sequential)
+  
+  to_keep <- unlist(appear_many_times$relevant_entries)
+  appear_many_times <- appear_many_times[
+    ,
+    unlist(data, recursive = FALSE),
+    by = .(from_id, to_id)
+  ]
+  appear_many_times <- appear_many_times[to_keep]
+  
+  frontier <- rbind(appear_once, appear_many_times)
+}
+
+
+# appears_many_times[, nrows := vapply(data, nrow, integer(1))]
+# options <- appears_many_times[appears_many_times[, .I[nrows == max(nrows)]]]
+# options <- options$data[[1]]
+# appears_many_times[, nrows := NULL]
+find_relevant_entries <- function(options) {
+  is_relevant <- vector("logical", length = nrow(options))
+  
+  # the first entry is always relevant, as it's the cheapest.
+  # for all other, we have to check if its travel time is lower than the last
+  # relevant entry's travel time. if it is, it's relevant. else, it's not
+  # (logical vectors values' are FALSE by default)
+  
+  is_relevant[1] <- TRUE
+  last_relevant_travel_time <- options$travel_time[1]
+  
+  for (i in seq(2, nrow(options))) {
+    if (options$travel_time[i] < last_relevant_travel_time) {
+      is_relevant[i] <- TRUE
+      last_relevant_travel_time <- options$travel_time[i]
+    }
+  }
+  
+  return(is_relevant)
 }
