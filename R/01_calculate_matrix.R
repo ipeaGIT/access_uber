@@ -204,11 +204,15 @@ fill_uber_matrix <- function(uber_data_path) {
 # graph_path <- tar_read(graph_dir)
 # points_path <- tar_read(r5_points)
 # grid_path <- tar_read(grid_res_8)
-calculate_uber_first_mile <- function(uber_matrix_path,
-                                      stations_path,
-                                      graph_path,
-                                      points_path,
-                                      grid_path) {
+# rio_fare_integration_path <- tar_read(rio_fare_integration)
+# rio_routes_info_path <- tar_read(rio_routes_info)
+calculate_uber_first_frontier <- function(uber_matrix_path,
+                                          stations_path,
+                                          graph_path,
+                                          points_path,
+                                          grid_path,
+                                          rio_fare_integration_path,
+                                          rio_routes_info_path) {
   stations <- fread(stations_path, encoding = "UTF-8")
   points <- fread(points_path)
   grid <- setDT(readRDS(grid_path))
@@ -251,10 +255,13 @@ calculate_uber_first_mile <- function(uber_matrix_path,
   )
   setnames(first_mile_matrix, old = "id", new = "to_station")
   
-  # calculate the travel time matrix from the rapid transit stations to all
+  # calculate the pareto frontier from the rapid transit stations to all
   # possible destinations. the departure time depends on the time the uber would
   # arrive at the station, so for each unique uber trip length we calculate one
-  # matrix
+  # frontier.
+  # to calculate the frontier, we have to specify the monetary cost cutoffs. we
+  # pick values to use as cutoffs based on rio's fare values (for now we're
+  # limiting this values to BRL 10 max)
   
   r5r_core <- setup_r5(graph_path, verbose = FALSE, use_elevation = TRUE)
   
@@ -265,7 +272,12 @@ calculate_uber_first_mile <- function(uber_matrix_path,
   # just to save time
   uber_trip_lengths <- c(10, 30)
   
-  # TODO: calculate monetary cutoffs based on the fares found in rio
+  rio_fare_integration <- fread(rio_fare_integration_path)
+  rio_routes_info <- fread(rio_routes_info_path)
+  possible_fare_values <- generate_possible_fare_values(
+    rio_fare_integration,
+    rio_routes_info
+  )
   
   remaining_frontier <- lapply(
     uber_trip_lengths,
@@ -286,7 +298,7 @@ calculate_uber_first_mile <- function(uber_matrix_path,
         departure_datetime = departure_datetime,
         max_trip_duration = max_trip_duration,
         max_walk_dist = 1000,
-        monetary_cost_cutoffs = seq(0, 1000, 50),
+        monetary_cost_cutoffs = possible_fare_values,
         fare_calculator = "rio-de-janeiro",
         n_threads = getOption("N_CORES"),
         verbose = FALSE
@@ -384,6 +396,26 @@ calculate_uber_first_mile <- function(uber_matrix_path,
   return(frontier_path)
 }
 
+
+generate_possible_fare_values <- function(rio_fare_integration,
+                                          rio_routes_info) {
+  values <- c(rio_fare_integration$fare, rio_routes_info$price_bu)
+  values <- unique(values)
+  values <- lapply(
+    1:3,
+    function(m) {
+      combinations <- combn(values, m)
+      combinations <- colSums(combinations)
+    }
+  )
+  values <- unlist(values)
+  values <- unique(values)
+  values <- values[values <= 10]
+  values <- values[order(values)]
+  values <- as.integer(values * 100)
+  
+  return(values)
+}
 
 # f <- copy(frontier)
 keep_pareto_frontier <- function(f) {

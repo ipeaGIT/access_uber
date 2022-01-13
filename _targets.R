@@ -53,13 +53,15 @@ list(
   tar_target(r5_points, generate_r5_points(grid_res_8), format = "file"),
   tar_target(full_uber_matrix, fill_uber_matrix(uber_data), format = "file"),
   tar_target(
-    uber_first_mile_matrix,
-    calculate_uber_first_mile(
+    uber_first_mile_pareto_frontier,
+    calculate_uber_first_mile_frontier(
       full_uber_matrix,
       rapid_transit_stations,
       graph_dir,
       r5_points,
-      grid_res_8
+      grid_res_8,
+      rio_fare_integration,
+      rio_routes_info
     ),
     format = "file"
   )

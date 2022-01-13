@@ -7,8 +7,12 @@ r5_points|stem|a8dbd43eb390c267|3f5d0735d849fa70|d14b7527fa8764de|-1010752099|..
 graph_dir|stem|a02a74ab024c9007|addd444b7a660334|ef46db3751d8e999|1477339001|../../data/access_uber/r5/rio|t19003.8806828704s|1efb54dd55ddb568|135647061|file|vector|||0||
 uber_first_mile_matrix|stem|7caa47841a8e295a|e362bd9550f5b687|e116e85db2f4caf6|827243224|../../data/access_uber/ttmatrix/uber_first_mile_matrix.rds|t19003.8970601852s|bb61e2e1a113ac10|5579263|file|vector|||192.97||
 uber_data|stem|7eca497fb344a204|acf7b275ae89e390|ef46db3751d8e999|-513834384|../../data/access_uber/orig_ds_anonymized_v1.rds|t19005.6070486111s|5c71eb19277ae1c8|184800022|file|vector|||0||
-calculate_uber_first_mile|function|bb7b087288a72c34||||||||||||||
-fill_uber_matrix|function|fca92c4907b8cc45||||||||||||||
-.Random.seed|object|18a5fac0cf9613af||||||||||||||
-generate_r5_points|function|e89896b0f28a3246||||||||||||||
 full_uber_matrix|stem|d5bb16b7fd57e995|5c91a1d59ef000f8|caa44746c850e7c0|722627198|../../data/access_uber/ttmatrix/only_uber_full_matrix.rds|t19005.6642708333s|ff45f9e988585c7b|4930812|file|vector|||10.34||
+fill_uber_matrix|function|fca92c4907b8cc45||||||||||||||
+.Random.seed|object|de1cfaa02b530488||||||||||||||
+generate_r5_points|function|e89896b0f28a3246||||||||||||||
+find_relevant_entries|function|7b69ae76c2af1dfc||||||||||||||
+keep_pareto_frontier|function|0e5ec05dcf3274f0||||||||||||||
+calculate_uber_first_mile|function|3cbb5710e772cac2||||||||||||||
+rio_routes_info|stem|63a061eafae20a1a|6d08ce36c0ade3cd|ef46db3751d8e999|872426905|../../data/access_uber/rio_routes_info.csv|t18964.8158680556s|4b27b5ba1a1c3774|41282|file|vector|||0||
+rio_fare_integration|stem|eb55771b4b879da5|f7bd5aa00da185da|ef46db3751d8e999|-1597454377|../../data/access_uber/rio_fare_integration.csv|t18964.8155439815s|db2ca6735fa49541|1572|file|vector|||0.02||
