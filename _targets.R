@@ -17,7 +17,7 @@ source("R/01_calculate_matrix.R", encoding = "UTF-8")
 list(
   tar_target(
     uber_data,
-    "../../data-raw/uber_speed/orig_ds_anonymized.rds",
+    "../../data/access_uber/orig_ds_anonymized_v1.rds",
     format = "file"
   ),
   tar_target(
