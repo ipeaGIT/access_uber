@@ -21,6 +21,11 @@ list(
     format = "file"
   ),
   tar_target(
+    pickup_data,
+    "../../data-raw/uber_speed/pickup_anonymized.rds",
+    format = "file"
+  ),
+  tar_target(
     rapid_transit_stations,
     "../../data-raw/uber_speed/rapid_transit_stations_city.csv",
     format = "file"
