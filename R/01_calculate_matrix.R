@@ -34,8 +34,8 @@ generate_r5_points <- function(grid_path) {
 
 
 # pickup_data_path <- tar_read(pickup_data)
-# points_path <- tar_read(r5_points)
-aggregate_waiting_times <- function(pickup_data_path, points_path) {
+# grid_path <- tar_read(grid_res_8)
+aggregate_waiting_times <- function(pickup_data_path, grid_path) {
   pickup_data <- readRDS(pickup_data_path)
   pickup_data <- pickup_data[
     date_block_2019 == "mar8_dec20" &
@@ -59,8 +59,8 @@ aggregate_waiting_times <- function(pickup_data_path, points_path) {
   
   # keeping only hexagons inside the city of rio
   
-  points <- fread(points_path)
-  aggregated_data <- aggregated_data[hex_addr %chin% points$id]
+  grid <- readRDS(grid_path)
+  aggregated_data <- aggregated_data[hex_addr %chin% grid$id_hex]
   
   data_dir <- "../../data/access_uber"
   path <- file.path(data_dir, "pickup_anonymized_res_8.rds")
@@ -71,7 +71,8 @@ aggregate_waiting_times <- function(pickup_data_path, points_path) {
 
 
 # uber_data_path <- tar_read(uber_data)
-fill_uber_matrix <- function(uber_data_path) {
+# pickup_data_path <- tar_read(pickup_data_res_8)
+fill_uber_matrix <- function(uber_data_path, pickup_data_path) {
   uber_data <- readRDS(uber_data_path)
   uber_data <- uber_data[
     date_block_2019 == "mar8_dec20" &
@@ -212,6 +213,30 @@ fill_uber_matrix <- function(uber_data_path) {
       travel_time * coefs["travel_time"]
   ]
   
+  # we have to add to the travel time the mean waiting time at each origin,
+  # after converting it from seconds to minutes.
+  # we do this after routing and calculating the cost because we don't want to
+  # "propagate" waiting times when routing, and because waiting times do not
+  # influence the monetary cost of a trip.
+  # some hexagons do not have waiting time data, so we calculate the weighted
+  # mean waiting time in the city of rio and substitute the NAs using this value
+  
+  pickup_data <- readRDS(pickup_data_path)
+  full_matrix[
+    pickup_data,
+    on = c(from_id = "hex_addr"),
+    waiting_time := i.mean_wait_time
+  ]
+  
+  avg_mean_wait_time <- weighted.mean(
+    pickup_data$mean_wait_time,
+    w = pickup_data$num_pickups
+  )
+  full_matrix[is.na(waiting_time), waiting_time := avg_mean_wait_time]
+  
+  full_matrix[, waiting_time := waiting_time / 60]
+  full_matrix[, travel_time := travel_time + waiting_time]
+  
   # since r5r::travel_time_matrix() always returns travel times as integers, we
   # round travel time to the closest integer. also, we round the costs to the
   # closest 0.05, because that's the lowest monetary unit we will be using
@@ -222,9 +247,10 @@ fill_uber_matrix <- function(uber_data_path) {
   ]
   
   # we won't need the distance between two hexagons anymore (we needed to
-  # calculate the cost), se we can drop it
+  # calculate the cost), and neither the waiting_time at origin, so we can drop
+  # them
   
-  full_matrix[, distance := NULL]
+  full_matrix[, c("distance", "waiting_time") := NULL]
   
   matrix_dir <- "../../data/access_uber/ttmatrix"
   if (!dir.exists(matrix_dir)) dir.create(matrix_dir)
