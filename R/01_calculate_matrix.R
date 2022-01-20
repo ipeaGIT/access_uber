@@ -33,6 +33,36 @@ generate_r5_points <- function(grid_path) {
 }
 
 
+# pickup_data_path <- tar_read(pickup_data)
+aggregate_waiting_times <- function(pickup_data_path) {
+  pickup_data <- readRDS(pickup_data_path)
+  pickup_data <- pickup_data[
+    date_block_2019 == "mar8_dec20" &
+      weekday_weekend == "weekday" &
+      time_block == "morning_peak"
+  ]
+  
+  parent_res_8 <- h3jsr::get_parent(pickup_data$hex_addr, res = 8)
+  pickup_data <- cbind(pickup_data, parent_hex = parent_res_8)
+  
+  aggregated_data <- pickup_data[
+    ,
+    .(
+      frac_driver_cancel = weighted.mean(frac_driver_cancel, w = num_pickups),
+      mean_wait_time = weighted.mean(mean_wait_time, w = num_pickups)
+    ),
+    keyby = parent_hex
+  ]
+  setnames(aggregated_data, old = "parent_hex", new = "hex_addr")
+  
+  data_dir <- "../../data/access_uber"
+  path <- file.path(data_dir, "pickup_anonymized_res_8.rds")
+  saveRDS(aggregated_data, path)
+  
+  return(path)
+}
+
+
 # uber_data_path <- tar_read(uber_data)
 fill_uber_matrix <- function(uber_data_path) {
   uber_data <- readRDS(uber_data_path)

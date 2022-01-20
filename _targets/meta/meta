@@ -10,12 +10,13 @@ rio_routes_info|stem|63a061eafae20a1a|6d08ce36c0ade3cd|ef46db3751d8e999|87242690
 rio_fare_integration|stem|eb55771b4b879da5|f7bd5aa00da185da|ef46db3751d8e999|-1597454377|../../data/access_uber/rio_fare_integration.csv|t18964.8155439815s|db2ca6735fa49541|1572|file|vector|||0.02||
 graph_dir|stem|a02a74ab024c9007|addd444b7a660334|ef46db3751d8e999|1477339001|../../data/access_uber/r5/rio|t19003.8805324074s|908ec9ea9f0a90f4|0|file|vector|||0||
 uber_first_mile_pareto_frontier|stem|cd5a048962f3b507|f5d57232adc5f8d8|e106f1ccf17096fd|-1175457655|../../data/access_uber/ttmatrix/uber_first_mile_pareto_frontier.rds|t19005.911087963s|feaa57f8552f9e32|2996678|file|vector|||4580.35||
+pickup_data|stem|0d47dfe42d0a27e0|9ae46c9d0ecf347d|ef46db3751d8e999|-1959206477|../../data-raw/uber_speed/pickup_anonymized.rds|t19012.5647453704s|c3287dbbea415783|259851|file|vector|||0||
 generate_possible_fare_values|function|24fc9f7da4d0da10||||||||||||||
 fill_uber_matrix|function|fca92c4907b8cc45||||||||||||||
-aggregate_waiting_times|function|49160dc4d10e6cce||||||||||||||
-.Random.seed|object|32083ed36acfe0e9||||||||||||||
+aggregate_waiting_times|function|711eddd7b95a0c17||||||||||||||
+.Random.seed|object|d1963fd6dcc80d79||||||||||||||
 generate_r5_points|function|e89896b0f28a3246||||||||||||||
 find_relevant_entries|function|7b69ae76c2af1dfc||||||||||||||
 keep_pareto_frontier|function|0e5ec05dcf3274f0||||||||||||||
 calculate_uber_first_mile_frontier|function|9221f78f0f80481f||||||||||||||
-pickup_data|stem|f999551c25b8c879|9ae46c9d0ecf347d|ef46db3751d8e999|-1959206477|../../data-raw/uber_speed/pickup_anonymized.rds|t19011.8285185185s|160841dce2a53397|341035|file|vector|||0||
+pickup_data_res_8|stem|33ef3a5e8b5b09ca|9f1ace3a17712425|27c882721f284b29|-239493902|../../data/access_uber/pickup_anonymized_res_8.rds|t19012.5720486111s|9a75d44eb4a6186b|51564|file|vector|||1.22||

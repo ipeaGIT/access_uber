@@ -56,6 +56,11 @@ list(
     format = "file"
   ),
   tar_target(r5_points, generate_r5_points(grid_res_8), format = "file"),
+  tar_target(
+    pickup_data_res_8,
+    aggregate_waiting_times(pickup_data),
+    format = "file"
+  ),
   tar_target(full_uber_matrix, fill_uber_matrix(uber_data), format = "file"),
   tar_target(
     uber_first_mile_pareto_frontier,
