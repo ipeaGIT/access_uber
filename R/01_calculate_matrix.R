@@ -34,7 +34,8 @@ generate_r5_points <- function(grid_path) {
 
 
 # pickup_data_path <- tar_read(pickup_data)
-aggregate_waiting_times <- function(pickup_data_path) {
+# points_path <- tar_read(r5_points)
+aggregate_waiting_times <- function(pickup_data_path, points_path) {
   pickup_data <- readRDS(pickup_data_path)
   pickup_data <- pickup_data[
     date_block_2019 == "mar8_dec20" &
@@ -48,12 +49,18 @@ aggregate_waiting_times <- function(pickup_data_path) {
   aggregated_data <- pickup_data[
     ,
     .(
+      num_pickups = sum(num_pickups),
       frac_driver_cancel = weighted.mean(frac_driver_cancel, w = num_pickups),
       mean_wait_time = weighted.mean(mean_wait_time, w = num_pickups)
     ),
     keyby = parent_hex
   ]
   setnames(aggregated_data, old = "parent_hex", new = "hex_addr")
+  
+  # keeping only hexagons inside the city of rio
+  
+  points <- fread(points_path)
+  aggregated_data <- aggregated_data[hex_addr %chin% points$id]
   
   data_dir <- "../../data/access_uber"
   path <- file.path(data_dir, "pickup_anonymized_res_8.rds")

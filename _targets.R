@@ -58,7 +58,7 @@ list(
   tar_target(r5_points, generate_r5_points(grid_res_8), format = "file"),
   tar_target(
     pickup_data_res_8,
-    aggregate_waiting_times(pickup_data),
+    aggregate_waiting_times(pickup_data, r5_points),
     format = "file"
   ),
   tar_target(full_uber_matrix, fill_uber_matrix(uber_data), format = "file"),
