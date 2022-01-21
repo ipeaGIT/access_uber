@@ -330,7 +330,8 @@ calculate_uber_first_mile_frontier <- function(uber_matrix_path,
   rio_routes_info <- fread(rio_routes_info_path)
   possible_fare_values <- generate_possible_fare_values(
     rio_fare_integration,
-    rio_routes_info
+    rio_routes_info,
+    max_value = 10
   )
   
   remaining_frontier <- lapply(
@@ -467,21 +468,28 @@ calculate_uber_first_mile_frontier <- function(uber_matrix_path,
 
 
 generate_possible_fare_values <- function(rio_fare_integration,
-                                          rio_routes_info) {
+                                          rio_routes_info,
+                                          max_value) {
   values <- c(rio_fare_integration$fare, rio_routes_info$price_bu)
   values <- unique(values)
   values <- lapply(
     1:3,
     function(m) {
-      combinations <- combn(values, m)
-      combinations <- colSums(combinations)
+      list_of_values <- rep(list(values), m)
+      combinations <- do.call(expand.grid, list_of_values)
+      combinations <- rowSums(combinations)
     }
   )
   values <- unlist(values)
   values <- unique(values)
-  values <- values[values <= 10]
+  values <- values[values <= max_value]
   values <- values[order(values)]
-  values <- as.integer(values * 100)
+  values <- as.integer(values * 100L)
+  
+  # multiplying by 100 may yield some floating-point-related rounding errors, so
+  # we round to the closest multiple of 5
+  
+  values <- round(values / 5) * 5
   
   return(values)
 }
