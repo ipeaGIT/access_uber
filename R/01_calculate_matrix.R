@@ -247,7 +247,7 @@ fill_uber_matrix <- function(uber_data_path, pickup_data_path) {
   ]
   
   # we won't need the distance between two hexagons anymore (we needed to
-  # calculate the cost), and neither the waiting_time at origin, so we can drop
+  # calculate the cost), and neither the waiting time at origin, so we can drop
   # them
   
   full_matrix[, c("distance", "waiting_time") := NULL]
@@ -306,12 +306,7 @@ calculate_uber_first_mile_frontier <- function(uber_matrix_path,
       to_id %chin% points$id
   ]
   
-  first_mile_matrix <- merge(
-    uber_matrix,
-    stations_to_hex,
-    by.x = "to_id",
-    by.y = "id_hex"
-  )
+  first_mile_matrix <- uber_matrix[stations_to_hex, on = c(to_id = "id_hex")]
   setcolorder(
     first_mile_matrix,
     c("from_id", "to_id", "id", "travel_time", "cost")
@@ -324,7 +319,7 @@ calculate_uber_first_mile_frontier <- function(uber_matrix_path,
   # frontier.
   # to calculate the frontier, we have to specify the monetary cost cutoffs. we
   # pick values to use as cutoffs based on rio's fare values (for now we're
-  # limiting this values to BRL 10 max)
+  # limiting this values to BRL 10 max).
   
   r5r_core <- setup_r5(graph_path, verbose = FALSE, use_elevation = TRUE)
   
@@ -364,6 +359,15 @@ calculate_uber_first_mile_frontier <- function(uber_matrix_path,
       )
       frontier <- frontier[!is.na(travel_time)]
       frontier[, c("percentile", "monetary_cost_upper") := NULL]
+      
+      # we also remove entries where monetary cost is 0, because we don't want
+      # to consider walking-only trips after uber first mile. it's important to
+      # remove these entries afterwards, instead of simply not providing 0 as
+      # a cutoff, because if we didn't provide 0 as a cutoff we could have
+      # walking-only trips "hidden" in the upper limits, such as 380 or 405 (and
+      # we wouldn't be able to identify them).
+      
+      frontier <- frontier[monetary_cost != 0]
       
       frontier
     }
@@ -438,10 +442,16 @@ calculate_uber_first_mile_frontier <- function(uber_matrix_path,
     )
   ]
   
-  cols_to_keep <- c("from_id", "to_id", "travel_time", "cost")
+  cols_to_keep <- c(
+    "from_id",
+    "to_id",
+    "intermediate_station",
+    "travel_time",
+    "cost"
+  )
   frontier[, setdiff(names(frontier), cols_to_keep) := NULL]
   
-  frontier <- keep_pareto_frontier(frontier) 
+  frontier <- keep_pareto_frontier(frontier)
   
   frontier_dir <- "../../data/access_uber/ttmatrix"
   if (!dir.exists(frontier_dir)) dir.create(frontier_dir)
