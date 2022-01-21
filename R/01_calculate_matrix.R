@@ -33,6 +33,86 @@ generate_r5_points <- function(grid_path) {
 }
 
 
+# points_path <- tar_read(r5_points)
+# graph_path <- tar_read(graph_dir)
+# rio_fare_integration_path <- tar_read(rio_fare_integration)
+# rio_routes_info_path <- tar_read(rio_routes_info)
+calculate_transit_frontier <- function(points_path,
+                                       graph_path,
+                                       rio_fare_integration_path,
+                                       rio_routes_info_path) {
+  points <- fread(points_path)
+  
+  r5r_core <- setup_r5(graph_path, verbose = FALSE, use_elevation = TRUE)
+  
+  # to calculate the frontier, we have to specify the monetary cost cutoffs. we
+  # pick values to use as cutoffs based on rio's fare values (for now we're
+  # limiting this values to BRL 15 max).
+  
+  rio_fare_integration <- fread(rio_fare_integration_path)
+  rio_routes_info <- fread(rio_routes_info_path)
+  possible_fare_values <- generate_possible_fare_values(
+    rio_fare_integration,
+    rio_routes_info,
+    max_value = 15
+  )
+  
+  walking_speed <- 3.6
+  
+  frontier <- pareto_frontier(
+    r5r_core,
+    origins = points,
+    destinations = points,
+    mode = c("WALK", "TRANSIT"),
+    departure_datetime = as.POSIXct(
+      "08-01-2020 07:00:00",
+      format = "%d-%m-%Y %H:%M:%S"
+    ),
+    time_window = 1,
+    max_trip_duration = 120,
+    max_walk_dist = 1000,
+    walk_speed = walking_speed,
+    monetary_cost_cutoffs = possible_fare_values,
+    fare_calculator = "rio-de-janeiro",
+    n_threads = getOption("N_CORES"),
+    verbose = FALSE
+  )
+  frontier <- frontier[!is.na(travel_time)]
+  frontier[, c("percentile", "monetary_cost_upper") := NULL]
+  
+  # as the uber matrix includes trips from the cells to themselves where the
+  # travel time and cost are not 0, we also consider that walking trips from the
+  # hexagons to themselves are not instantaneous. so we calculate an "average"
+  # travel time as the edge length divided by the walking speed.
+  # also, very few walking trips from one hexagon to another may be faster than
+  # this calculated minimum walking duration, and we substitute the travel time
+  # of those by the calculated value as well
+  
+  edge_length <- 0.461354684
+  min_walking_duration <- edge_length / walking_speed * 60
+  min_walking_duration <- as.integer(round(min_walking_duration))
+  
+  frontier[
+    from_id == to_id & travel_time < min_walking_duration,
+    travel_time := min_walking_duration
+  ]
+  frontier[
+    travel_time < min_walking_duration & monetary_cost == 0,
+    travel_time := min_walking_duration
+  ]
+  
+  frontier_dir <- "../../data/access_uber/ttmatrix"
+  if (!dir.exists(frontier_dir)) dir.create(frontier_dir)
+  
+  frontier_path <- file.path(
+    frontier_dir,
+    "transit_pareto_frontier.rds"
+  )
+  saveRDS(frontier, frontier_path)
+  
+  return(frontier_path)
+}
+
 # pickup_data_path <- tar_read(pickup_data)
 # grid_path <- tar_read(grid_res_8)
 aggregate_waiting_times <- function(pickup_data_path, grid_path) {

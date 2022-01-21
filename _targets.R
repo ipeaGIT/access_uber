@@ -67,6 +67,16 @@ list(
     format = "file"
   ),
   tar_target(
+    transit_pareto_frontier,
+    calculate_transit_frontier(
+      r5_points,
+      graph_dir,
+      rio_fare_integration,
+      rio_routes_info  
+    ),
+    format = "file"
+  ),
+  tar_target(
     uber_first_mile_pareto_frontier,
     calculate_uber_first_mile_frontier(
       full_uber_matrix,
