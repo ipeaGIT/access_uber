@@ -521,7 +521,7 @@ calculate_uber_first_mile_frontier <- function(uber_matrix_path,
     ,
     `:=`(
       travel_time = first_mile_time + remaining_time,
-      cost = first_mile_cost + remaining_cost
+      monetary_cost = first_mile_cost + remaining_cost
     )
   ]
   
@@ -530,7 +530,7 @@ calculate_uber_first_mile_frontier <- function(uber_matrix_path,
     "to_id",
     "intermediate_station",
     "travel_time",
-    "cost"
+    "monetary_cost"
   )
   frontier[, setdiff(names(frontier), cols_to_keep) := NULL]
   
@@ -576,14 +576,43 @@ generate_possible_fare_values <- function(rio_fare_integration,
   return(values)
 }
 
+
+# uber_frontier_path <- tar_read(uber_first_mile_pareto_frontier)
+# transit_frontier_path <- tar_read(transit_pareto_frontier)
+join_uber_fm_transit_frontiers <- function(uber_frontier_path,
+                                           transit_frontier_path) {
+  transit_frontier <- readRDS(transit_frontier_path)
+  uber_frontier <- readRDS(uber_frontier_path)
+  setnames(uber_frontier, old = "cost", new = "monetary_cost")
+  
+  frontier <- rbind(uber_frontier, transit_frontier, fill = TRUE)
+  frontier <- keep_pareto_frontier(frontier)
+  
+  frontier_dir <- "../../data/access_uber/ttmatrix"
+  if (!dir.exists(frontier_dir)) dir.create(frontier_dir)
+  
+  frontier_path <- file.path(
+    frontier_dir,
+    "uber_fm_transit_combined_frontier.rds"
+  )
+  saveRDS(frontier, frontier_path)
+  
+  return(frontier_path)
+}
+
+
 # f <- copy(frontier)
 keep_pareto_frontier <- function(f) {
   # for each OD-pair, keep only the fastest trip for each value of cost
   
   f <- f[
-    f[, .I[travel_time == min(travel_time)], by = .(from_id, to_id, cost)]$V1
+    f[
+      ,
+      .I[travel_time == min(travel_time)],
+      by = .(from_id, to_id, monetary_cost)
+    ]$V1
   ]
-  f <- f[f[, .I[1], by = .(from_id, to_id, cost)]$V1]
+  f <- f[f[, .I[1], by = .(from_id, to_id, monetary_cost)]$V1]
   
   # that filters out a lot of entries already, but it doesn't solve the problem.
   # to keep only the entries that dominate all the others, we look at each entry
@@ -596,16 +625,14 @@ keep_pareto_frontier <- function(f) {
   appear_once <- f[index_appearing_once]
   appear_many_times <- f[!index_appearing_once]
   
-  appear_many_times <- appear_many_times[order(from_id, to_id, cost)]
+  appear_many_times <- appear_many_times[order(from_id, to_id, monetary_cost)]
   appear_many_times <- appear_many_times[
     ,
     .(data = list(.SD)),
     by = .(from_id, to_id)
   ]
   
-  future::plan(future::multisession, workers = getOption("N_CORES"))
   appear_many_times[, relevant_entries := lapply(data, find_relevant_entries)]
-  future::plan(future::sequential)
   
   to_keep <- unlist(appear_many_times$relevant_entries)
   appear_many_times <- appear_many_times[
@@ -616,6 +643,8 @@ keep_pareto_frontier <- function(f) {
   appear_many_times <- appear_many_times[to_keep]
   
   frontier <- rbind(appear_once, appear_many_times)
+  
+  return(frontier)
 }
 
 

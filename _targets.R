@@ -88,5 +88,13 @@ list(
       rio_routes_info
     ),
     format = "file"
+  ),
+  tar_target(
+    uber_fm_transit_combined_frontier,
+    join_uber_fm_transit_frontiers(
+      uber_first_mile_pareto_frontier,
+      transit_pareto_frontier
+    ),
+    format = "file"
   )
 )
