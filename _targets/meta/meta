@@ -15,10 +15,10 @@ full_uber_matrix|stem|41d5664a9e94cb87|053d2892aadc6c68|5f273a51aedd2f1e|7226271
 generate_possible_fare_values|function|549a43c7a470b001||||||||||||||
 fill_uber_matrix|function|e5905024723c23d7||||||||||||||
 aggregate_waiting_times|function|7419ef72b2e3db21||||||||||||||
-.Random.seed|object|9875b2034a884295||||||||||||||
+.Random.seed|object|03b591497b43ebc2||||||||||||||
 generate_r5_points|function|e89896b0f28a3246||||||||||||||
 find_relevant_entries|function|7b69ae76c2af1dfc||||||||||||||
-calculate_transit_frontier|function|af1fa5e7fa0efada||||||||||||||
+calculate_transit_frontier|function|7db9f2197b72b018||||||||||||||
 keep_pareto_frontier|function|0e5ec05dcf3274f0||||||||||||||
 calculate_uber_first_mile_frontier|function|b085ae54029d32bc||||||||||||||
-transit_pareto_frontier|stem|dd53e98136af20a6|abf548977893e23a|5d5829a84e0fd5d0|1381276434|../../data/access_uber/ttmatrix/transit_pareto_frontier.rds|t19013.8620949074s|9865ee25fb8d4c04|9193|file|vector|||141.62||
+transit_pareto_frontier|stem|63e810e411bb7387|abf548977893e23a|f590090a28866273|1381276434|../../data/access_uber/ttmatrix/transit_pareto_frontier.rds|t19016.5234606481s|3b41f06c25650e47|1967029|file|vector|||2718.44||

@@ -101,6 +101,8 @@ calculate_transit_frontier <- function(points_path,
     travel_time := min_walking_duration
   ]
   
+  frontier[, monetary_cost := monetary_cost / 100]
+  
   frontier_dir <- "../../data/access_uber/ttmatrix"
   if (!dir.exists(frontier_dir)) dir.create(frontier_dir)
   
