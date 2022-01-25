@@ -583,7 +583,6 @@ join_uber_fm_transit_frontiers <- function(uber_frontier_path,
                                            transit_frontier_path) {
   transit_frontier <- readRDS(transit_frontier_path)
   uber_frontier <- readRDS(uber_frontier_path)
-  setnames(uber_frontier, old = "cost", new = "monetary_cost")
   
   frontier <- rbind(uber_frontier, transit_frontier, fill = TRUE)
   frontier <- keep_pareto_frontier(frontier)
