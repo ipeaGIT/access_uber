@@ -96,5 +96,14 @@ list(
       transit_pareto_frontier
     ),
     format = "file"
+  ),
+  tar_target(
+    all_matrices,
+    c(
+      transit_pareto_frontier,
+      uber_fm_transit_combined_frontier,
+      full_uber_matrix
+    ),
+    format = "file"
   )
 )
