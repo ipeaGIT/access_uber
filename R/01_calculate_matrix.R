@@ -154,7 +154,8 @@ aggregate_waiting_times <- function(pickup_data_path, grid_path) {
 
 # uber_data_path <- tar_read(uber_data)
 # pickup_data_path <- tar_read(pickup_data_res_8)
-fill_uber_matrix <- function(uber_data_path, pickup_data_path) {
+# grid_path <- tar_read(grid_res_8)
+fill_uber_matrix <- function(uber_data_path, pickup_data_path, grid_path) {
   uber_data <- readRDS(uber_data_path)
   uber_data <- uber_data[
     date_block_2019 == "mar8_dec20" &
@@ -226,6 +227,23 @@ fill_uber_matrix <- function(uber_data_path, pickup_data_path) {
   
   full_matrix <- travel_time_matrix[distance_matrix, on = c("from_id", "to_id")]
   
+  # TODO: remove points that dodgr finds routes because they can go to
+  # themselves but in reality do not appear in uber_data is pickups at any time
+  
+  # up to this point we needed the uber_data including all cities from the
+  # metropolitan region to calculate the time and distance between all hexagons
+  # (some hexagons at the border of the city may only be connected to hexagons
+  # from other cities, so if we filtered the data from the beginning to drop
+  # these hexagons we could have a full_matrix not as complete). we don't need
+  # these hexs anymore, so we can filter them out.
+  
+  grid <- setDT(readRDS(grid_path))
+  
+  uber_data <- uber_data[from %chin% grid$id_hex & to %chin% grid$id_hex]
+  full_matrix <- full_matrix[
+    from_id %chin% grid$id_hex & to_id %chin% grid$id_hex
+  ]
+  
   # dodgr may theoretically return values lower than those found in the uber
   # data. for example, if in the uber data from A to B takes 10 minutes, but
   # from A to C takes 5 and from B to C takes 3, then dodgr will return the
@@ -261,7 +279,7 @@ fill_uber_matrix <- function(uber_data_path, pickup_data_path) {
   # itself as 0. but the uber data contains entries with travel times and
   # distances from hexagons to themselves. so we calculate the average travel
   # time and distance of these cases and use it to fill the values of trips from
-  # a hex to itself that are not present in uber_data
+  # a hex to itself that are not present in uber_data.
   
   from_hex_to_itself <- uber_data[from == to]
   avg_distance <- weighted.mean(
@@ -281,7 +299,9 @@ fill_uber_matrix <- function(uber_data_path, pickup_data_path) {
   # to calculate the cost of each route, we model the effects of the travel time
   # and the distance on the monetary cost, based on the data from uber_data.
   # then we use this model to calculate the cost of routes that were calculated
-  # with dodgr_dists()
+  # with dodgr_dists().
+  # uber_data is filtered to include only rio's hexagons, because the cost
+  # function may be different out of rio.
   
   cost_lm <- lm(cost ~ distance + travel_time, uber_data)
   coefs <- cost_lm$coefficients
@@ -302,6 +322,9 @@ fill_uber_matrix <- function(uber_data_path, pickup_data_path) {
   # influence the monetary cost of a trip.
   # some hexagons do not have waiting time data, so we calculate the weighted
   # mean waiting time in the city of rio and substitute the NAs using this value
+  
+  # TODO: create a target that filters pickup_data to include only the pickups
+  # in rio city
   
   pickup_data <- readRDS(pickup_data_path)
   full_matrix[
