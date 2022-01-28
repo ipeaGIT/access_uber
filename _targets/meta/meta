@@ -14,13 +14,13 @@ uber_data|stem|f13427328c3a0f0f|acf7b275ae89e390|ef46db3751d8e999|-513834384|../
 r5_points|stem|3cfe5ccd474a1d54|3f5d0735d849fa70|6f2ebb6510f2cb6a|-1010752099|../../data/access_uber/points_rio_09_2019.csv|t19020.6065856481s|07766c2c538e6b44|70734|file|vector|||0.69|st_centroid assumes attributes are constant over geometries of x|
 pickup_data_res_8|stem|ea36e40b8c103fc0|d8c32f42d65cafb6|23b1f2e890b2c3cb|-239493902|../../data/access_uber/pickup_anonymized_res_8.rds|t19020.6066087963s|ff80c854a6db99f3|30016|file|vector|||1.52||
 generate_possible_fare_values|function|549a43c7a470b001||||||||||||||
-fill_uber_matrix|function|88694638e9dff2a5||||||||||||||
+fill_uber_matrix|function|e165c30c77a69395||||||||||||||
 aggregate_waiting_times|function|7419ef72b2e3db21||||||||||||||
-.Random.seed|object|9fda68d73ea610a8||||||||||||||
+.Random.seed|object|83e8118864945d50||||||||||||||
 generate_r5_points|function|e89896b0f28a3246||||||||||||||
 find_relevant_entries|function|7b69ae76c2af1dfc||||||||||||||
 calculate_transit_frontier|function|d80f090868688ab6||||||||||||||
 keep_pareto_frontier|function|879951c3d67f8663||||||||||||||
 calculate_uber_first_mile_frontier|function|28e4a51ffca32ab5||||||||||||||
 join_uber_fm_transit_frontiers|function|ca2e69cea6eb88bb||||||||||||||
-full_uber_matrix|stem|56eca3f0ad5f87d7|0001e7f3ced1079b|894bbd85781a265d|722627198|../../data/access_uber/ttmatrix/only_uber_full_matrix.rds|t19020.7417708333s|a7671b787de1e3cc|5023926|file|vector|||19.62||
+full_uber_matrix|stem|56eca3f0ad5f87d7|0001e7f3ced1079b|b63767b3686dd2c2|722627198|../../data/access_uber/ttmatrix/only_uber_full_matrix.rds|t19020.7520486111s|a7671b787de1e3cc|5023926|file|vector|||20.11||

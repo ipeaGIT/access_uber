@@ -327,10 +327,9 @@ fill_uber_matrix <- function(uber_data_path, pickup_data_path, grid_path) {
   # some hexagons do not have waiting time data, so we calculate the weighted
   # mean waiting time in the city of rio and substitute the NAs using this value
   
-  # TODO: create a target that filters pickup_data to include only the pickups
-  # in rio city
-  
   pickup_data <- readRDS(pickup_data_path)
+  pickup_data <- pickup_data[hex_addr %chin% grid$id_hex]
+  
   full_matrix[
     pickup_data,
     on = c(from_id = "hex_addr"),
