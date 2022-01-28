@@ -227,8 +227,12 @@ fill_uber_matrix <- function(uber_data_path, pickup_data_path, grid_path) {
   
   full_matrix <- travel_time_matrix[distance_matrix, on = c("from_id", "to_id")]
   
-  # TODO: remove points that dodgr finds routes because they can go to
-  # themselves but in reality do not appear in uber_data is pickups at any time
+  # dodgr will always find a route from the origin to itself, even if this
+  # origin does not appear as a pickup in the uber data. we remove such entries
+  # from the full matrix
+  
+  pickup_hexs <- unique(uber_data$from)
+  full_matrix <- full_matrix[from_id %chin% pickup_hexs]
   
   # up to this point we needed the uber_data including all cities from the
   # metropolitan region to calculate the time and distance between all hexagons
