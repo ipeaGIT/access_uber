@@ -359,6 +359,7 @@ fill_uber_matrix <- function(uber_data_path, pickup_data_path, grid_path) {
   # them
   
   full_matrix[, c("distance", "waiting_time") := NULL]
+  setnames(full_matrix, old = "cost", new = "monetary_cost")
   
   matrix_dir <- "../../data/access_uber/ttmatrix"
   if (!dir.exists(matrix_dir)) dir.create(matrix_dir)
@@ -409,7 +410,7 @@ calculate_uber_first_mile_frontier <- function(uber_matrix_path,
   uber_matrix <- readRDS(uber_matrix_path)
   uber_matrix <- uber_matrix[
     travel_time < 120 &
-      cost < 30 &
+      monetary_cost < 30 &
       from_id %chin% points$id &
       to_id %chin% points$id
   ]
@@ -417,7 +418,7 @@ calculate_uber_first_mile_frontier <- function(uber_matrix_path,
   first_mile_matrix <- uber_matrix[stations_to_hex, on = c(to_id = "id_hex")]
   setcolorder(
     first_mile_matrix,
-    c("from_id", "to_id", "id", "travel_time", "cost")
+    c("from_id", "to_id", "id", "travel_time", "monetary_cost")
   )
   setnames(first_mile_matrix, old = "id", new = "to_station")
   
@@ -514,10 +515,10 @@ calculate_uber_first_mile_frontier <- function(uber_matrix_path,
       "travel_time",
       "from_id",
       "to_id.x",
-      "cost",
+      "monetary_cost.x",
       "to_id.y",
       "travel_time.y",
-      "monetary_cost"
+      "monetary_cost.y"
     ),
     new = c(
       "intermediate_station",
@@ -620,6 +621,54 @@ join_uber_fm_transit_frontiers <- function(uber_frontier_path,
     frontier_dir,
     "uber_fm_transit_combined_frontier.rds"
   )
+  saveRDS(frontier, frontier_path)
+  
+  return(frontier_path)
+}
+
+
+# frontier_path <- tar_read(all_frontiers)[3]
+# grid_path <- tar_read(grid_res_8)
+calculate_affordability <- function(frontier_path, grid_path) {
+  frontier <- readRDS(frontier_path)
+  grid <- setDT(readRDS(grid_path))
+  
+  frontier[
+    grid,
+    on = c(from_id = "id_hex"),
+    origin_income_per_capita := i.renda_capita
+  ]
+  
+  # FIXME: some hexagons have infinite income per capita because they have
+  # income, but no population. that's possibly a problem with the data
+  # aggregation process. for now, setting their income per capita as the
+  # otherwise max value in the grid
+  
+  max_non_infinite <- max(
+    frontier[is.finite(origin_income_per_capita)]$origin_income_per_capita
+  )
+  frontier[
+    is.infinite(origin_income_per_capita),
+    origin_income_per_capita := max_non_infinite
+  ]
+  
+  # we use the relative monthly cost of a trip as the affordability measure.
+  # this measure estimates how much of an individual's monthly income would be
+  # spent on transport if she/he used that trip every business day to commute
+  # from/to work. assuming 22 working days per month, that would be 44 trips per
+  # month
+  
+  frontier[
+    ,
+    relative_monthly_cost := monetary_cost * 44 / origin_income_per_capita
+  ]
+  frontier[, origin_income_per_capita := NULL]
+  
+  frontier_dir <- "../../data/access_uber/ttmatrix/affordability"
+  if (!dir.exists(frontier_dir)) dir.create(frontier_dir)
+  
+  frontier_basename <- basename(frontier_path)
+  frontier_path <- file.path(frontier_dir, frontier_basename)
   saveRDS(frontier, frontier_path)
   
   return(frontier_path)

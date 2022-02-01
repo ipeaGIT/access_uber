@@ -106,7 +106,12 @@ list(
       transit_pareto_frontier,
       uber_fm_transit_combined_frontier,
       full_uber_matrix
-    ),
+    )
+  ),
+  tar_target(
+    affordability_frontiers,
+    calculate_affordability(all_frontiers, grid_res_8),
+    pattern = map(all_frontiers),
     format = "file"
   )
 )
