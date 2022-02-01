@@ -10,25 +10,26 @@ uber_data|stem|f13427328c3a0f0f|acf7b275ae89e390|ef46db3751d8e999|-513834384|../
 r5_points|stem|3cfe5ccd474a1d54|3f5d0735d849fa70|6f2ebb6510f2cb6a|-1010752099|../../data/access_uber/points_rio_09_2019.csv|t19020.6065856481s|07766c2c538e6b44|70734|file|vector|||0.69|st_centroid assumes attributes are constant over geometries of x|
 pickup_data_res_8|stem|ea36e40b8c103fc0|d8c32f42d65cafb6|23b1f2e890b2c3cb|-239493902|../../data/access_uber/pickup_anonymized_res_8.rds|t19020.6066087963s|ff80c854a6db99f3|30016|file|vector|||1.52||
 grid_res_9|stem|b5777cdd191b4435|2eb3a84fbdb7b9bf|ef46db3751d8e999|-426584538|../../data/acesso_oport/hex_agregados/2019/hex_agregado_rio_09_2019.rds|t19018.6941203704s|ec897c661ed4e32d|6080534|file|vector|||0||
-transit_pareto_frontier|stem|0d6a21b111796eb6|abf548977893e23a|96ad9ba0e8e5686d|1381276434|../../data/access_uber/ttmatrix/transit_pareto_frontier.rds|t19020.8463194444s|d330b12fe7223cbf|2026215|file|vector|||3188.3||
-uber_fm_transit_combined_frontier|stem|fbee218abbeb5c3e|f05b2064a6f28bec|868d4135c3c4cd97|-431043514|../../data/access_uber/ttmatrix/uber_fm_transit_combined_frontier.rds|t19020.9219675926s|8c01b07fa682394a|3299381|file|vector|||30.3||
 travel_time_thresholds|stem|dcf535f591a5adf7|97d0f6a0a8886988|a3dad144c40657ed|-697296041||t19024.5937268519s|013d2ea9b87d37af|62|rds|vector|||0||
 affordability_thresholds|stem|a973f2ec6279cea4|a00a2d877361fb37|9040422997a211cc|-369946448||t19024.5937384259s|4a624d5a12449f88|75|rds|vector|||0||
-all_frontiers|stem|0e496514f8a69418|a829d4127db59b44|85098f411e5f49d6|1935642759||t19024.6331134259s|0820572c117b3353|150|rds|vector||all_frontiers_73a127c0*all_frontiers_14c664d2*all_frontiers_bb181f27|0||
-affordability_frontiers_bda1cf48|branch|b55f4c22d85722ca|207fef25f78673c3|45e3aa40a98651ab|2088987785|../../data/access_uber/ttmatrix/affordability/transit_pareto_frontier.rds|t19024.6331365741s|cf915cc0e575983d|2393811|file|vector|affordability_frontiers||2.17||
-affordability_frontiers_35957e66|branch|4a90631a1e212293|207fef25f78673c3|2723fbab7e1b2cac|-1419882917|../../data/access_uber/ttmatrix/affordability/uber_fm_transit_combined_frontier.rds|t19024.6331944444s|ea69849f5e8c22e5|4075219|file|vector|affordability_frontiers||4.8||
-affordability_frontiers_4ec01994|branch||207fef25f78673c3|55d8818c2c721861|309985842||t19024.6327963166s||0|file|vector|affordability_frontiers||1.49||objeto monetary_cost não encontrado
 generate_possible_fare_values|function|549a43c7a470b001||||||||||||||
 get_frontier_type|function|e937ef48a6761437||||||||||||||
-fill_uber_matrix|function|9af0eb335f1a316f||||||||||||||
+fill_uber_matrix|function|b9b635f12319c872||||||||||||||
 aggregate_waiting_times|function|7419ef72b2e3db21||||||||||||||
-.Random.seed|object|48de9f64e72a0429||||||||||||||
+.Random.seed|object|0be02141289fab14||||||||||||||
+calculate_affordability|function|a0d09fd1c24376ec||||||||||||||
 generate_r5_points|function|e89896b0f28a3246||||||||||||||
 find_relevant_entries|function|7b69ae76c2af1dfc||||||||||||||
-calculate_transit_frontier|function|d80f090868688ab6||||||||||||||
-calculate_affordability|function|12af7b3a19053445||||||||||||||
+calculate_transit_frontier|function|1cb29dea494a0e48||||||||||||||
 keep_pareto_frontier|function|879951c3d67f8663||||||||||||||
-calculate_uber_first_mile_frontier|function|28e4a51ffca32ab5||||||||||||||
-join_uber_fm_transit_frontiers|function|ca2e69cea6eb88bb||||||||||||||
-full_uber_matrix|stem|0e2df8951995c1e0|0001e7f3ced1079b|6b9c94877b7ac46d|722627198|../../data/access_uber/ttmatrix/only_uber_full_matrix.rds|t19024.6368981481s|f5674dd060c30b81|5023937|file|vector|||21.24||
-uber_first_mile_pareto_frontier|stem|7102b4790d9fd4ea|f5d57232adc5f8d8|cf9e8eb37d2706db|-1175457655|../../data/access_uber/ttmatrix/uber_first_mile_pareto_frontier.rds|t19020.9216203704s||3008859|file|vector|||13.83||objeto cost não encontrado
+calculate_uber_first_mile_frontier|function|97a68e5500f67c66||||||||||||||
+join_uber_fm_transit_frontiers|function|ac867cc16fe44e77||||||||||||||
+transit_pareto_frontier|stem|0d6a21b111796eb6|abf548977893e23a|c4b03c93928f0f56|1381276434|../../data/access_uber/pfrontiers/absolute/only_transit.rds|t19024.8469328704s|d330b12fe7223cbf|2026215|file|vector|||2689.98||
+full_uber_matrix|stem|0e2df8951995c1e0|0001e7f3ced1079b|cc941d91a2c88a52|722627198|../../data/access_uber/pfrontiers/absolute/only_uber.rds|t19024.8472337963s|f5674dd060c30b81|5023937|file|vector|||25.15||
+uber_first_mile_pareto_frontier|stem|7102b4790d9fd4ea|f5d57232adc5f8d8|76973b9cee2bc145|-1175457655|../../data/access_uber/pfrontiers/absolute/uber_first_mile.rds|t19024.9158564815s|63a1507de83e16fb|3008859|file|vector|||5928.72||
+uber_fm_transit_combined_frontier|stem|fbee218abbeb5c3e|f05b2064a6f28bec|54ae132fb3a1c967|-431043514|../../data/access_uber/pfrontiers/absolute/uber_fm_transit_combined.rds|t19024.9162037037s|8c01b07fa682394a|3299381|file|vector|||30.17||
+all_frontiers|stem|b9671fd3ec9938e3|a829d4127db59b44|53b0579610ed01b7|1935642759||t19024.9162037037s|dfbf5c9d8bc07d4d|141|rds|vector||all_frontiers_24c09444*all_frontiers_c9133784*all_frontiers_b968bce8|0||
+affordability_frontiers_5acc9096|branch|b55f4c22d85722ca|207fef25f78673c3|dfe408c646886d9e|-1952219606|../../data/access_uber/pfrontiers/affordability/only_transit.rds|t19024.9162268519s|cf915cc0e575983d|2393811|file|vector|affordability_frontiers||1.95||
+affordability_frontiers_498ea9ed|branch|4a90631a1e212293|207fef25f78673c3|d7aa2f39999cb839|-826505442|../../data/access_uber/pfrontiers/affordability/uber_fm_transit_combined.rds|t19024.9162731481s|ea69849f5e8c22e5|4075219|file|vector|affordability_frontiers||3.86||
+affordability_frontiers_39f7ff0e|branch|31d9786deb18d2f5|207fef25f78673c3|8de9af899cd6e3a0|-445458581|../../data/access_uber/pfrontiers/affordability/only_uber.rds|t19024.9163310185s|084ecfa187d1e3e4|13930505|file|vector|affordability_frontiers||4.92||
+affordability_frontiers|pattern|9bebff2ce0bf282f|207fef25f78673c3||-595934215||||20399535|file|vector||affordability_frontiers_5acc9096*affordability_frontiers_498ea9ed*affordability_frontiers_39f7ff0e|10.73||

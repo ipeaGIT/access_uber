@@ -103,13 +103,13 @@ calculate_transit_frontier <- function(points_path,
   
   frontier[, monetary_cost := monetary_cost / 100]
   
-  frontier_dir <- "../../data/access_uber/ttmatrix"
+  parent_dir <- "../../data/access_uber/pfrontiers"
+  if (!dir.exists(parent_dir)) dir.create(parent_dir)
+  
+  frontier_dir <- file.path(parent_dir, "absolute")
   if (!dir.exists(frontier_dir)) dir.create(frontier_dir)
   
-  frontier_path <- file.path(
-    frontier_dir,
-    "transit_pareto_frontier.rds"
-  )
+  frontier_path <- file.path(frontier_dir, "only_transit.rds")
   saveRDS(frontier, frontier_path)
   
   return(frontier_path)
@@ -361,10 +361,13 @@ fill_uber_matrix <- function(uber_data_path, pickup_data_path, grid_path) {
   full_matrix[, c("distance", "waiting_time") := NULL]
   setnames(full_matrix, old = "cost", new = "monetary_cost")
   
-  matrix_dir <- "../../data/access_uber/ttmatrix"
+  parent_dir <- "../../data/access_uber/pfrontiers"
+  if (!dir.exists(parent_dir)) dir.create(parent_dir)
+  
+  matrix_dir <- file.path(parent_dir, "absolute")
   if (!dir.exists(matrix_dir)) dir.create(matrix_dir)
   
-  matrix_path <- file.path(matrix_dir, "only_uber_full_matrix.rds")
+  matrix_path <- file.path(matrix_dir, "only_uber.rds")
   saveRDS(full_matrix, matrix_path)
   
   return(matrix_path)
@@ -563,13 +566,13 @@ calculate_uber_first_mile_frontier <- function(uber_matrix_path,
   
   frontier <- keep_pareto_frontier(frontier)
   
-  frontier_dir <- "../../data/access_uber/ttmatrix"
+  parent_dir <- "../../data/access_uber/pfrontiers"
+  if (!dir.exists(parent_dir)) dir.create(parent_dir)
+  
+  frontier_dir <- file.path(parent_dir, "absolute")
   if (!dir.exists(frontier_dir)) dir.create(frontier_dir)
   
-  frontier_path <- file.path(
-    frontier_dir,
-    "uber_first_mile_pareto_frontier.rds"
-  )
+  frontier_path <- file.path(frontier_dir, "uber_first_mile.rds")
   saveRDS(frontier, frontier_path)
   
   return(frontier_path)
@@ -614,13 +617,13 @@ join_uber_fm_transit_frontiers <- function(uber_frontier_path,
   frontier <- rbind(uber_frontier, transit_frontier, fill = TRUE)
   frontier <- keep_pareto_frontier(frontier)
   
-  frontier_dir <- "../../data/access_uber/ttmatrix"
+  parent_dir <- "../../data/access_uber/pfrontiers"
+  if (!dir.exists(parent_dir)) dir.create(parent_dir)
+  
+  frontier_dir <- file.path(parent_dir, "absolute")
   if (!dir.exists(frontier_dir)) dir.create(frontier_dir)
   
-  frontier_path <- file.path(
-    frontier_dir,
-    "uber_fm_transit_combined_frontier.rds"
-  )
+  frontier_path <- file.path(frontier_dir, "uber_fm_transit_combined.rds")
   saveRDS(frontier, frontier_path)
   
   return(frontier_path)
@@ -664,7 +667,7 @@ calculate_affordability <- function(frontier_path, grid_path) {
   ]
   frontier[, origin_income_per_capita := NULL]
   
-  frontier_dir <- "../../data/access_uber/ttmatrix/affordability"
+  frontier_dir <- "../../data/access_uber/pfrontiers/affordability"
   if (!dir.exists(frontier_dir)) dir.create(frontier_dir)
   
   frontier_basename <- basename(frontier_path)
