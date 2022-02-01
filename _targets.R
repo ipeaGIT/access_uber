@@ -55,6 +55,8 @@ list(
     "../../data/access_uber/rio_routes_info.csv",
     format = "file"
   ),
+  tar_target(travel_time_thresholds, c(30, 60, 90, 120)),
+  tar_target(affordability_thresholds, seq(0, 0.6, by = 0.1)),
   tar_target(r5_points, generate_r5_points(grid_res_8), format = "file"),
   tar_target(
     pickup_data_res_8,
