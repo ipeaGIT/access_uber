@@ -13,6 +13,7 @@ suppressPackageStartupMessages({
 })
 
 source("R/01_calculate_matrix.R", encoding = "UTF-8")
+source("R/misc.R", encoding = "UTF-8")
 
 list(
   tar_target(
@@ -100,7 +101,7 @@ list(
     format = "file"
   ),
   tar_target(
-    all_matrices,
+    all_frontiers,
     c(
       transit_pareto_frontier,
       uber_fm_transit_combined_frontier,
