@@ -13,6 +13,7 @@ suppressPackageStartupMessages({
 })
 
 source("R/01_calculate_matrix.R", encoding = "UTF-8")
+source("R/02_calculate_access.R", encoding = "UTF-8")
 source("R/misc.R", encoding = "UTF-8")
 
 list(
@@ -106,6 +107,16 @@ list(
       full_uber_matrix,
       transit_pareto_frontier,
       uber_fm_transit_combined_frontier,
+      grid_res_8
+    ),
+    format = "file"
+  ),
+  tar_target(
+    accessibility,
+    calculate_access(
+      affordability_frontiers,
+      travel_time_thresholds,
+      affordability_thresholds,
       grid_res_8
     ),
     format = "file"
