@@ -120,5 +120,10 @@ list(
       grid_res_8
     ),
     format = "file"
+  ),
+  tar_target(
+    palma_ratio,
+    calculate_palma(accessibility, grid_res_8),
+    format = "file"
   )
 )

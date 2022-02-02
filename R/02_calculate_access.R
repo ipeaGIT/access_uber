@@ -56,3 +56,55 @@ calculate_access <- function(frontier_paths,
   
   return(access_path)
 }
+
+
+# access_path <- tar_read(accessibility)
+# grid_path <- tar_read(grid_res_8)
+calculate_palma <- function(access_path, grid_path) {
+  access <- readRDS(access_path)
+  grid <- setDT(readRDS(grid_path))
+  
+  access[
+    grid,
+    on = c(from_id = "id_hex"),
+    `:=`(decile = i.decil, population = i.pop_total)
+  ]
+  
+  # nest each accessibility distribution and calculate its palma ratio
+  
+  palma <- access[
+    ,
+    .(data = list(.SD)),
+    keyby = .(mode, travel_time, affordability)
+  ]
+  palma[, palma := vapply(data, palma_calculator, numeric(1))]
+  palma[, data := NULL]
+  
+  palma_path <- "../../data/access_uber/access/palma.rds"
+  saveRDS(palma, palma_path)
+  
+  return(palma_path)
+}
+
+
+# access_dist <- access$data[[1]]
+palma_calculator <- function(access_dist) {
+  richest_10 <- access_dist[decile == 10]
+  poorest_40 <- access_dist[decile >= 1 & decile <= 4]
+  
+  numerator <- weighted.mean(
+    richest_10$access,
+    w = richest_10$population,
+    na.rm = TRUE
+  )
+  
+  denominator <- weighted.mean(
+    poorest_40$access,
+    w = poorest_40$population,
+    na.rm = TRUE
+  )
+  
+  palma <- numerator / denominator
+  
+  return(palma)
+}
