@@ -630,51 +630,68 @@ join_uber_fm_transit_frontiers <- function(uber_frontier_path,
 }
 
 
-# frontier_path <- tar_read(all_frontiers)[3]
+# only_uber_path <- tar_read(full_uber_matrix)
+# only_transit_path <- tar_read(transit_pareto_frontier)
+# uber_transit_comb_path <- tar_read(uber_fm_transit_combined_frontier)
 # grid_path <- tar_read(grid_res_8)
-calculate_affordability <- function(frontier_path, grid_path) {
-  frontier <- readRDS(frontier_path)
+# path <- tar_read(full_uber_matrix)
+calculate_affordability <- function(only_uber_path,
+                                    only_transit_path,
+                                    uber_transit_comb_path,
+                                    grid_path) {
+  paths <- c(only_uber_path, only_transit_path, uber_transit_comb_path)
   grid <- setDT(readRDS(grid_path))
   
-  frontier[
-    grid,
-    on = c(from_id = "id_hex"),
-    origin_income_per_capita := i.renda_capita
-  ]
-  
-  # FIXME: some hexagons have infinite income per capita because they have
-  # income, but no population. that's possibly a problem with the data
-  # aggregation process. for now, setting their income per capita as the
-  # otherwise max value in the grid
-  
-  max_non_infinite <- max(
-    frontier[is.finite(origin_income_per_capita)]$origin_income_per_capita
+  frontier_paths <- vapply(
+    paths,
+    FUN.VALUE = character(1),
+    USE.NAMES = FALSE,
+    FUN = function(path) {
+      frontier <- readRDS(path)
+      
+      frontier[
+        grid,
+        on = c(from_id = "id_hex"),
+        origin_income_per_capita := i.renda_capita
+      ]
+      
+      # FIXME: some hexagons have infinite income per capita because they have
+      # income, but no population. that's possibly a problem with the data
+      # aggregation process. for now, setting their income per capita as the
+      # otherwise max value in the grid
+      
+      max_non_infinite <- max(
+        frontier[is.finite(origin_income_per_capita)]$origin_income_per_capita
+      )
+      frontier[
+        is.infinite(origin_income_per_capita),
+        origin_income_per_capita := max_non_infinite
+      ]
+      
+      # we use the relative monthly cost of a trip as the affordability measure.
+      # this measure estimates how much of an individual's monthly income would
+      # be spent on transport if she/he used that trip every business day to
+      # commute from/to work. assuming 22 working days per month, that would be
+      # 44 trips per month
+      
+      frontier[
+        ,
+        relative_monthly_cost := monetary_cost * 44 / origin_income_per_capita
+      ]
+      frontier[, origin_income_per_capita := NULL]
+      
+      frontier_dir <- "../../data/access_uber/pfrontiers/affordability"
+      if (!dir.exists(frontier_dir)) dir.create(frontier_dir)
+      
+      frontier_basename <- basename(path)
+      frontier_path <- file.path(frontier_dir, frontier_basename)
+      saveRDS(frontier, frontier_path)
+      
+      return(frontier_path)
+    }
   )
-  frontier[
-    is.infinite(origin_income_per_capita),
-    origin_income_per_capita := max_non_infinite
-  ]
   
-  # we use the relative monthly cost of a trip as the affordability measure.
-  # this measure estimates how much of an individual's monthly income would be
-  # spent on transport if she/he used that trip every business day to commute
-  # from/to work. assuming 22 working days per month, that would be 44 trips per
-  # month
-  
-  frontier[
-    ,
-    relative_monthly_cost := monetary_cost * 44 / origin_income_per_capita
-  ]
-  frontier[, origin_income_per_capita := NULL]
-  
-  frontier_dir <- "../../data/access_uber/pfrontiers/affordability"
-  if (!dir.exists(frontier_dir)) dir.create(frontier_dir)
-  
-  frontier_basename <- basename(frontier_path)
-  frontier_path <- file.path(frontier_dir, frontier_basename)
-  saveRDS(frontier, frontier_path)
-  
-  return(frontier_path)
+  return(frontier_paths)
 }
 
 

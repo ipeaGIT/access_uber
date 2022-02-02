@@ -101,17 +101,13 @@ list(
     format = "file"
   ),
   tar_target(
-    all_frontiers,
-    c(
+    affordability_frontiers,
+    calculate_affordability(
+      full_uber_matrix,
       transit_pareto_frontier,
       uber_fm_transit_combined_frontier,
-      full_uber_matrix
-    )
-  ),
-  tar_target(
-    affordability_frontiers,
-    calculate_affordability(all_frontiers, grid_res_8),
-    pattern = map(all_frontiers),
+      grid_res_8
+    ),
     format = "file"
   )
 )
