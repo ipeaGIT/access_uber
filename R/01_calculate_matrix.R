@@ -35,12 +35,10 @@ generate_r5_points <- function(grid_path) {
 
 # points_path <- tar_read(r5_points)
 # graph_path <- tar_read(graph_dir)
-# rio_fare_integration_path <- tar_read(rio_fare_integration)
-# rio_routes_info_path <- tar_read(rio_routes_info)
+# rio_fare_calculator_path <- tar_read(rio_fare_calculator)
 calculate_transit_frontier <- function(points_path,
                                        graph_path,
-                                       rio_fare_integration_path,
-                                       rio_routes_info_path) {
+                                       rio_fare_calculator_path) {
   points <- fread(points_path)
   
   r5r_core <- setup_r5(graph_path, verbose = FALSE, use_elevation = TRUE)
@@ -49,12 +47,13 @@ calculate_transit_frontier <- function(points_path,
   # pick values to use as cutoffs based on rio's fare values (for now we're
   # limiting this values to BRL 15 max).
   
-  rio_fare_integration <- fread(rio_fare_integration_path)
-  rio_routes_info <- fread(rio_routes_info_path)
+  max_rides <- 3
+  
+  rio_fare_calculator <- r5r::read_fare_calculator(rio_fare_calculator_path)
   possible_fare_values <- generate_possible_fare_values(
-    rio_fare_integration,
-    rio_routes_info,
-    max_value = 15
+    rio_fare_calculator,
+    max_value = 15,
+    max_rides = max_rides
   )
   
   walking_speed <- 3.6
@@ -71,14 +70,14 @@ calculate_transit_frontier <- function(points_path,
     time_window = 1,
     max_trip_duration = 120,
     max_walk_dist = 1000,
+    max_rides = max_rides,
     walk_speed = walking_speed,
     monetary_cost_cutoffs = possible_fare_values,
-    fare_calculator = "rio-de-janeiro",
+    fare_calculator_settings = rio_fare_calculator,
     n_threads = getOption("N_CORES"),
     verbose = FALSE
   )
-  frontier <- frontier[!is.na(travel_time)]
-  frontier[, c("percentile", "monetary_cost_upper") := NULL]
+  frontier[, percentile := NULL]
   
   # as the uber matrix includes trips from the cells to themselves where the
   # travel time and cost are not 0, we also consider that walking trips from the
@@ -100,8 +99,6 @@ calculate_transit_frontier <- function(points_path,
     travel_time < min_walking_duration & monetary_cost == 0,
     travel_time := min_walking_duration
   ]
-  
-  frontier[, monetary_cost := monetary_cost / 100]
   
   parent_dir <- "../../data/access_uber/pfrontiers"
   if (!dir.exists(parent_dir)) dir.create(parent_dir)
@@ -379,15 +376,13 @@ fill_uber_matrix <- function(uber_data_path, pickup_data_path, grid_path) {
 # graph_path <- tar_read(graph_dir)
 # points_path <- tar_read(r5_points)
 # grid_path <- tar_read(grid_res_8)
-# rio_fare_integration_path <- tar_read(rio_fare_integration)
-# rio_routes_info_path <- tar_read(rio_routes_info)
+# rio_fare_calculator_path <- tar_read(rio_fare_calculator)
 calculate_uber_first_mile_frontier <- function(uber_matrix_path,
                                                stations_path,
                                                graph_path,
                                                points_path,
                                                grid_path,
-                                               rio_fare_integration_path,
-                                               rio_routes_info_path) {
+                                               rio_fare_calculator_path) {
   stations <- fread(stations_path, encoding = "UTF-8")
   points <- fread(points_path)
   grid <- setDT(readRDS(grid_path))
@@ -438,12 +433,12 @@ calculate_uber_first_mile_frontier <- function(uber_matrix_path,
   uber_trip_lengths <- unique(first_mile_matrix$travel_time)
   uber_trip_lengths <- uber_trip_lengths[order(uber_trip_lengths)]
   
-  rio_fare_integration <- fread(rio_fare_integration_path)
-  rio_routes_info <- fread(rio_routes_info_path)
+  max_rides <- 3
+  rio_fare_calculator <- read_fare_calculator(rio_fare_calculator_path)
   possible_fare_values <- generate_possible_fare_values(
-    rio_fare_integration,
-    rio_routes_info,
-    max_value = 10
+    rio_fare_calculator,
+    max_value = 10,
+    max_rides = max_rides
   )
   
   remaining_frontier <- lapply(
@@ -465,13 +460,13 @@ calculate_uber_first_mile_frontier <- function(uber_matrix_path,
         departure_datetime = departure_datetime,
         max_trip_duration = max_trip_duration,
         max_walk_dist = 1000,
+        max_rides = max_rides,
         monetary_cost_cutoffs = possible_fare_values,
-        fare_calculator = "rio-de-janeiro",
+        fare_calculator_settings = rio_fare_calculator,
         n_threads = getOption("N_CORES"),
         verbose = FALSE
       )
-      frontier <- frontier[!is.na(travel_time)]
-      frontier[, c("percentile", "monetary_cost_upper") := NULL]
+      frontier[, percentile := NULL]
       
       # we also remove entries where monetary cost is 0, because we don't want
       # to consider walking-only trips after uber first mile. it's important to
@@ -491,13 +486,7 @@ calculate_uber_first_mile_frontier <- function(uber_matrix_path,
     remaining_frontier,
     idcol = "departure_minute"
   )
-  remaining_frontier[
-    ,
-    `:=`(
-      departure_minute = as.integer(departure_minute),
-      monetary_cost = monetary_cost / 100
-    )
-  ]
+  remaining_frontier[, departure_minute := as.integer(departure_minute)]
   
   # bind remaining_frontier with first_mile_matrix. calculate the total travel
   # time and cost, and then keep only the pareto frontier of these new total
@@ -579,13 +568,17 @@ calculate_uber_first_mile_frontier <- function(uber_matrix_path,
 }
 
 
-generate_possible_fare_values <- function(rio_fare_integration,
-                                          rio_routes_info,
-                                          max_value) {
-  values <- c(rio_fare_integration$fare, rio_routes_info$price_bu)
+generate_possible_fare_values <- function(rio_fare_calculator,
+                                          max_value,
+                                          max_rides) {
+  values <- c(
+    0,
+    rio_fare_calculator$fares_per_mode$fare,
+    rio_fare_calculator$fares_per_transfer$fare
+  )
   values <- unique(values)
   values <- lapply(
-    1:3,
+    1:max_rides,
     function(m) {
       list_of_values <- rep(list(values), m)
       combinations <- do.call(expand.grid, list_of_values)
@@ -596,12 +589,6 @@ generate_possible_fare_values <- function(rio_fare_integration,
   values <- unique(values)
   values <- values[values <= max_value]
   values <- values[order(values)]
-  values <- as.integer(values * 100L)
-  
-  # multiplying by 100 may yield some floating-point-related rounding errors, so
-  # we round to the closest multiple of 5
-  
-  values <- round(values / 5) * 5
   
   return(values)
 }

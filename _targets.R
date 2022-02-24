@@ -35,8 +35,7 @@ transit_frontier_target <- if (getOption("INSIDE_PRIVATE_SERVER") == TRUE) {
     calculate_transit_frontier(
       r5_points,
       graph_dir,
-      rio_fare_integration,
-      rio_routes_info  
+      rio_fare_calculator
     ),
     format = "file"
   )
@@ -74,13 +73,8 @@ pipeline <- list(
     format = "file"
   ),
   tar_target(
-    rio_fare_integration,
-    "../../data/access_uber/rio_fare_integration.csv",
-    format = "file"
-  ),
-  tar_target(
-    rio_routes_info,
-    "../../data/access_uber/rio_routes_info.csv",
+    rio_fare_calculator,
+    "../../data/access_uber/rio_fares_v3.zip",
     format = "file"
   ),
   tar_target(travel_time_thresholds, c(30, 60, 90, 120)),
@@ -104,8 +98,7 @@ pipeline <- list(
       graph_dir,
       r5_points,
       grid_res_8,
-      rio_fare_integration,
-      rio_routes_info
+      rio_fare_calculator
     ),
     format = "file"
   ),
