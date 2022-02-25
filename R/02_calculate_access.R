@@ -2,10 +2,12 @@
 # travel_time_thresholds <- tar_read(travel_time_thresholds)
 # affordability_thresholds <- tar_read(affordability_thresholds)
 # grid_path <- tar_read(grid_res_8)
+# routed_points_path <- tar_read(r5_points)
 calculate_access <- function(frontier_paths,
                              travel_time_thresholds,
                              affordability_thresholds,
-                             grid_path) {
+                             grid_path,
+                             routed_points_path) {
   frontiers <- lapply(frontier_paths, readRDS)
   frontiers_names <- gsub(".rds", "", basename(frontier_paths))
   names(frontiers) <- frontiers_names
@@ -30,6 +32,8 @@ calculate_access <- function(frontier_paths,
   )
   iterator <- setDT(rbind(specific_tt_all_af, specific_af_all_tt))
   iterator <- unique(iterator)
+  
+  routed_points <- fread(routed_points_path)
 
   future::plan(future::multisession, workers = getOption("N_CORES") / 3)
   
@@ -37,10 +41,23 @@ calculate_access <- function(frontier_paths,
     iterator,
     function(tt, af) {
       loadNamespace("data.table")
-      access <- frontiers[travel_time <= tt][relative_monthly_cost <= af]
-      access <- access[access[, .I[1], keyby = .(from_id, to_id, mode)]$V1]
-      access <- access[, .(access = sum(dest_jobs)), keyby = .(from_id, mode)]
+      sum_opp <- frontiers[travel_time <= tt][relative_monthly_cost <= af]
+      sum_opp <- sum_opp[sum_opp[, .I[1], keyby = .(from_id, to_id, mode)]$V1]
+      sum_opp <- sum_opp[
+        ,
+        .(sum_opp = sum(dest_jobs)),
+        keyby = .(from_id, mode)
+      ]
+      
+      access <- data.table(
+        from_id = rep(routed_points$id, each = 3),
+        mode = rep(unique(frontiers$mode), length(routed_points$id))
+      )
+      access[sum_opp, on = c("from_id", "mode"), access := i.sum_opp]
+      access[is.na(access), access := 0]
       access[, `:=`(travel_time = tt, affordability = af)]
+      
+      return(access)
     }
   )
   

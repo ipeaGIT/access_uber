@@ -1,6 +1,6 @@
 options(
   java.parameters = "-Xmx100G",
-  N_CORES = 20L,
+  N_CORES = 30L,
   INSIDE_PRIVATE_SERVER = FALSE
 )
 RcppParallel::setThreadOptions(numThreads = getOption("N_CORES"))
@@ -126,7 +126,8 @@ pipeline <- list(
       affordability_frontiers,
       travel_time_thresholds,
       affordability_thresholds,
-      grid_res_8
+      grid_res_8,
+      r5_points
     ),
     format = "file"
   ),
