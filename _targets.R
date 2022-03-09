@@ -77,6 +77,12 @@ pipeline <- list(
     "../../data/access_uber/rio_fares_v3.zip",
     format = "file"
   ),
+  tar_target(rio_city, "../../data/access_uber/rio_city.rds", format = "file"),
+  tar_target(
+    rio_state,
+    "../../data/access_uber/rio_state.rds",
+    format = "file"
+  ),
   tar_target(travel_time_thresholds, c(30, 60, 90, 120)),
   tar_target(affordability_thresholds, seq(0, 0.6, by = 0.1)),
   tar_target(absolute_cost_thresholds, seq(0, 20, by = 5)),
