@@ -11,10 +11,12 @@ suppressPackageStartupMessages({
   library(r5r)
   library(sf)
   library(dodgr)
+  library(ggplot2)
 })
 
 source("R/01_calculate_matrix.R", encoding = "UTF-8")
 source("R/02_calculate_access.R", encoding = "UTF-8")
+source("R/03_compare_access.R", encoding = "UTF-8")
 source("R/misc.R", encoding = "UTF-8")
 
 # the transit pareto frontier target consumes a lot of resources and can be
@@ -159,6 +161,28 @@ pipeline <- list(
   tar_target(
     absolute_cost_palma,
     calculate_palma(absolute_cost_accessibility, grid_res_8, "absolute"),
+    format = "file"
+  ),
+  tar_target(
+    affordability_access_dist,
+    create_dist_maps(
+      affordability_accessibility,
+      grid_res_8,
+      rio_city,
+      rio_state,
+      "affordability"
+    ),
+    format = "file"
+  ),
+  tar_target(
+    absolute_cost_access_dist,
+    create_dist_maps(
+      absolute_cost_accessibility,
+      grid_res_8,
+      rio_city,
+      rio_state,
+      "absolute"
+    ),
     format = "file"
   )
 )
