@@ -85,6 +85,7 @@ pipeline <- list(
     "../../data/access_uber/rio_state.rds",
     format = "file"
   ),
+  tar_target(line_chart_theme, create_line_chart_theme()),
   tar_target(travel_time_thresholds, c(30, 60, 90, 120)),
   tar_target(affordability_thresholds, seq(0, 0.6, by = 0.1)),
   tar_target(absolute_cost_thresholds, seq(0, 20, by = 5)),
@@ -181,6 +182,28 @@ pipeline <- list(
       grid_res_8,
       rio_city,
       rio_state,
+      "absolute"
+    ),
+    format = "file"
+  ),
+  tar_target(
+    affordability_avg_access,
+    create_avg_access_plot(
+      affordability_accessibility,
+      grid_res_8,
+      line_chart_theme,
+      travel_time_thresholds,
+      "affordability"
+    ),
+    format = "file"
+  ),
+  tar_target(
+    absolute_cost_avg_access,
+    create_avg_access_plot(
+      absolute_cost_accessibility,
+      grid_res_8,
+      line_chart_theme,
+      travel_time_thresholds,
       "absolute"
     ),
     format = "file"
