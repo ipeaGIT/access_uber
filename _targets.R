@@ -207,6 +207,50 @@ pipeline <- list(
       "absolute"
     ),
     format = "file"
+  ),
+  tar_target(
+    affordability_avg_access_per_group,
+    create_avg_access_per_group_plot(
+      affordability_accessibility,
+      grid_res_8,
+      line_chart_theme,
+      travel_time_thresholds,
+      "affordability"
+    ),
+    format = "file"
+  ),
+  tar_target(
+    absolute_cost_avg_access_per_group,
+    create_avg_access_per_group_plot(
+      absolute_cost_accessibility,
+      grid_res_8,
+      line_chart_theme,
+      travel_time_thresholds,
+      "absolute"
+    ),
+    format = "file"
+  ),
+  tar_target(
+    affordability_palma_plot,
+    create_palma_plot(
+      affordability_palma,
+      grid_res_8,
+      line_chart_theme,
+      travel_time_thresholds,
+      "affordability"
+    ),
+    format = "file"
+  ),
+  tar_target(
+    absolute_cost_palma_plot,
+    create_palma_plot(
+      absolute_cost_palma,
+      grid_res_8,
+      line_chart_theme,
+      travel_time_thresholds,
+      "absolute"
+    ),
+    format = "file"
   )
 )
 
