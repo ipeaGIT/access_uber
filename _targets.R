@@ -1,5 +1,5 @@
 options(
-  java.parameters = "-Xmx100G",
+  java.parameters = "-Xmx50G",
   N_CORES = 30L,
   INSIDE_PRIVATE_SERVER = FALSE
 )
@@ -79,6 +79,7 @@ pipeline <- list(
   ),
   tar_target(travel_time_thresholds, c(30, 60, 90, 120)),
   tar_target(affordability_thresholds, seq(0, 0.6, by = 0.1)),
+  tar_target(absolute_cost_thresholds, seq(0, 20, by = 5)),
   tar_target(r5_points, generate_r5_points(grid_res_8), format = "file"),
   tar_target(
     pickup_data_res_8,
@@ -111,7 +112,7 @@ pipeline <- list(
     format = "file"
   ),
   tar_target(
-    affordability_frontiers,
+    frontiers_with_accessibility,
     calculate_affordability(
       full_uber_matrix,
       transit_pareto_frontier,
@@ -121,19 +122,32 @@ pipeline <- list(
     format = "file"
   ),
   tar_target(
-    accessibility,
+    affordability_accessibility,
     calculate_access(
-      affordability_frontiers,
+      frontiers_with_accessibility,
       travel_time_thresholds,
       affordability_thresholds,
       grid_res_8,
-      r5_points
+      r5_points,
+      "affordability"
     ),
     format = "file"
   ),
   tar_target(
-    palma_ratio,
-    calculate_palma(accessibility, grid_res_8),
+    absolute_cost_accessibility,
+    calculate_access(
+      frontiers_with_accessibility,
+      travel_time_thresholds,
+      absolute_cost_thresholds,
+      grid_res_8,
+      r5_points,
+      "absolute"
+    ),
+    format = "file"
+  ),
+  tar_target(
+    affordability_palma,
+    calculate_palma(affordability_accessibility, grid_res_8),
     format = "file"
   )
 )
