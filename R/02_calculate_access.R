@@ -96,9 +96,12 @@ calculate_access <- function(frontier_paths,
 }
 
 
-# access_path <- tar_read(accessibility)
+# access_path <- tar_read(affordability_accessibility)
 # grid_path <- tar_read(grid_res_8)
-calculate_palma <- function(access_path, grid_path) {
+# type <- "affordability"
+calculate_palma <- function(access_path,
+                            grid_path,
+                            type = c("affordability", "absolute")) {
   access <- readRDS(access_path)
   grid <- setDT(readRDS(grid_path))
   
@@ -110,22 +113,31 @@ calculate_palma <- function(access_path, grid_path) {
   
   # nest each accessibility distribution and calculate its palma ratio
   
+  cost_cutoff_column <- ifelse(
+    type == "affordability",
+    "affordability",
+    "absolute_cost"
+  )
+  env <- environment()
+  
   palma <- access[
     ,
     .(data = list(.SD)),
-    keyby = .(mode, travel_time, affordability)
+    keyby = .(mode, travel_time, cost_cutoff = get(cost_cutoff_column))
   ]
   palma[, palma := vapply(data, palma_calculator, numeric(1))]
   palma[, data := NULL]
+  setnames(palma, old = "cost_cutoff", cost_cutoff_column)
   
-  palma_path <- "../../data/access_uber/access/palma.rds"
+  palma_basename <- paste0(cost_cutoff_column, "_palma.rds")
+  palma_path <- file.path("../../data/access_uber/access", palma_basename)
   saveRDS(palma, palma_path)
   
   return(palma_path)
 }
 
 
-# access_dist <- access$data[[1]]
+# access_dist <- palma$data[[1]]
 palma_calculator <- function(access_dist) {
   richest_10 <- access_dist[decile == 10]
   poorest_40 <- access_dist[decile >= 1 & decile <= 4]
@@ -142,7 +154,7 @@ palma_calculator <- function(access_dist) {
     na.rm = TRUE
   )
   
-  palma <- numerator / denominator
+  palma_ratio <- numerator / denominator
   
-  return(palma)
+  return(palma_ratio)
 }

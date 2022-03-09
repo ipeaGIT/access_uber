@@ -147,7 +147,12 @@ pipeline <- list(
   ),
   tar_target(
     affordability_palma,
-    calculate_palma(affordability_accessibility, grid_res_8),
+    calculate_palma(affordability_accessibility, grid_res_8, "affordability"),
+    format = "file"
+  ),
+  tar_target(
+    absolute_cost_palma,
+    calculate_palma(absolute_cost_accessibility, grid_res_8, "absolute"),
     format = "file"
   )
 )
