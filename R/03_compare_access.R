@@ -89,6 +89,12 @@ create_dist_maps <- function(access_path,
   
   total_jobs <- sum(grid$empregos_total)
   
+  y_axis_name <- ifelse(
+    type == "affordability",
+    "Affordability (% of income spent on transport)",
+    "Monetary cost threshold"
+  )
+  
   p <- ggplot(access) +
     geom_sf(data = state_border, color = NA, fill = "#efeeec") +
     geom_sf(aes(fill = access), color = NA) +
@@ -100,7 +106,7 @@ create_dist_maps <- function(access_path,
       option = "inferno",
       labels = scales::label_percent(scale = 100 / total_jobs)
     ) +
-    labs(y = "Affordability (% of income spent on transport)") +
+    labs(y = y_axis_name) +
     guides(fill = guide_colorbar(title.vjust = 1)) +
     map_theme
   
