@@ -1,15 +1,15 @@
 # frontier_paths <- tar_read(frontiers_with_accessibility)
 # travel_time_thresholds <- tar_read(travel_time_thresholds)
-# monetary_thresholds <- tar_read(affordability_thresholds)
+# monetary_thresholds_sublist <- tar_read(monetary_thresholds)[1]
 # grid_path <- tar_read(grid_res_8)
 # routed_points_path <- tar_read(r5_points)
-# type <- "affordability"
+# type <- tar_read(cost_type)[1]
 calculate_access <- function(frontier_paths,
                              travel_time_thresholds,
-                             monetary_thresholds,
+                             monetary_thresholds_sublist,
                              grid_path,
                              routed_points_path,
-                             type = c("affordability", "absolute")) {
+                             type) {
   frontiers <- lapply(frontier_paths, readRDS)
   frontiers_names <- gsub(".rds", "", basename(frontier_paths))
   names(frontiers) <- frontiers_names
@@ -24,6 +24,8 @@ calculate_access <- function(frontier_paths,
   # limits with only the specified temporal thresholds and another that smoothly
   # increases the travel time limits with only the specified monetary cutoffs,
   # and bind them together
+  
+  monetary_thresholds <- monetary_thresholds_sublist[[1]]
   
   monetary_smooth_distribution <- if (type == "affordability") {
     seq(0, max(monetary_thresholds), 0.01)
@@ -96,12 +98,10 @@ calculate_access <- function(frontier_paths,
 }
 
 
-# access_path <- tar_read(affordability_accessibility)
+# access_path <- tar_read(accessibility)[1]
 # grid_path <- tar_read(grid_res_8)
-# type <- "affordability"
-calculate_palma <- function(access_path,
-                            grid_path,
-                            type = c("affordability", "absolute")) {
+# type <- tar_read(cost_type)[1]
+calculate_palma <- function(access_path, grid_path, type) {
   access <- readRDS(access_path)
   grid <- setDT(readRDS(grid_path))
   

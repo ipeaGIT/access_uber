@@ -87,8 +87,11 @@ pipeline <- list(
   ),
   tar_target(line_chart_theme, create_line_chart_theme()),
   tar_target(travel_time_thresholds, c(30, 60, 90, 120)),
-  tar_target(affordability_thresholds, seq(0, 0.6, by = 0.1)),
-  tar_target(absolute_cost_thresholds, seq(0, 20, by = 5)),
+  tar_target(
+    monetary_thresholds,
+    list(absolute = seq(0, 20, by = 5), affordability = seq(0, 0.6, by = 0.1))
+  ),
+  tar_target(cost_type, c("absolute", "affordability")),
   tar_target(r5_points, generate_r5_points(grid_res_8), format = "file"),
   tar_target(
     pickup_data_res_8,
@@ -121,7 +124,7 @@ pipeline <- list(
     format = "file"
   ),
   tar_target(
-    frontiers_with_accessibility,
+    frontiers_with_affordability,
     calculate_affordability(
       full_uber_matrix,
       transit_pareto_frontier,
@@ -131,125 +134,70 @@ pipeline <- list(
     format = "file"
   ),
   tar_target(
-    affordability_accessibility,
+    accessibility,
     calculate_access(
-      frontiers_with_accessibility,
+      frontiers_with_affordability,
       travel_time_thresholds,
-      affordability_thresholds,
+      monetary_thresholds,
       grid_res_8,
       r5_points,
-      "affordability"
+      cost_type
     ),
+    pattern = map(monetary_thresholds, cost_type),
     format = "file"
   ),
   tar_target(
-    absolute_cost_accessibility,
-    calculate_access(
-      frontiers_with_accessibility,
-      travel_time_thresholds,
-      absolute_cost_thresholds,
-      grid_res_8,
-      r5_points,
-      "absolute"
-    ),
+    palma,
+    calculate_palma(accessibility, grid_res_8, cost_type),
+    pattern = map(accessibility, cost_type),
     format = "file"
   ),
   tar_target(
-    affordability_palma,
-    calculate_palma(affordability_accessibility, grid_res_8, "affordability"),
-    format = "file"
-  ),
-  tar_target(
-    absolute_cost_palma,
-    calculate_palma(absolute_cost_accessibility, grid_res_8, "absolute"),
-    format = "file"
-  ),
-  tar_target(
-    affordability_access_dist,
+    access_dist,
     create_dist_maps(
-      affordability_accessibility,
+      accessibility,
       grid_res_8,
       rio_city,
       rio_state,
-      "affordability"
+      cost_type
     ),
+    pattern = map(accessibility, cost_type),
     format = "file"
   ),
   tar_target(
-    absolute_cost_access_dist,
-    create_dist_maps(
-      absolute_cost_accessibility,
-      grid_res_8,
-      rio_city,
-      rio_state,
-      "absolute"
-    ),
-    format = "file"
-  ),
-  tar_target(
-    affordability_avg_access,
+    avg_access,
     create_avg_access_plot(
-      affordability_accessibility,
+      accessibility,
       grid_res_8,
       line_chart_theme,
       travel_time_thresholds,
-      "affordability"
+      cost_type
     ),
+    pattern = map(accessibility, cost_type),
     format = "file"
   ),
   tar_target(
-    absolute_cost_avg_access,
-    create_avg_access_plot(
-      absolute_cost_accessibility,
-      grid_res_8,
-      line_chart_theme,
-      travel_time_thresholds,
-      "absolute"
-    ),
-    format = "file"
-  ),
-  tar_target(
-    affordability_avg_access_per_group,
+    avg_access_per_group,
     create_avg_access_per_group_plot(
-      affordability_accessibility,
+      accessibility,
       grid_res_8,
       line_chart_theme,
       travel_time_thresholds,
-      "affordability"
+      cost_type
     ),
+    pattern = map(accessibility, cost_type),
     format = "file"
   ),
   tar_target(
-    absolute_cost_avg_access_per_group,
-    create_avg_access_per_group_plot(
-      absolute_cost_accessibility,
-      grid_res_8,
-      line_chart_theme,
-      travel_time_thresholds,
-      "absolute"
-    ),
-    format = "file"
-  ),
-  tar_target(
-    affordability_palma_plot,
+    palma_plot,
     create_palma_plot(
-      affordability_palma,
+      palma,
       grid_res_8,
       line_chart_theme,
       travel_time_thresholds,
-      "affordability"
+      cost_type
     ),
-    format = "file"
-  ),
-  tar_target(
-    absolute_cost_palma_plot,
-    create_palma_plot(
-      absolute_cost_palma,
-      grid_res_8,
-      line_chart_theme,
-      travel_time_thresholds,
-      "absolute"
-    ),
+    pattern = map(palma, cost_type),
     format = "file"
   )
 )

@@ -1,13 +1,13 @@
-# access_path <- tar_read(affordability_accessibility)
+# access_path <- tar_read(accessibility)[1]
 # grid_path <- tar_read(grid_res_8)
 # rio_city_path <- tar_read(rio_city)
 # rio_state_path <- tar_read(rio_state)
-# type <- "affordability"
+# type <- tar_read(cost_type)[1]
 create_dist_maps <- function(access_path,
                              grid_path,
                              rio_city_path,
                              rio_state_path,
-                             type = c("affordability", "absolute")) {
+                             type) {
   access <- readRDS(access_path)
   grid <- setDT(readRDS(grid_path))
   type <- type[1]
@@ -116,16 +116,16 @@ create_line_chart_theme <- function() {
 }
 
 
-# access_path <- tar_read(affordability_accessibility)
+# access_path <- tar_read(accessibility)[1]
 # grid_path <- tar_read(grid_res_8)
 # line_chart_theme <- tar_read(line_chart_theme)
 # travel_time_thresholds <- tar_read(travel_time_thresholds)
-# type <- "affordability"
+# type <- tar_read(cost_type)[1]
 create_avg_access_plot <- function(access_path,
                                    grid_path,
                                    line_chart_theme,
                                    travel_time_thresholds,
-                                   type = c("affordability", "absolute")) {
+                                   type) {
   access <- readRDS(access_path)
   grid <- setDT(readRDS(grid_path))
   type <- type[1]
@@ -203,18 +203,16 @@ create_avg_access_plot <- function(access_path,
 }
 
 
-# access_path <- tar_read(affordability_accessibility)
+# access_path <- tar_read(accessibility)[1]
 # grid_path <- tar_read(grid_res_8)
 # line_chart_theme <- tar_read(line_chart_theme)
 # travel_time_thresholds <- tar_read(travel_time_thresholds)
-# type <- "affordability"
-create_avg_access_per_group_plot <- function(
-  access_path,
-  grid_path,
-  line_chart_theme,
-  travel_time_thresholds,
-  type = c("affordability", "absolute")
-) {
+# type <- tar_read(cost_type)[1]
+create_avg_access_per_group_plot <- function(access_path,
+                                             grid_path,
+                                             line_chart_theme,
+                                             travel_time_thresholds,
+                                             type) {
   access <- readRDS(access_path)
   grid <- setDT(readRDS(grid_path))
   type <- type[1]
@@ -319,16 +317,16 @@ create_avg_access_per_group_plot <- function(
 }
 
 
-# palma_path <- tar_read(affordability_palma)
+# palma_path <- tar_read(palma)[1]
 # grid_path <- tar_read(grid_res_8)
 # line_chart_theme <- tar_read(line_chart_theme)
 # travel_time_thresholds <- tar_read(travel_time_thresholds)
-# type <- "affordability"
+# type <- tar_read(cost_type)[1]
 create_palma_plot <- function(palma_path,
                               grid_path,
                               line_chart_theme,
                               travel_time_thresholds,
-                              type = c("affordability", "absolute")) {
+                              type) {
   palma <- readRDS(palma_path)
   grid <- setDT(readRDS(grid_path))
   type <- type[1]
