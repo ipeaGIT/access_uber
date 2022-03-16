@@ -159,9 +159,10 @@ pipeline <- list(
       grid_res_8,
       rio_city,
       rio_state,
-      cost_type
+      cost_type,
+      travel_time_thresholds
     ),
-    pattern = map(accessibility, cost_type),
+    pattern = cross(map(accessibility, cost_type), travel_time_thresholds),
     format = "file"
   ),
   tar_target(

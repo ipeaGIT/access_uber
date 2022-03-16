@@ -3,16 +3,17 @@
 # rio_city_path <- tar_read(rio_city)
 # rio_state_path <- tar_read(rio_state)
 # type <- tar_read(cost_type)[1]
+# travel_time_cutoff <- tar_read(travel_time_thresholds)[1]
 create_dist_maps <- function(access_path,
                              grid_path,
                              rio_city_path,
                              rio_state_path,
-                             type) {
+                             type,
+                             travel_time_cutoff) {
   access <- readRDS(access_path)
   grid <- setDT(readRDS(grid_path))
   type <- type[1]
   
-  travel_time_cutoff <- 90
   monetary_cutoffs <- if(type == "affordability") {
     c(0.2, 0.4, 0.6)
   } else {
@@ -94,7 +95,11 @@ create_dist_maps <- function(access_path,
   type_dir <- file.path(figures_dir, monetary_column)
   if (!dir.exists(type_dir)) dir.create(type_dir)
   
-  figure_path <- file.path(type_dir, "access_dist_map.jpg")
+  access_dist_dir <- file.path(type_dir, "access_dist_maps")
+  if (!dir.exists(access_dist_dir)) dir.create(access_dist_dir)
+  
+  figure_basename <- paste0(travel_time_cutoff, "min.jpg")
+  figure_path <- file.path(access_dist_dir, figure_basename)
   ggsave(
     figure_path,
     plot = p,
