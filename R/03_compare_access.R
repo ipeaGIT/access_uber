@@ -12,7 +12,6 @@ create_dist_maps <- function(access_path,
                              travel_time_cutoff) {
   access <- readRDS(access_path)
   grid <- setDT(readRDS(grid_path))
-  type <- type[1]
   
   monetary_cutoffs <- if(type == "affordability") {
     c(0.2, 0.4, 0.6)
@@ -133,7 +132,6 @@ create_avg_access_plot <- function(access_path,
                                    type) {
   access <- readRDS(access_path)
   grid <- setDT(readRDS(grid_path))
-  type <- type[1]
   
   monetary_column <- ifelse(
     type == "affordability",
@@ -222,7 +220,6 @@ create_avg_access_per_group_plot <- function(access_path,
                                              type) {
   access <- readRDS(access_path)
   grid <- setDT(readRDS(grid_path))
-  type <- type[1]
   
   monetary_column <- ifelse(
     type == "affordability",
@@ -338,7 +335,6 @@ create_palma_plot <- function(palma_path,
                               type) {
   palma <- readRDS(palma_path)
   grid <- setDT(readRDS(grid_path))
-  type <- type[1]
   
   monetary_column <- ifelse(
     type == "affordability",
@@ -355,6 +351,17 @@ create_palma_plot <- function(palma_path,
       labels = c("Only transit", "Uber first mile + Transit", "Only uber")
     )
   ]
+  
+  # palma calculation may produce some NaNs when both the richest's and the
+  # poorest's accessibility are 0
+  
+  palma <- palma[!is.nan(palma)]
+  
+  # when looking at access using affordability cutoffs, the palma values are
+  # huge. we limit these values to 100 (which is already huge, but at least it
+  # won't mess the whole plot up)
+  
+  palma[, palma := ifelse(palma > 200, 200, palma)]
   
   scale_x_name <- ifelse(
     type == "affordability",
