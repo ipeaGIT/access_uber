@@ -67,7 +67,7 @@ calculate_transit_frontier <- function(points_path,
       "08-01-2020 07:00:00",
       format = "%d-%m-%Y %H:%M:%S"
     ),
-    time_window = 1,
+    time_window = 60,
     draws_per_minute = 1,
     max_trip_duration = 120,
     max_walk_dist = 1800,

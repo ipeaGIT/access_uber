@@ -12,25 +12,12 @@ pickup_data_res_8|stem|ea36e40b8c103fc0|d8c32f42d65cafb6|b063c2d48c20914d|-23949
 grid_res_9|stem|08b6689a43126f66|2eb3a84fbdb7b9bf|ef46db3751d8e999|-426584538|../../data/acesso_oport/hex_agregados/2019/hex_agregado_rio_09_2019.rds|t19047.8648032407s|ec897c661ed4e32d|6080534|file|vector|||0||
 full_uber_matrix|stem|0e2df8951995c1e0|0001e7f3ced1079b|f50ac49f2d186806|722627198|../../data/access_uber/pfrontiers/absolute/only_uber.rds|t19048.6393981481s|f5674dd060c30b81|5023937|file|vector|||23.39||
 graph_dir|stem|aaeaab80054d85f4|addd444b7a660334|ef46db3751d8e999|1477339001|../../data/access_uber/r5/rio|t19048.5944328704s|908ec9ea9f0a90f4|0|file|vector|||0||
-transit_pareto_frontier|stem|1cc981d80c8d246e|75846f720f442c69|27c06184d4c30466|1381276434|../../data/access_uber/pfrontiers/absolute/only_transit.rds|t19054.6303472222s|bf6ea91d5b671757|2740204|file|vector|||609.88||
 uber_first_mile_pareto_frontier|stem|6f70b8094561adc4|329e8d0809090903|564accdf49404ec1|-1175457655|../../data/access_uber/pfrontiers/absolute/uber_first_mile.rds|t19054.6463541667s|7daf4e9f23b79f6a|3494282|file|vector|||1382.53||
-uber_fm_transit_combined_frontier|stem|455396bced3cc5f8|f05b2064a6f28bec|bbbd7c7a3c19fe4e|-431043514|../../data/access_uber/pfrontiers/absolute/uber_fm_transit_combined.rds|t19054.6467708333s|1e1dd2e25ab77b59|4071182|file|vector|||36.58||
 absolute_cost_thresholds|stem|2290d10dd9edc417|0dc37b9d21537347|9040422997a211cc|648890400||t19060.5468981481s|013d2ea9b87d37af|62|rds|vector|||0||
-frontiers_with_accessibility|stem|bbea46256a1d5f0c|d0e75c47ad3097ab|ddc5c0099da1b7fe|1707534254|../../data/access_uber/pfrontiers/affordability/only_uber.rds*../../data/access_uber/pfrontiers/affordability/only_transit.rds*../../data/access_uber/pfrontiers/affordability/uber_fm_transit_combined.rds|t19060.5530555556s|dcf62feaf257d890|22118127|file|vector|||15.72||
 calculate_affordability_access|function|1c853c631eeacc5a||||||||||||||
-affordability_accessibility|stem|5ad5cbdc70a9e891|943fecba6f9e0a92|43409f7696043c9c|-1835169538|../../data/access_uber/access/affordability_access.rds|t19060.5936805556s|5fb2b940fe57651c|11473629|file|vector|||184.5||
-absolute_cost_accessibility|stem|9b673f7dd5f826f7|0b37dfbaa71206ca|9f0d884871feece3|-537878447|../../data/access_uber/access/absolute_cost_access.rds|t19060.6073263889s|7c0ad7060eb17b9a|26553452|file|vector|||337.89||
-absolute_cost_palma|stem|e15cb99491595c75|cd0b1ac992dcd1db|02009b4c6ace69a9|-439096663|../../data/access_uber/access/absolute_cost_palma.rds|t19060.6227430556s|fe053027d8816a67|18464|file|vector|||66.68||
-affordability_palma|stem|c8ad40f4c9ca692b|15e51fef2d602bfd|d8b55b4ab20a089a|-1305331040|../../data/access_uber/access/affordability_palma.rds|t19060.6231481481s|894026f218cce76f|18218|file|vector|||35.03||
 rio_state|stem|be4f658fc08129f8|3ced96fe53b85e52|ef46db3751d8e999|-1405533772|../../data/access_uber/rio_state.rds|t18460.6852083333s|e189ae8d80bc1587|308242|file|vector|||0||
 rio_city|stem|9c228bf9a8b7ecd8|c59ed443168c933f|ef46db3751d8e999|-540076491|../../data/access_uber/rio_city.rds|t18478.7795833333s|6c25ca9a82d75095|16181|file|vector|||0.01||
-absolute_cost_access_dist|stem|fac02bce1825ec35|ab6820a0917a71f1|7715b50637dd186f|-543256713|../../data/access_uber/figures/absolute_cost/access_dist_map.jpg|t19060.666400463s|153b8b54decb25c1|272954|file|vector|||19.49||
-affordability_access_dist|stem|ca167cf46156f9b7|3d85d2acbfa9e6b4|84210cbc18c0efa8|-1942668582|../../data/access_uber/figures/affordability/access_dist_map.jpg|t19060.6665625s|7ca43d5e841aa88b|277231|file|vector|||13.69||
 line_chart_theme|stem|070856fd5481faa1|22675d9bff70871f|921bc5a431977ee5|179411206||t19060.6703587963s|250cf1081ef035b5|1372|rds|vector|||0||
-absolute_cost_avg_access|stem|de1a211a4cdef7ee|cf3ca3356e964c8e|7724ec83074010c4|1966671705|../../data/access_uber/figures/absolute_cost/avg_access_step.jpg|t19060.6949421296s|1ed8e70808273637|140308|file|vector|||20.12||
-affordability_avg_access|stem|ea43314384f4c38c|e697813853b5bba8|726cd61137315dc3|1419690730|../../data/access_uber/figures/affordability/avg_access_step.jpg|t19060.6950115741s|6dc5d26def250761|145619|file|vector|||6.05||
-absolute_cost_avg_access_per_group|stem|99ff3f4d343b75f8|577a0a0f5608350c|6c378b5675094966|1771774498|../../data/access_uber/figures/absolute_cost/avg_access_per_group_step.jpg|t19060.7493518519s|beb89e510760b85d|163954|file|vector|||15.83||
-affordability_avg_access_per_group|stem|a9c73c6e41864f92|3166faf0c5d43420|de9b79775e99cf8f|1781583996|../../data/access_uber/figures/affordability/avg_access_per_group_step.jpg|t19060.7494212963s|290f3df2393fbfcf|162673|file|vector|||5.82||
 create_dist_maps|function|0e093b04d5659d01||||||||||||||
 create_palma_plot|function|2d9cf2361034d052||||||||||||||
 generate_possible_fare_values|function|8c15036df914750e||||||||||||||
@@ -38,7 +25,7 @@ palma_calculator|function|fe1d968794237f52||||||||||||||
 get_frontier_type|function|e937ef48a6761437||||||||||||||
 fill_uber_matrix|function|b9b635f12319c872||||||||||||||
 aggregate_waiting_times|function|7419ef72b2e3db21||||||||||||||
-.Random.seed|object|6aff6ffb0436a939||||||||||||||
+.Random.seed|object|92265ff9928a1b81||||||||||||||
 create_avg_access_plot|function|cb18e58a35cc2673||||||||||||||
 calculate_affordability|function|0f58e3d44330cf79||||||||||||||
 calculate_access|function|d85b219c8d9de5a0||||||||||||||
@@ -47,10 +34,23 @@ find_relevant_entries|function|7b69ae76c2af1dfc||||||||||||||
 create_avg_access_per_group_plot|function|b23ed4cb9a2b98b8||||||||||||||
 create_line_chart_theme|function|38db9553dadc13cb||||||||||||||
 pipeline|object|ad7650e0c21a9b26||||||||||||||
-calculate_transit_frontier|function|5176c127e417cbc3||||||||||||||
+calculate_transit_frontier|function|653cef3326c2dd52||||||||||||||
 calculate_palma|function|e7c241a51b72f3de||||||||||||||
 keep_pareto_frontier|function|879951c3d67f8663||||||||||||||
 calculate_uber_first_mile_frontier|function|eb5d4706f32c7cc7||||||||||||||
 join_uber_fm_transit_frontiers|function|ac867cc16fe44e77||||||||||||||
-absolute_cost_palma_plot|stem|0ac9ca37b5fadde9|ee0fe8a5e878d64e|e4f39ec2026f5898|1645871557|../../data/access_uber/figures/absolute_cost/palma_step.jpg|t19060.7874652778s|a2bfebc3c8458317|120633|file|vector|||2.35|Removed 25 rows containing missing values geom_path.|
-affordability_palma_plot|stem|b3a917f04213cd9d|0d3ed572f3e1f556|aa8b14f3a71203f7|-603054640|../../data/access_uber/figures/affordability/palma_step.jpg|t19060.7874884259s|a27b36b6f6266f07|120458|file|vector|||1.41|Removed 3 rows containing missing values geom_path.|
+transit_pareto_frontier|stem|414ffc3f2bda74c9|75846f720f442c69|520b2e5b4d4bedec|1381276434|../../data/access_uber/pfrontiers/absolute/only_transit.rds|t19066.0015393519s|5cb43c8e5e24243e|3327958|file|vector|||39013.08||
+uber_fm_transit_combined_frontier|stem|5f400de053e3ad93|f05b2064a6f28bec|9b25397d3ae03deb|-431043514|../../data/access_uber/pfrontiers/absolute/uber_fm_transit_combined.rds|t19066.0020949074s|5bc1ad76343b36aa|4994557|file|vector|||47.56||
+frontiers_with_accessibility|stem|2e28f79dd91b7fcc|d0e75c47ad3097ab|efa8057394db6803|1707534254|../../data/access_uber/pfrontiers/affordability/only_uber.rds*../../data/access_uber/pfrontiers/affordability/only_transit.rds*../../data/access_uber/pfrontiers/affordability/uber_fm_transit_combined.rds|t19066.0022569444s|74b230cc0a886799|23879622|file|vector|||13.6||
+absolute_cost_accessibility|stem|0a5ec6461a3796e2|0b37dfbaa71206ca|998085c810fac5f0|-537878447|../../data/access_uber/access/absolute_cost_access.rds|t19066.0060532407s|a1e5aa5d54d1ed08|27012666|file|vector|||327.74||
+affordability_accessibility|stem|1d782f65cccc4321|943fecba6f9e0a92|c3045b6c6b16c3ec|-1835169538|../../data/access_uber/access/affordability_access.rds|t19066.0078472222s|1c19d70fdd49de92|11557792|file|vector|||154.36||
+absolute_cost_palma|stem|65720dd72fc7dfa7|cd0b1ac992dcd1db|0ea72c7ee4a62387|-439096663|../../data/access_uber/access/absolute_cost_palma.rds|t19066.008125s|f2407fd38c3e3c93|18559|file|vector|||23.76||
+absolute_cost_access_dist|stem|393c9fd0a27ed702|ab6820a0917a71f1|432ffcb6de15f806|-543256713|../../data/access_uber/figures/absolute_cost/access_dist_map.jpg|t19066.0082638889s|555077b5171f3d53|272055|file|vector|||11.92||
+absolute_cost_avg_access|stem|0a70d36da0ffcef0|cf3ca3356e964c8e|6b5418e84019b9fa|1966671705|../../data/access_uber/figures/absolute_cost/avg_access_step.jpg|t19066.0083564815s|174669d904401065|143398|file|vector|||8.16||
+absolute_cost_avg_access_per_group|stem|70070a9d2c4a2a85|577a0a0f5608350c|0ce9c65994a792f2|1771774498|../../data/access_uber/figures/absolute_cost/avg_access_per_group_step.jpg|t19066.0084606481s|6b54682436f9f427|162526|file|vector|||8.9||
+affordability_palma|stem|e377fa162644acb2|15e51fef2d602bfd|1cc1b229217bc111|-1305331040|../../data/access_uber/access/affordability_palma.rds|t19066.0086226852s|9a53c2486a02e571|18147|file|vector|||13.75||
+affordability_avg_access_per_group|stem|d948f9420086ada4|3166faf0c5d43420|62b5618ce15196c8|1781583996|../../data/access_uber/figures/affordability/avg_access_per_group_step.jpg|t19066.0086574074s|842a99aab97627c6|161298|file|vector|||3.93||
+affordability_access_dist|stem|71a61f46fc0f202f|3d85d2acbfa9e6b4|435befdd95dc0dc2|-1942668582|../../data/access_uber/figures/affordability/access_dist_map.jpg|t19066.0087615741s|85bec8e4a7feb698|276584|file|vector|||8.32||
+affordability_avg_access|stem|3e10960bf44312ea|e697813853b5bba8|84efe7314f9ab846|1419690730|../../data/access_uber/figures/affordability/avg_access_step.jpg|t19066.0088078704s|40bc0e4442c7d0b8|142564|file|vector|||4.28||
+absolute_cost_palma_plot|stem|a0873a5ca1356ccb|ee0fe8a5e878d64e|98fb37d2382d5d53|1645871557|../../data/access_uber/figures/absolute_cost/palma_step.jpg|t19066.0088194444s|18cdb733c37bebde|119947|file|vector|||0.58|Removed 25 rows containing missing values geom_path.|
+affordability_palma_plot|stem|c4c367861d001d29|0d3ed572f3e1f556|0b0f53d2bfcb6fe6|-603054640|../../data/access_uber/figures/affordability/palma_step.jpg|t19066.0088194444s|bf9827644f8040ee|118830|file|vector|||0.42|Removed 3 rows containing missing values geom_path.|
