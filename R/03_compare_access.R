@@ -171,8 +171,10 @@ create_avg_access_plot <- function(access_path,
     scales::label_dollar(prefix = "R$ ")
   }
   
+  geom <- ifelse(type == "affordability", geom_line, geom_step)
+  
   p <- ggplot(access) +
-    geom_step(
+    geom(
       aes(
         get(monetary_column),
         avg_access,
@@ -195,7 +197,7 @@ create_avg_access_plot <- function(access_path,
   type_dir <- file.path(figures_dir, monetary_column)
   if (!dir.exists(type_dir)) dir.create(type_dir)
   
-  figure_path <- file.path(type_dir, "avg_access_step.jpg")
+  figure_path <- file.path(type_dir, "avg_access.jpg")
   ggsave(
     figure_path,
     plot = p,
@@ -277,8 +279,10 @@ create_avg_access_per_group_plot <- function(access_path,
     scales::label_dollar(prefix = "R$ ")
   }
   
+  geom <- ifelse(type == "affordability", geom_line, geom_step)
+  
   p <- ggplot(access) +
-    geom_step(
+    geom(
       aes(
         get(monetary_column),
         avg_access,
@@ -309,7 +313,7 @@ create_avg_access_per_group_plot <- function(access_path,
   type_dir <- file.path(figures_dir, monetary_column)
   if (!dir.exists(type_dir)) dir.create(type_dir)
   
-  figure_path <- file.path(type_dir, "avg_access_per_group_step.jpg")
+  figure_path <- file.path(type_dir, "avg_access_per_group.jpg")
   ggsave(
     figure_path,
     plot = p,
@@ -363,8 +367,10 @@ create_palma_plot <- function(palma_path,
     scales::label_dollar(prefix = "R$ ")
   }
   
+  geom <- ifelse(type == "affordability", geom_line, geom_step)
+  
   p <- ggplot(palma) +
-    geom_step(
+    geom(
       aes(
         get(monetary_column),
         palma,
@@ -384,7 +390,7 @@ create_palma_plot <- function(palma_path,
   type_dir <- file.path(figures_dir, monetary_column)
   if (!dir.exists(type_dir)) dir.create(type_dir)
   
-  figure_path <- file.path(type_dir, "palma_step.jpg")
+  figure_path <- file.path(type_dir, "palma.jpg")
   ggsave(
     figure_path,
     plot = p,
