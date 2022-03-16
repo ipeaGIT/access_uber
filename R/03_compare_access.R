@@ -1,15 +1,39 @@
+create_line_chart_theme <- function() {
+  theme_minimal() +
+    theme(
+      panel.grid.minor = element_blank(),
+      legend.position = "bottom"
+    )
+}
+
+
+create_map_theme <- function() {
+  theme_minimal() +
+    theme(
+      panel.grid = element_blank(),
+      panel.background = element_rect(fill = "#aadaff", color = NA),
+      axis.text = element_blank(),
+      axis.ticks = element_blank(),
+      legend.position = "bottom",
+      strip.text.x = element_text(color = "grey30")
+    )
+}
+
+
 # access_path <- tar_read(accessibility)[1]
 # grid_path <- tar_read(grid_res_8)
 # rio_city_path <- tar_read(rio_city)
 # rio_state_path <- tar_read(rio_state)
 # type <- tar_read(cost_type)[1]
 # travel_time_cutoff <- tar_read(travel_time_thresholds)[1]
+# map_theme <- tar_read(map_theme)
 create_dist_maps <- function(access_path,
                              grid_path,
                              rio_city_path,
                              rio_state_path,
                              type,
-                             travel_time_cutoff) {
+                             travel_time_cutoff,
+                             map_theme) {
   access <- readRDS(access_path)
   grid <- setDT(readRDS(grid_path))
   
@@ -78,15 +102,7 @@ create_dist_maps <- function(access_path,
     ) +
     labs(y = "Affordability (% of income spent on transport)") +
     guides(fill = guide_colorbar(title.vjust = 1)) +
-    theme_minimal() +
-    theme(
-      panel.grid = element_blank(),
-      panel.background = element_rect(fill = "#aadaff", color = NA),
-      axis.text = element_blank(),
-      axis.ticks = element_blank(),
-      legend.position = "bottom",
-      strip.text.x = element_text(color = "grey30")
-    )
+    map_theme
   
   figures_dir <- "../../data/access_uber/figures"
   if (!dir.exists(figures_dir)) dir.create(figures_dir)
@@ -117,12 +133,14 @@ create_dist_maps <- function(access_path,
 # rio_state_path <- tar_read(rio_state)
 # type <- tar_read(cost_type)[1]
 # travel_time_cutoff <- tar_read(travel_time_thresholds)[1]
+# map_theme <- tar_read(map_theme)
 create_diff_dist_maps <- function(access_path,
                                   grid_path,
                                   rio_city_path,
                                   rio_state_path,
                                   type,
-                                  travel_time_cutoff) {
+                                  travel_time_cutoff,
+                                  map_theme) {
   access <- readRDS(access_path)
   grid <- setDT(readRDS(grid_path))
   
@@ -193,15 +211,7 @@ create_diff_dist_maps <- function(access_path,
     ) +
     labs(y = y_axis_name) +
     guides(fill = guide_colorbar(title.vjust = 1)) +
-    theme_minimal() +
-    theme(
-      panel.grid = element_blank(),
-      panel.background = element_rect(fill = "#aadaff", color = NA),
-      axis.text = element_blank(),
-      axis.ticks = element_blank(),
-      legend.position = "bottom",
-      strip.text.x = element_text(color = "grey30")
-    )
+    map_theme
   
   figures_dir <- "../../data/access_uber/figures"
   if (!dir.exists(figures_dir)) dir.create(figures_dir)
@@ -223,15 +233,6 @@ create_diff_dist_maps <- function(access_path,
   )
   
   return(figure_path)
-}
-
-
-create_line_chart_theme <- function() {
-  theme_minimal() +
-    theme(
-      panel.grid.minor = element_blank(),
-      legend.position = "bottom"
-    )
 }
 
 
