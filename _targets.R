@@ -46,7 +46,11 @@ transit_frontier_target <- if (getOption("INSIDE_PRIVATE_SERVER") == TRUE) {
 pipeline <- list(
   tar_target(
     uber_data,
-    "../../data/access_uber/orig_ds_anonymized_v1.rds",
+    ifelse(
+      getOption("INSIDE_PRIVATE_SERVER"),
+      "../../data/access_uber/orig_ds.rds",
+      "../../data/access_uber/orig_ds_anonymized_v1.rds"
+    ),
     format = "file"
   ),
   tar_target(
@@ -96,6 +100,19 @@ pipeline <- list(
   tar_target(
     pickup_data_res_8,
     aggregate_waiting_times(pickup_data, grid_res_8),
+    format = "file"
+  ),
+  tar_target(
+    transit_pareto_frontier,
+    ifelse(
+      getOption("INSIDE_PRIVATE_SERVER") == TRUE,
+      "../../data/access_uber/pfrontiers/absolute/only_transit.rds",
+      calculate_transit_frontier(
+        r5_points,
+        graph_dir,
+        rio_fare_calculator
+      )
+    ),
     format = "file"
   ),
   tar_target(
@@ -215,5 +232,3 @@ pipeline <- list(
     format = "file"
   )
 )
-
-list(pipeline, transit_frontier_target)
