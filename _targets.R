@@ -1,7 +1,6 @@
 options(
   java.parameters = "-Xmx50G",
-  N_CORES = 30L,
-  INSIDE_PRIVATE_SERVER = FALSE
+  N_CORES = 30L
 )
 RcppParallel::setThreadOptions(numThreads = getOption("N_CORES"))
 
@@ -19,38 +18,10 @@ source("R/02_calculate_access.R", encoding = "UTF-8")
 source("R/03_compare_access.R", encoding = "UTF-8")
 source("R/misc.R", encoding = "UTF-8")
 
-# the transit pareto frontier target consumes a lot of resources and can be
-# run inside our usual server, instead of the private server. so we build its
-# target conditionally: if running in our usual server, generate the frontier as
-# usual. if running inside the private server, just point to the previously
-# calculate file
-
-transit_frontier_target <- if (getOption("INSIDE_PRIVATE_SERVER") == TRUE) {
-  tar_target(
-    transit_pareto_frontier,
-    "../../data/access_uber/pfrontiers/absolute/only_transit.rds",
-    format = "file"
-  )
-} else {
-  tar_target(
-    transit_pareto_frontier,
-    calculate_transit_frontier(
-      r5_points,
-      graph_dir,
-      rio_fare_calculator
-    ),
-    format = "file"
-  )
-}
-
-pipeline <- list(
+list(
   tar_target(
     uber_data,
-    ifelse(
-      getOption("INSIDE_PRIVATE_SERVER"),
-      "../../data/access_uber/orig_ds.rds",
-      "../../data/access_uber/orig_ds_anonymized_v1.rds"
-    ),
+    "../../data/access_uber/orig_ds_anonymized_v1.rds",
     format = "file"
   ),
   tar_target(
@@ -104,14 +75,10 @@ pipeline <- list(
   ),
   tar_target(
     transit_pareto_frontier,
-    ifelse(
-      getOption("INSIDE_PRIVATE_SERVER") == TRUE,
-      "../../data/access_uber/pfrontiers/absolute/only_transit.rds",
-      calculate_transit_frontier(
-        r5_points,
-        graph_dir,
-        rio_fare_calculator
-      )
+    calculate_transit_frontier(
+      r5_points,
+      graph_dir,
+      rio_fare_calculator
     ),
     format = "file"
   ),
