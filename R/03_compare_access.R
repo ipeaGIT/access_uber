@@ -111,6 +111,121 @@ create_dist_maps <- function(access_path,
 }
 
 
+# access_path <- tar_read(accessibility)[1]
+# grid_path <- tar_read(grid_res_8)
+# rio_city_path <- tar_read(rio_city)
+# rio_state_path <- tar_read(rio_state)
+# type <- tar_read(cost_type)[1]
+# travel_time_cutoff <- tar_read(travel_time_thresholds)[1]
+create_diff_dist_maps <- function(access_path,
+                                  grid_path,
+                                  rio_city_path,
+                                  rio_state_path,
+                                  type,
+                                  travel_time_cutoff) {
+  access <- readRDS(access_path)
+  grid <- setDT(readRDS(grid_path))
+  
+  monetary_cutoffs <- if(type == "affordability") {
+    c(0.2, 0.4, 0.6)
+  } else {
+    c(5, 10, 15)
+  }
+  monetary_column <- ifelse(
+    type == "affordability",
+    "affordability",
+    "absolute_cost"
+  )
+  
+  access <- access[travel_time == travel_time_cutoff]
+  access <- access[get(monetary_column) %in% monetary_cutoffs]
+  access <- access[mode != "only_uber"]
+  access_diff <- dcast(access, ... ~ mode, value.var = "access")
+  access_diff[, diff := uber_fm_transit_combined - only_transit]
+  access_diff[grid, on = c(from_id = "id_hex"), geometry := i.geometry]
+  
+  if (type == "affordability") {
+    access_diff[
+      ,
+      affordability := factor(
+        affordability,
+        levels = monetary_cutoffs,
+        labels = scales::label_percent()(monetary_cutoffs)
+      )
+    ]
+  } else {
+    access_diff[
+      ,
+      absolute_cost := factor(
+        absolute_cost,
+        levels = monetary_cutoffs,
+        labels = scales::label_dollar(prefix = "R$ ")(monetary_cutoffs)
+      )
+    ]
+  }
+  
+  access_diff <- st_sf(access_diff)
+  
+  city_border <- readRDS(rio_city_path)
+  state_border <- readRDS(rio_state_path)
+  xlim <- c(st_bbox(city_border)[1], st_bbox(city_border)[3])
+  ylim <- c(st_bbox(city_border)[2], st_bbox(city_border)[4])
+  
+  total_jobs <- sum(grid$empregos_total)
+  
+  y_axis_name <- ifelse(
+    type == "affordability",
+    "Affordability (% of income spent on transport)",
+    "Monetary cost threshold"
+  )
+  
+  p <- ggplot(access_diff) +
+    geom_sf(data = state_border, color = NA, fill = "#efeeec") +
+    geom_sf(aes(fill = diff), color = NA) +
+    geom_sf(data = city_border, color = "black", fill = NA, size = 0.3) +
+    facet_wrap(~ get(monetary_column), ncol = 1, strip.position = "left") +
+    coord_sf(xlim = xlim, ylim = ylim) +
+    scale_fill_gradient(
+      name = "Accessibility diff.\n(% of total jobs)",
+      low = "#efeeec",
+      high = "firebrick3",
+      labels = scales::label_percent(scale = 100 / total_jobs)
+    ) +
+    labs(y = y_axis_name) +
+    guides(fill = guide_colorbar(title.vjust = 1)) +
+    theme_minimal() +
+    theme(
+      panel.grid = element_blank(),
+      panel.background = element_rect(fill = "#aadaff", color = NA),
+      axis.text = element_blank(),
+      axis.ticks = element_blank(),
+      legend.position = "bottom",
+      strip.text.x = element_text(color = "grey30")
+    )
+  
+  figures_dir <- "../../data/access_uber/figures"
+  if (!dir.exists(figures_dir)) dir.create(figures_dir)
+  
+  type_dir <- file.path(figures_dir, monetary_column)
+  if (!dir.exists(type_dir)) dir.create(type_dir)
+  
+  diff_dist_dir <- file.path(type_dir, "diff_dist_maps")
+  if (!dir.exists(diff_dist_dir)) dir.create(diff_dist_dir)
+  
+  figure_basename <- paste0(travel_time_cutoff, "min.jpg")
+  figure_path <- file.path(diff_dist_dir, figure_basename)
+  ggsave(
+    figure_path,
+    plot = p,
+    width = 9,
+    height = 15,
+    units = "cm"
+  )
+  
+  return(figure_path)
+}
+
+
 create_line_chart_theme <- function() {
   theme_minimal() +
     theme(

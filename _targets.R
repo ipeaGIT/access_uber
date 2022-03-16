@@ -200,6 +200,19 @@ pipeline <- list(
     ),
     pattern = map(palma, cost_type),
     format = "file"
+  ),
+  tar_target(
+    diff_dist,
+    create_diff_dist_maps(
+      accessibility,
+      grid_res_8,
+      rio_city,
+      rio_state,
+      cost_type,
+      travel_time_thresholds
+    ),
+    pattern = cross(map(accessibility, cost_type), travel_time_thresholds),
+    format = "file"
   )
 )
 
