@@ -55,7 +55,11 @@ create_dist_maps <- function(access_path,
     ,
     mode := factor(
       mode,
-      levels = c("only_transit", "uber_fm_transit_combined", "only_uber"),
+      levels = c(
+        "only_transit_pareto_frontier",
+        "uber_fm_transit_combined",
+        "only_uber"
+      ),
       labels = c("Only transit", "Uber first mile + Transit", "Only uber")
     )
   ]
@@ -110,7 +114,7 @@ create_dist_maps <- function(access_path,
     guides(fill = guide_colorbar(title.vjust = 1)) +
     map_theme
   
-  figures_dir <- "../../data/access_uber/figures"
+  figures_dir <- "../figures"
   if (!dir.exists(figures_dir)) dir.create(figures_dir)
   
   type_dir <- file.path(figures_dir, monetary_column)
@@ -165,7 +169,7 @@ create_diff_dist_maps <- function(access_path,
   access <- access[get(monetary_column) %in% monetary_cutoffs]
   access <- access[mode != "only_uber"]
   access_diff <- dcast(access, ... ~ mode, value.var = "access")
-  access_diff[, diff := uber_fm_transit_combined - only_transit]
+  access_diff[, diff := uber_fm_transit_combined - only_transit_pareto_frontier]
   access_diff[grid, on = c(from_id = "id_hex"), geometry := i.geometry]
   
   if (type == "affordability") {
@@ -219,7 +223,7 @@ create_diff_dist_maps <- function(access_path,
     guides(fill = guide_colorbar(title.vjust = 1)) +
     map_theme
   
-  figures_dir <- "../../data/access_uber/figures"
+  figures_dir <- "../figures"
   if (!dir.exists(figures_dir)) dir.create(figures_dir)
   
   type_dir <- file.path(figures_dir, monetary_column)
@@ -267,7 +271,11 @@ create_avg_access_plot <- function(access_path,
     ,
     mode := factor(
       mode,
-      levels = c("only_transit", "uber_fm_transit_combined", "only_uber"),
+      levels = c(
+        "only_transit_pareto_frontier",
+        "uber_fm_transit_combined",
+        "only_uber"
+      ),
       labels = c("Only transit", "Uber first mile + Transit", "Only uber")
     )
   ]
@@ -311,7 +319,7 @@ create_avg_access_plot <- function(access_path,
     ) +
     line_chart_theme
   
-  figures_dir <- "../../data/access_uber/figures"
+  figures_dir <- "../figures"
   if (!dir.exists(figures_dir)) dir.create(figures_dir)
   
   type_dir <- file.path(figures_dir, monetary_column)
@@ -372,7 +380,11 @@ create_avg_access_per_group_plot <- function(access_path,
     ,
     mode := factor(
       mode,
-      levels = c("only_transit", "uber_fm_transit_combined", "only_uber"),
+      levels = c(
+        "only_transit_pareto_frontier",
+        "uber_fm_transit_combined",
+        "only_uber"
+      ),
       labels = c("Only transit", "Uber first mile +\nTransit", "Only uber")
     )
   ]
@@ -426,7 +438,7 @@ create_avg_access_per_group_plot <- function(access_path,
     ) +
     line_chart_theme
   
-  figures_dir <- "../../data/access_uber/figures"
+  figures_dir <- "../figures"
   if (!dir.exists(figures_dir)) dir.create(figures_dir)
   
   type_dir <- file.path(figures_dir, monetary_column)
@@ -469,7 +481,11 @@ create_palma_plot <- function(palma_path,
     ,
     mode := factor(
       mode,
-      levels = c("only_transit", "uber_fm_transit_combined", "only_uber"),
+      levels = c(
+        "only_transit_pareto_frontier",
+        "uber_fm_transit_combined",
+        "only_uber"
+      ),
       labels = c("Only transit", "Uber first mile + Transit", "Only uber")
     )
   ]
@@ -513,7 +529,7 @@ create_palma_plot <- function(palma_path,
     scale_y_continuous(name = "Palma Ratio") +
     line_chart_theme
   
-  figures_dir <- "../../data/access_uber/figures"
+  figures_dir <- "../figures"
   if (!dir.exists(figures_dir)) dir.create(figures_dir)
   
   type_dir <- file.path(figures_dir, monetary_column)

@@ -87,7 +87,7 @@ calculate_access <- function(frontier_paths,
   )
   setnames(accessibility, old = "monetary_limit", cost_cutoff_column)
   
-  access_dir <- "../../data/access_uber/access"
+  access_dir <- "../data/data/access"
   if (!dir.exists(access_dir)) dir.create(access_dir)
   
   access_basename <- paste0(cost_cutoff_column, "_access.rds")
@@ -130,7 +130,7 @@ calculate_palma <- function(access_path, grid_path, type) {
   setnames(palma, old = "cost_cutoff", cost_cutoff_column)
   
   palma_basename <- paste0(cost_cutoff_column, "_palma.rds")
-  palma_path <- file.path("../../data/access_uber/access", palma_basename)
+  palma_path <- file.path("../data/data/access", palma_basename)
   saveRDS(palma, palma_path)
   
   return(palma_path)

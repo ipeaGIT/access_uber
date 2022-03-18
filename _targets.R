@@ -1,5 +1,5 @@
 options(
-  java.parameters = "-Xmx50G",
+  java.parameters = "-Xmx100G",
   N_CORES = 30L
 )
 RcppParallel::setThreadOptions(numThreads = getOption("N_CORES"))
@@ -21,43 +21,47 @@ source("R/misc.R", encoding = "UTF-8")
 list(
   tar_target(
     uber_data,
-    "../../data/access_uber/orig_ds_anonymized_v1.rds",
+    "../data/data-raw/rio_origin_destination.csv",
     format = "file"
   ),
   tar_target(
     pickup_data,
-    "../../data-raw/uber_speed/pickup_anonymized.rds",
+    "../data/data-raw/rio_pickups.csv",
     format = "file"
   ),
   tar_target(
     rapid_transit_stations,
-    "../../data-raw/uber_speed/rapid_transit_stations_city.csv",
+    "../data/data-raw/aop_generated/rapid_transit_stations_city.csv",
     format = "file"
   ),
   tar_target(
     graph_dir,
-    "../../data/access_uber/r5/rio",
+    "../r5/rio",
     format = "file"
   ),
   tar_target(
     grid_res_9,
-    "../../data/acesso_oport/hex_agregados/2019/hex_agregado_rio_09_2019.rds",
+    "../data/data-raw/aop_generated/hex_agregado_rio_09_2019.rds",
     format = "file"
   ),
   tar_target(
     grid_res_8,
-    "../../data/acesso_oport/hex_agregados/2019/hex_agregado_rio_08_2019.rds",
+    "../data/data-raw/aop_generated/hex_agregado_rio_08_2019.rds",
     format = "file"
   ),
   tar_target(
     rio_fare_calculator,
-    "../../data/access_uber/rio_fares_v3.zip",
+    "../data/data-raw/aop_generated/rio_fares_v3.zip",
     format = "file"
   ),
-  tar_target(rio_city, "../../data/access_uber/rio_city.rds", format = "file"),
+  tar_target(
+    rio_city,
+    "../data/data-raw/aop_generated/rio_city.rds",
+    format = "file"
+  ),
   tar_target(
     rio_state,
-    "../../data/access_uber/rio_state.rds",
+    "../data/data-raw/aop_generated/rio_state.rds",
     format = "file"
   ),
   tar_target(line_chart_theme, create_line_chart_theme()),
@@ -76,11 +80,7 @@ list(
   ),
   tar_target(
     transit_pareto_frontier,
-    calculate_transit_frontier(
-      r5_points,
-      graph_dir,
-      rio_fare_calculator
-    ),
+    "../data/data-raw/aop_generated/only_transit_pareto_frontier.rds",
     format = "file"
   ),
   tar_target(

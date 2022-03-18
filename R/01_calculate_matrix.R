@@ -26,7 +26,7 @@ generate_r5_points <- function(grid_path) {
   
   # save object and return path
   
-  file_path <- paste0("../../data/access_uber/points_rio_09_2019.csv")
+  file_path <- paste0("../data/data/points_rio_09_2019.csv")
   fwrite(centroids, file_path)
   
   return(file_path)
@@ -116,7 +116,7 @@ calculate_transit_frontier <- function(points_path,
 # pickup_data_path <- tar_read(pickup_data)
 # grid_path <- tar_read(grid_res_8)
 aggregate_waiting_times <- function(pickup_data_path, grid_path) {
-  pickup_data <- readRDS(pickup_data_path)
+  pickup_data <- fread(pickup_data_path)
   pickup_data <- pickup_data[
     date_block_2019 == "mar8_dec20" &
       weekday_weekend == "weekday" &
@@ -142,7 +142,7 @@ aggregate_waiting_times <- function(pickup_data_path, grid_path) {
   grid <- readRDS(grid_path)
   aggregated_data <- aggregated_data[hex_addr %chin% grid$id_hex]
   
-  data_dir <- "../../data/access_uber"
+  data_dir <- "../data/data/"
   path <- file.path(data_dir, "pickup_anonymized_res_8.rds")
   saveRDS(aggregated_data, path)
   
@@ -154,7 +154,7 @@ aggregate_waiting_times <- function(pickup_data_path, grid_path) {
 # pickup_data_path <- tar_read(pickup_data_res_8)
 # grid_path <- tar_read(grid_res_8)
 fill_uber_matrix <- function(uber_data_path, pickup_data_path, grid_path) {
-  uber_data <- readRDS(uber_data_path)
+  uber_data <- fread(uber_data_path)
   uber_data <- uber_data[
     date_block_2019 == "mar8_dec20" &
       weekday_weekend == "weekday" &
@@ -359,7 +359,7 @@ fill_uber_matrix <- function(uber_data_path, pickup_data_path, grid_path) {
   full_matrix[, c("distance", "waiting_time") := NULL]
   setnames(full_matrix, old = "cost", new = "monetary_cost")
   
-  parent_dir <- "../../data/access_uber/pfrontiers"
+  parent_dir <- "../data/data/pfrontiers"
   if (!dir.exists(parent_dir)) dir.create(parent_dir)
   
   matrix_dir <- file.path(parent_dir, "absolute")
@@ -558,7 +558,7 @@ calculate_uber_first_mile_frontier <- function(uber_matrix_path,
   
   frontier <- keep_pareto_frontier(frontier)
   
-  parent_dir <- "../../data/access_uber/pfrontiers"
+  parent_dir <- "../data/data/pfrontiers"
   if (!dir.exists(parent_dir)) dir.create(parent_dir)
   
   frontier_dir <- file.path(parent_dir, "absolute")
@@ -607,7 +607,7 @@ join_uber_fm_transit_frontiers <- function(uber_frontier_path,
   frontier <- rbind(uber_frontier, transit_frontier, fill = TRUE)
   frontier <- keep_pareto_frontier(frontier)
   
-  parent_dir <- "../../data/access_uber/pfrontiers"
+  parent_dir <- "../data/data/pfrontiers"
   if (!dir.exists(parent_dir)) dir.create(parent_dir)
   
   frontier_dir <- file.path(parent_dir, "absolute")
@@ -670,7 +670,7 @@ calculate_affordability <- function(only_uber_path,
       ]
       frontier[, origin_income_per_capita := NULL]
       
-      frontier_dir <- "../../data/access_uber/pfrontiers/affordability"
+      frontier_dir <- "../data/data/pfrontiers/affordability"
       if (!dir.exists(frontier_dir)) dir.create(frontier_dir)
       
       frontier_basename <- basename(path)
