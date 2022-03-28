@@ -94,6 +94,11 @@ list(
     format = "file"
   ),
   tar_target(
+    walk_uber_frontier,
+    calculate_walk_uber_frontier(full_uber_matrix, walk_only_matrix),
+    format = "file"
+  ),
+  tar_target(
     uber_first_mile_pareto_frontier,
     calculate_uber_first_mile_frontier(
       full_uber_matrix,

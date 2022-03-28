@@ -412,16 +412,36 @@ fill_uber_matrix <- function(uber_data_path, pickup_data_path, grid_path) {
   full_matrix[, c("distance", "waiting_time") := NULL]
   setnames(full_matrix, old = "cost", new = "monetary_cost")
   
-  parent_dir <- "../data/data/pfrontiers"
-  if (!dir.exists(parent_dir)) dir.create(parent_dir)
-  
-  matrix_dir <- file.path(parent_dir, "absolute")
+  matrix_dir <- "../data/data/pfrontiers"
   if (!dir.exists(matrix_dir)) dir.create(matrix_dir)
   
-  matrix_path <- file.path(matrix_dir, "only_uber.rds")
+  matrix_path <- file.path(matrix_dir, "full_uber_matrix.rds")
   saveRDS(full_matrix, matrix_path)
   
   return(matrix_path)
+}
+
+# uber_matrix_path <- tar_read(full_uber_matrix)
+# walk_matrix_path <- tar_read(walk_only_matrix)
+calculate_walk_uber_frontier <- function(uber_matrix_path, walk_matrix_path) {
+  uber_matrix <- readRDS(uber_matrix_path)
+  
+  walk_only_matrix <- readRDS(walk_matrix_path)
+  walk_only_matrix[, monetary_cost := 0]
+  
+  walk_uber_frontier <- rbind(uber_matrix, walk_only_matrix)
+  walk_uber_frontier <- keep_pareto_frontier(walk_uber_frontier)
+  
+  parent_dir <- "../data/data/pfrontiers"
+  if (!dir.exists(parent_dir)) dir.create(parent_dir)
+  
+  frontier_dir <- file.path(parent_dir, "absolute")
+  if (!dir.exists(frontier_dir)) dir.create(frontier_dir)
+  
+  frontier_path <- file.path(frontier_dir, "only_uber.rds")
+  saveRDS(walk_uber_frontier, frontier_path)
+  
+  return(frontier_path)
 }
 
 

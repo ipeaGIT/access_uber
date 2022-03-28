@@ -58,15 +58,16 @@ palma_plot_5fa11f25|branch|56455e237f754736|662906a5eefa0af8|eeece8c313813bfa|-1
 palma_plot|pattern|b73a7cc4920e13c1|662906a5eefa0af8||845247040||||262960|file|vector||palma_plot_fac9fcc3*palma_plot_5fa11f25|1.36||
 graph_dir|stem|92e615687cd08484|5cf2c39d61f165e3|ef46db3751d8e999|1477339001|../r5/rio|t19069.8606597222s|908ec9ea9f0a90f4|0|file|vector|||0.02||
 walk_only_matrix|stem|a7acb98503768191|ce76c0bb97fed2af|26fdaf3c7607b412|-1196878624|../data/data/pfrontiers/walk_matrix.rds|t19079.6300578704s|4765d7dade0628a3|26258|file|vector|||38.71||
+full_uber_matrix|stem|0d451692e768b87d|0001e7f3ced1079b|36c67a08286e9651|722627198|../data/data/pfrontiers/full_uber_matrix.rds|t19079.6513541667s|1c0d16d6cf2a458e|4697360|file|vector|||17.5||
 create_map_theme|function|abc0e0bd124ee2d5||||||||||||||
 create_dist_maps|function|4fef50aa0fc6353c||||||||||||||
 create_palma_plot|function|ab22afd789995e3e||||||||||||||
 generate_possible_fare_values|function|8c15036df914750e||||||||||||||
 palma_calculator|function|fe1d968794237f52||||||||||||||
 get_frontier_type|function|e937ef48a6761437||||||||||||||
-fill_uber_matrix|function|e36c8b360b9caac4||||||||||||||
+fill_uber_matrix|function|4d687729f248cb3b||||||||||||||
 aggregate_waiting_times|function|0b8df907b683e310||||||||||||||
-.Random.seed|object|71b4393447732e31||||||||||||||
+.Random.seed|object|d160e60216047b27||||||||||||||
 create_avg_access_plot|function|f2cf84f8fbe5dd37||||||||||||||
 calculate_affordability|function|e674e43515c09e0e||||||||||||||
 calculate_access|function|38a7fd52670a9a30||||||||||||||
@@ -80,5 +81,6 @@ calculate_transit_frontier|function|91f89311072df445||||||||||||||
 calculate_palma|function|1f592499cc8fbdc1||||||||||||||
 keep_pareto_frontier|function|879951c3d67f8663||||||||||||||
 calculate_uber_first_mile_frontier|function|1a6d863bb741b07b||||||||||||||
+calculate_walk_uber_frontier|function|239862f3baf3fd76||||||||||||||
 join_uber_fm_transit_frontiers|function|1db4b2227cf41124||||||||||||||
-full_uber_matrix|stem|0d451692e768b87d|0001e7f3ced1079b|51ce44dfb0f732fb|722627198|../data/data/pfrontiers/absolute/only_uber.rds|t19079.6309722222s|1c0d16d6cf2a458e|4697360|file|vector|||17.4||
+walk_uber_frontier|stem|237f682137ad4fb8|2de4cf18dec12977|54bfe9e94da14cde|-650428354|../data/data/pfrontiers/absolute/only_uber.rds|t19079.6575462963s|bf40720c43f251d5|4725290|file|vector|||11.81||
