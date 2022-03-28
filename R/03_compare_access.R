@@ -546,3 +546,109 @@ create_palma_plot <- function(palma_path,
   
   return(figure_path)
 }
+
+
+# access_path <- tar_read(accessibility)[1]
+# grid_path <- tar_read(grid_res_8)
+# line_chart_theme <- tar_read(line_chart_theme)
+# monetary_thresholds_sublist <- tar_read(monetary_thresholds)[1]
+# type <- tar_read(cost_type)[1]
+create_avg_access_by_time_plot <- function(access_path,
+                                           grid_path,
+                                           line_chart_theme,
+                                           monetary_thresholds_sublist,
+                                           type) {
+  access <- readRDS(access_path)
+  grid <- setDT(readRDS(grid_path))
+  
+  monetary_thresholds <- monetary_thresholds_sublist[[1]]
+  monetary_thresholds <- if (type == "affordability") {
+    monetary_thresholds[c(-1, -6, -7)]
+  } else {
+    monetary_thresholds[-1]
+  }
+  
+  monetary_column <- ifelse(
+    type == "affordability",
+    "affordability",
+    "absolute_cost"
+  )
+  
+  access <- access[get(monetary_column) %in% monetary_thresholds]
+  access[grid, on = c(from_id = "id_hex"), population := i.pop_total]
+  access[
+    ,
+    mode := factor(
+      mode,
+      levels = c(
+        "only_transit_pareto_frontier",
+        "uber_fm_transit_combined",
+        "only_uber"
+      ),
+      labels = c("Only transit", "Uber first mile + Transit", "Only uber")
+    )
+  ]
+  access <- access[
+    ,
+    .(avg_access = weighted.mean(access, w = population)),
+    keyby = .(mode, travel_time, cost_cutoff = get(monetary_column))
+  ]
+  setnames(access, old = "cost_cutoff", new = monetary_column)
+  
+  if (type == "affordability") {
+    access[
+      ,
+      affordability := factor(
+        affordability,
+        levels = monetary_thresholds,
+        labels = scales::label_percent()(monetary_thresholds)
+      )
+    ]
+  } else {
+    access[
+      ,
+      absolute_cost := factor(
+        absolute_cost,
+        levels = monetary_thresholds,
+        labels = scales::label_dollar(prefix = "R$ ")(monetary_thresholds)
+      )
+    ]
+  }
+  
+  total_jobs <- sum(grid$empregos_total)
+  
+  p <- ggplot(access) +
+    geom_line(
+      aes(
+        travel_time,
+        avg_access,
+        color = mode,
+        group = mode
+      )
+    ) +
+    facet_wrap(~ get(monetary_column), nrow = 2) +
+    scale_color_brewer(name = "Scenario", palette = "Paired") +
+    scale_x_continuous(name = "Travel time threshold") +
+    scale_y_continuous(
+      name = "Average accessibility (% of total jobs in each city)",
+      labels = scales::label_percent(accuracy = 1, scale = 100 / total_jobs)
+    ) +
+    line_chart_theme
+  
+  figures_dir <- "../figures"
+  if (!dir.exists(figures_dir)) dir.create(figures_dir)
+  
+  type_dir <- file.path(figures_dir, monetary_column)
+  if (!dir.exists(type_dir)) dir.create(type_dir)
+  
+  figure_path <- file.path(type_dir, "avg_access_by_time.jpg")
+  ggsave(
+    figure_path,
+    plot = p,
+    width = 15,
+    height = 11,
+    units = "cm"
+  )
+  
+  return(figure_path)
+}

@@ -69,7 +69,7 @@ list(
   tar_target(travel_time_thresholds, c(30, 60, 90, 120)),
   tar_target(
     monetary_thresholds,
-    list(absolute = seq(0, 20, by = 5), affordability = seq(0, 0.6, by = 0.1))
+    list(absolute = seq(0, 24, by = 6), affordability = seq(0, 0.6, by = 0.1))
   ),
   tar_target(cost_type, c("absolute", "affordability")),
   tar_target(r5_points, generate_r5_points(grid_res_8), format = "file"),
@@ -209,6 +209,18 @@ list(
       map_theme
     ),
     pattern = cross(map(accessibility, cost_type), travel_time_thresholds),
+    format = "file"
+  ),
+  tar_target(
+    avg_access_by_time,
+    create_avg_access_by_time_plot(
+      accessibility,
+      grid_res_8,
+      line_chart_theme,
+      monetary_thresholds,
+      cost_type
+    ),
+    pattern = map(accessibility, cost_type),
     format = "file"
   )
 )
