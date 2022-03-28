@@ -47,12 +47,12 @@ calculate_transit_frontier <- function(points_path,
   # pick values to use as cutoffs based on rio's fare values (for now we're
   # limiting this values to BRL 15 max).
   
-  max_rides <- 3
+  max_rides <- 4
   
   rio_fare_calculator <- r5r::read_fare_calculator(rio_fare_calculator_path)
   possible_fare_values <- generate_possible_fare_values(
     rio_fare_calculator,
-    max_value = 15,
+    max_value = 18,
     max_rides = max_rides
   )
   
@@ -305,16 +305,14 @@ fill_uber_matrix <- function(uber_data_path, pickup_data_path, grid_path) {
   # uber_data is filtered to include only rio's hexagons, because the cost
   # function may be different out of rio.
   
-  cost_lm <- lm(cost ~ distance + travel_time, uber_data)
+  cost_lm <- lm(cost ~ distance, uber_data)
   coefs <- cost_lm$coefficients
   coefs[is.na(coefs)] <- 0
   
   full_matrix[uber_data, on = c(from_id = "from", to_id = "to"), cost := i.cost]
   full_matrix[
     is.na(cost),
-    cost := coefs["(Intercept)"] +
-      distance * coefs["distance"] +
-      travel_time * coefs["travel_time"]
+    cost := coefs["(Intercept)"] + distance * coefs["distance"]
   ]
   
   # we have to add to the travel time the mean waiting time at each origin,
