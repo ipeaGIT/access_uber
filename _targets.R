@@ -105,7 +105,7 @@ list(
   tar_target(
     uber_first_mile_pareto_frontier,
     calculate_uber_first_mile_frontier(
-      full_uber_matrix,
+      walk_uber_frontier,
       rapid_transit_stations,
       graph_dir,
       r5_points,
@@ -125,7 +125,7 @@ list(
   tar_target(
     frontiers_with_affordability,
     calculate_affordability(
-      full_uber_matrix,
+      walk_uber_frontier,
       transit_pareto_frontier,
       uber_fm_transit_combined_frontier,
       grid_res_8
@@ -224,7 +224,7 @@ list(
       monetary_thresholds,
       cost_type
     ),
-    pattern = map(accessibility, cost_type),
+    pattern = map(accessibility, cost_type, monetary_thresholds),
     format = "file"
   ),
   tar_target(
@@ -237,7 +237,10 @@ list(
       monetary_thresholds,
       cost_type
     ),
-    pattern = cross(map(accessibility, cost_type), travel_time_thresholds),
+    pattern = cross(
+      map(accessibility, cost_type, monetary_thresholds),
+      travel_time_thresholds
+    ),
     format = "file"
   )
 )
