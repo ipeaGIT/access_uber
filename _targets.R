@@ -222,5 +222,18 @@ list(
     ),
     pattern = map(accessibility, cost_type),
     format = "file"
+  ),
+  tar_target(
+    transit_vs_uber_fm_comparison,
+    create_comparison_scatter_plot(
+      accessibility,
+      grid_res_8,
+      line_chart_theme,
+      travel_time_thresholds,
+      monetary_thresholds,
+      cost_type
+    ),
+    pattern = cross(map(accessibility, cost_type), travel_time_thresholds),
+    format = "file"
   )
 )
