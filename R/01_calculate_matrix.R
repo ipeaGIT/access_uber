@@ -499,19 +499,18 @@ calculate_uber_first_mile_frontier <- function(uber_matrix_path,
   # arrive at the station, so for each unique uber trip length we calculate one
   # frontier.
   # to calculate the frontier, we have to specify the monetary cost cutoffs. we
-  # pick values to use as cutoffs based on rio's fare values (for now we're
-  # limiting this values to BRL 10 max).
+  # pick values to use as cutoffs based on rio's fare values
   
   r5r_core <- setup_r5(graph_path, verbose = FALSE, use_elevation = TRUE)
   
   uber_trip_lengths <- unique(first_mile_matrix$travel_time)
   uber_trip_lengths <- uber_trip_lengths[order(uber_trip_lengths)]
   
-  max_rides <- 3
+  max_rides <- 4
   rio_fare_calculator <- read_fare_calculator(rio_fare_calculator_path)
   possible_fare_values <- generate_possible_fare_values(
     rio_fare_calculator,
-    max_value = 10,
+    max_value = 18,
     max_rides = max_rides
   )
   
