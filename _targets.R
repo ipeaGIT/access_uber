@@ -85,7 +85,11 @@ list(
   ),
   tar_target(
     transit_pareto_frontier,
-    "../data/data-raw/aop_generated/only_transit_pareto_frontier.rds",
+    calculate_transit_frontier(
+      r5_points,
+      graph_dir,
+      rio_fare_calculator
+    ),
     format = "file"
   ),
   tar_target(

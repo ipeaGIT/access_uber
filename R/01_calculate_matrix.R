@@ -156,7 +156,7 @@ calculate_transit_frontier <- function(points_path,
     travel_time := min_walking_duration
   ]
   
-  parent_dir <- "../../data/access_uber/pfrontiers"
+  parent_dir <- "../data/data/pfrontiers"
   if (!dir.exists(parent_dir)) dir.create(parent_dir)
   
   frontier_dir <- file.path(parent_dir, "absolute")
