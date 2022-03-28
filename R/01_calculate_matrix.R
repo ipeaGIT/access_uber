@@ -35,6 +35,61 @@ generate_r5_points <- function(grid_path) {
 
 # points_path <- tar_read(r5_points)
 # graph_path <- tar_read(graph_dir)
+calculate_walk_matrix <- function(points_path, graph_path) {
+  points <- fread(points_path)
+  
+  r5r_core <- setup_r5(graph_path, verbose = FALSE, use_elevation = TRUE)
+  
+  walking_speed <- 3.6
+  
+  walk_matrix <- travel_time_matrix(
+    r5r_core,
+    origins = points,
+    destinations = points,
+    mode = "WALK",
+    departure_datetime = as.POSIXct(
+      "08-01-2020 07:00:00",
+      format = "%d-%m-%Y %H:%M:%S"
+    ),
+    time_window = 1,
+    draws_per_minute = 1,
+    max_trip_duration = 30,
+    max_walk_dist = 1800,
+    walk_speed = walking_speed,
+    n_threads = getOption("N_CORES"),
+    verbose = FALSE
+  )
+  
+  # as the uber matrix includes trips from the cells to themselves where the
+  # travel time and cost are not 0, we also consider that walking trips from the
+  # hexagons to themselves are not instantaneous. so we calculate an "average"
+  # travel time as the edge length divided by the walking speed.
+  # also, very few walking trips from one hexagon to another may be faster than
+  # this calculated minimum walking duration, and we substitute the travel time
+  # of those by the calculated value as well
+  
+  edge_length <- 0.461354684
+  min_walking_duration <- edge_length / walking_speed * 60
+  min_walking_duration <- as.integer(round(min_walking_duration))
+  
+  walk_matrix[
+    from_id == to_id & travel_time < min_walking_duration,
+    travel_time := min_walking_duration
+  ]
+  walk_matrix[
+    travel_time < min_walking_duration,
+    travel_time := min_walking_duration
+  ]
+  
+  file_path <- paste0("../data/data/pfrontiers/walk_matrix.rds")
+  saveRDS(walk_matrix, file_path)
+  
+  return(file_path)
+}
+
+
+# points_path <- tar_read(r5_points)
+# graph_path <- tar_read(graph_dir)
 # rio_fare_calculator_path <- tar_read(rio_fare_calculator)
 calculate_transit_frontier <- function(points_path,
                                        graph_path,

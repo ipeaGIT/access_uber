@@ -79,6 +79,11 @@ list(
     format = "file"
   ),
   tar_target(
+    walk_only_matrix,
+    calculate_walk_matrix(r5_points, graph_dir),
+    format = "file"
+  ),
+  tar_target(
     transit_pareto_frontier,
     "../data/data-raw/aop_generated/only_transit_pareto_frontier.rds",
     format = "file"
