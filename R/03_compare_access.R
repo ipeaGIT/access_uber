@@ -56,7 +56,7 @@ create_dist_maps <- function(access_path,
     mode := factor(
       mode,
       levels = c(
-        "only_transit_pareto_frontier",
+        "only_transit",
         "uber_fm_transit_combined",
         "only_uber"
       ),
@@ -169,7 +169,7 @@ create_diff_dist_maps <- function(access_path,
   access <- access[get(monetary_column) %in% monetary_cutoffs]
   access <- access[mode != "only_uber"]
   access_diff <- dcast(access, ... ~ mode, value.var = "access")
-  access_diff[, diff := uber_fm_transit_combined - only_transit_pareto_frontier]
+  access_diff[, diff := uber_fm_transit_combined - only_transit]
   access_diff[grid, on = c(from_id = "id_hex"), geometry := i.geometry]
   
   if (type == "affordability") {
@@ -272,7 +272,7 @@ create_avg_access_plot <- function(access_path,
     mode := factor(
       mode,
       levels = c(
-        "only_transit_pareto_frontier",
+        "only_transit",
         "uber_fm_transit_combined",
         "only_uber"
       ),
@@ -381,7 +381,7 @@ create_avg_access_per_group_plot <- function(access_path,
     mode := factor(
       mode,
       levels = c(
-        "only_transit_pareto_frontier",
+        "only_transit",
         "uber_fm_transit_combined",
         "only_uber"
       ),
@@ -482,7 +482,7 @@ create_palma_plot <- function(palma_path,
     mode := factor(
       mode,
       levels = c(
-        "only_transit_pareto_frontier",
+        "only_transit",
         "uber_fm_transit_combined",
         "only_uber"
       ),
@@ -581,7 +581,7 @@ create_avg_access_by_time_plot <- function(access_path,
     mode := factor(
       mode,
       levels = c(
-        "only_transit_pareto_frontier",
+        "only_transit",
         "uber_fm_transit_combined",
         "only_uber"
       ),
@@ -730,7 +730,7 @@ create_comparison_scatter_plot <- function(access_path,
   p <- ggplot(access) +
     geom_point(
       aes(
-        only_transit_pareto_frontier,
+        only_transit,
         uber_fm_transit_combined,
         size = population,
         color = decile
