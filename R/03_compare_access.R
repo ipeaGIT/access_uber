@@ -26,6 +26,7 @@ create_map_theme <- function() {
 # rio_state_path <- tar_read(rio_state)
 # type <- tar_read(cost_type)[1]
 # travel_time_cutoff <- tar_read(travel_time_thresholds)[1]
+# monetary_thresholds_sublist <- tar_read(monetary_thresholds)[1]
 # map_theme <- tar_read(map_theme)
 create_dist_maps <- function(access_path,
                              grid_path,
@@ -33,15 +34,18 @@ create_dist_maps <- function(access_path,
                              rio_state_path,
                              type,
                              travel_time_cutoff,
+                             monetary_thresholds_sublist,
                              map_theme) {
   access <- readRDS(access_path)
   grid <- setDT(readRDS(grid_path))
   
-  monetary_cutoffs <- if(type == "affordability") {
-    c(0.2, 0.4, 0.6)
+  monetary_thresholds <- monetary_thresholds_sublist[[1]]
+  monetary_thresholds <- if (type == "affordability") {
+    monetary_thresholds[c(-1, -6, -7)]
   } else {
-    c(5, 10, 15)
+    monetary_thresholds[-1]
   }
+  
   monetary_column <- ifelse(
     type == "affordability",
     "affordability",
@@ -49,7 +53,7 @@ create_dist_maps <- function(access_path,
   )
   
   access <- access[travel_time == travel_time_cutoff]
-  access <- access[get(monetary_column) %in% monetary_cutoffs]
+  access <- access[get(monetary_column) %in% monetary_thresholds]
   access[grid, on = c(from_id = "id_hex"), geometry := i.geometry]
   access[
     ,
@@ -69,8 +73,8 @@ create_dist_maps <- function(access_path,
       ,
       affordability := factor(
         affordability,
-        levels = monetary_cutoffs,
-        labels = scales::label_percent()(monetary_cutoffs)
+        levels = monetary_thresholds,
+        labels = scales::label_percent(accuracy = 1)(monetary_thresholds)
       )
     ]
   } else {
@@ -78,8 +82,8 @@ create_dist_maps <- function(access_path,
       ,
       absolute_cost := factor(
         absolute_cost,
-        levels = monetary_cutoffs,
-        labels = scales::label_dollar(prefix = "R$ ")(monetary_cutoffs)
+        levels = monetary_thresholds,
+        labels = scales::label_dollar(prefix = "R$ ")(monetary_thresholds)
       )
     ]
   }
@@ -108,7 +112,7 @@ create_dist_maps <- function(access_path,
     scale_fill_viridis_c(
       name = "Accessibility\n(% of total jobs)",
       option = "inferno",
-      labels = scales::label_percent(scale = 100 / total_jobs)
+      labels = scales::label_percent(accuracy = 1, scale = 100 / total_jobs)
     ) +
     labs(y = y_axis_name) +
     guides(fill = guide_colorbar(title.vjust = 1)) +
@@ -129,7 +133,7 @@ create_dist_maps <- function(access_path,
     figure_path,
     plot = p,
     width = 15,
-    height = 10,
+    height = 13,
     units = "cm"
   )
   
@@ -143,6 +147,7 @@ create_dist_maps <- function(access_path,
 # rio_state_path <- tar_read(rio_state)
 # type <- tar_read(cost_type)[1]
 # travel_time_cutoff <- tar_read(travel_time_thresholds)[1]
+# monetary_thresholds_sublist <- tar_read(monetary_thresholds)[1]
 # map_theme <- tar_read(map_theme)
 create_diff_dist_maps <- function(access_path,
                                   grid_path,
@@ -150,15 +155,18 @@ create_diff_dist_maps <- function(access_path,
                                   rio_state_path,
                                   type,
                                   travel_time_cutoff,
+                                  monetary_thresholds_sublist,
                                   map_theme) {
   access <- readRDS(access_path)
   grid <- setDT(readRDS(grid_path))
   
-  monetary_cutoffs <- if(type == "affordability") {
-    c(0.2, 0.4, 0.6)
+  monetary_thresholds <- monetary_thresholds_sublist[[1]]
+  monetary_thresholds <- if (type == "affordability") {
+    monetary_thresholds[c(-1, -6, -7)]
   } else {
-    c(5, 10, 15)
+    monetary_thresholds[-1]
   }
+  
   monetary_column <- ifelse(
     type == "affordability",
     "affordability",
@@ -166,7 +174,7 @@ create_diff_dist_maps <- function(access_path,
   )
   
   access <- access[travel_time == travel_time_cutoff]
-  access <- access[get(monetary_column) %in% monetary_cutoffs]
+  access <- access[get(monetary_column) %in% monetary_thresholds]
   access <- access[mode != "only_uber"]
   access_diff <- dcast(access, ... ~ mode, value.var = "access")
   access_diff[, diff := uber_fm_transit_combined - only_transit]
@@ -177,8 +185,8 @@ create_diff_dist_maps <- function(access_path,
       ,
       affordability := factor(
         affordability,
-        levels = monetary_cutoffs,
-        labels = scales::label_percent()(monetary_cutoffs)
+        levels = monetary_thresholds,
+        labels = scales::label_percent(accuracy = 1)(monetary_thresholds)
       )
     ]
   } else {
@@ -186,8 +194,8 @@ create_diff_dist_maps <- function(access_path,
       ,
       absolute_cost := factor(
         absolute_cost,
-        levels = monetary_cutoffs,
-        labels = scales::label_dollar(prefix = "R$ ")(monetary_cutoffs)
+        levels = monetary_thresholds,
+        labels = scales::label_dollar(prefix = "R$ ")(monetary_thresholds)
       )
     ]
   }
@@ -211,13 +219,13 @@ create_diff_dist_maps <- function(access_path,
     geom_sf(data = state_border, color = NA, fill = "#efeeec") +
     geom_sf(aes(fill = diff), color = NA) +
     geom_sf(data = city_border, color = "black", fill = NA, size = 0.3) +
-    facet_wrap(~ get(monetary_column), ncol = 1, strip.position = "left") +
+    facet_wrap(~ get(monetary_column), ncol = 2) +
     coord_sf(xlim = xlim, ylim = ylim) +
     scale_fill_gradient(
       name = "Accessibility diff.\n(% of total jobs)",
       low = "#efeeec",
       high = "firebrick3",
-      labels = scales::label_percent(scale = 100 / total_jobs)
+      labels = scales::label_percent(accuracy = 1, scale = 100 / total_jobs)
     ) +
     labs(y = y_axis_name) +
     guides(fill = guide_colorbar(title.vjust = 1)) +
@@ -237,8 +245,8 @@ create_diff_dist_maps <- function(access_path,
   ggsave(
     figure_path,
     plot = p,
-    width = 9,
-    height = 15,
+    width = 15,
+    height = 11,
     units = "cm"
   )
   
@@ -461,14 +469,18 @@ create_avg_access_per_group_plot <- function(access_path,
 # grid_path <- tar_read(grid_res_8)
 # line_chart_theme <- tar_read(line_chart_theme)
 # travel_time_thresholds <- tar_read(travel_time_thresholds)
+# monetary_thresholds_sublist <- tar_read(monetary_thresholds)[1]
 # type <- tar_read(cost_type)[1]
 create_palma_plot <- function(palma_path,
                               grid_path,
                               line_chart_theme,
                               travel_time_thresholds,
+                              monetary_thresholds_sublist,
                               type) {
   palma <- readRDS(palma_path)
   grid <- setDT(readRDS(grid_path))
+  
+  monetary_thresholds <- monetary_thresholds_sublist[[1]]
   
   monetary_column <- ifelse(
     type == "affordability",
@@ -511,6 +523,7 @@ create_palma_plot <- function(palma_path,
   } else {
     scales::label_dollar(prefix = "R$ ")
   }
+  scale_x_breaks <- monetary_thresholds
   
   geom <- ifelse(type == "affordability", geom_line, geom_step)
   
@@ -525,7 +538,11 @@ create_palma_plot <- function(palma_path,
     ) +
     facet_wrap(~ travel_time, nrow = 2) +
     scale_color_brewer(name = "Scenario", palette = "Paired") +
-    scale_x_continuous(name = scale_x_name, labels = scale_x_labels) +
+    scale_x_continuous(
+      name = scale_x_name,
+      labels = scale_x_labels,
+      breaks = scale_x_breaks
+    ) +
     scale_y_continuous(name = "Palma Ratio") +
     line_chart_theme
   
@@ -551,11 +568,13 @@ create_palma_plot <- function(palma_path,
 # access_path <- tar_read(accessibility)[1]
 # grid_path <- tar_read(grid_res_8)
 # line_chart_theme <- tar_read(line_chart_theme)
+# travel_time_thresholds <- tar_read(travel_time_thresholds)
 # monetary_thresholds_sublist <- tar_read(monetary_thresholds)[1]
 # type <- tar_read(cost_type)[1]
 create_avg_access_by_time_plot <- function(access_path,
                                            grid_path,
                                            line_chart_theme,
+                                           travel_time_thresholds,
                                            monetary_thresholds_sublist,
                                            type) {
   access <- readRDS(access_path)
@@ -601,7 +620,7 @@ create_avg_access_by_time_plot <- function(access_path,
       affordability := factor(
         affordability,
         levels = monetary_thresholds,
-        labels = scales::label_percent()(monetary_thresholds)
+        labels = scales::label_percent(accuracy = 1)(monetary_thresholds)
       )
     ]
   } else {
@@ -616,6 +635,7 @@ create_avg_access_by_time_plot <- function(access_path,
   }
   
   total_jobs <- sum(grid$empregos_total)
+  x_breaks <- c(0, travel_time_thresholds)
   
   p <- ggplot(access) +
     geom_line(
@@ -628,7 +648,7 @@ create_avg_access_by_time_plot <- function(access_path,
     ) +
     facet_wrap(~ get(monetary_column), nrow = 2) +
     scale_color_brewer(name = "Scenario", palette = "Paired") +
-    scale_x_continuous(name = "Travel time threshold") +
+    scale_x_continuous(name = "Travel time threshold", breaks = x_breaks) +
     scale_y_continuous(
       name = "Average accessibility (% of total jobs in each city)",
       labels = scales::label_percent(accuracy = 1, scale = 100 / total_jobs)

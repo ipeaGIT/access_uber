@@ -160,9 +160,13 @@ list(
       rio_state,
       cost_type,
       travel_time_thresholds,
+      monetary_thresholds,
       map_theme
     ),
-    pattern = cross(map(accessibility, cost_type), travel_time_thresholds),
+    pattern = cross(
+      map(accessibility, cost_type, monetary_thresholds),
+      travel_time_thresholds
+    ),
     format = "file"
   ),
   tar_target(
@@ -196,9 +200,10 @@ list(
       grid_res_8,
       line_chart_theme,
       travel_time_thresholds,
+      monetary_thresholds,
       cost_type
     ),
-    pattern = map(palma, cost_type),
+    pattern = map(palma, cost_type, monetary_thresholds),
     format = "file"
   ),
   tar_target(
@@ -210,9 +215,13 @@ list(
       rio_state,
       cost_type,
       travel_time_thresholds,
+      monetary_thresholds,
       map_theme
     ),
-    pattern = cross(map(accessibility, cost_type), travel_time_thresholds),
+    pattern = cross(
+      map(accessibility, cost_type, monetary_thresholds),
+      travel_time_thresholds
+    ),
     format = "file"
   ),
   tar_target(
@@ -221,6 +230,7 @@ list(
       accessibility,
       grid_res_8,
       line_chart_theme,
+      travel_time_thresholds,
       monetary_thresholds,
       cost_type
     ),
