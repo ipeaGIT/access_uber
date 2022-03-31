@@ -33,7 +33,6 @@ avg_access_3e694f8a|branch|5ee4ff34a4579eb9|0d22038895f1f265|4cbd320acffe12f3|48
 palma_plot_fac9fcc3|branch|da34433011e770a7|662906a5eefa0af8|db285a4280c0db13|-1504367447|../figures/absolute_cost/palma.jpg|t19072.6878587963s|4f7730463c86fd4e|126293|file|vector|palma_plot||0.61||
 graph_dir|stem|92e615687cd08484|5cf2c39d61f165e3|ef46db3751d8e999|1477339001|../r5/rio|t19069.8606597222s|908ec9ea9f0a90f4|0|file|vector|||0.02||
 walk_only_matrix|stem|a7acb98503768191|ce76c0bb97fed2af|26fdaf3c7607b412|-1196878624|../data/data/pfrontiers/walk_matrix.rds|t19079.6300578704s|4765d7dade0628a3|26258|file|vector|||38.71||
-full_uber_matrix|stem|0d451692e768b87d|0001e7f3ced1079b|36c67a08286e9651|722627198|../data/data/pfrontiers/full_uber_matrix.rds|t19079.6513541667s|1c0d16d6cf2a458e|4697360|file|vector|||17.5||
 walk_uber_frontier|stem|237f682137ad4fb8|2de4cf18dec12977|54bfe9e94da14cde|-650428354|../data/data/pfrontiers/absolute/only_uber.rds|t19079.6575462963s|bf40720c43f251d5|4725290|file|vector|||11.81||
 monetary_thresholds|stem|00ddbb4c0e5e575e|323a53d7f76f4cd2|427605ea16fe4df4|799221874||t19079.8401851852s|0820572c117b3353|150|rds|vector||monetary_thresholds_9a09b1be*monetary_thresholds_5b8bc299|0||
 transit_pareto_frontier|stem|6d130443217136dd|75846f720f442c69|2207fc2fb03991fe|1381276434|../data/data/pfrontiers/absolute/only_transit.rds|t19080.7501967593s|a5dbb0b57293b0de|3752828|file|vector|||78618.81||
@@ -107,9 +106,12 @@ diff_dist|pattern|3aab56be487cd0d2|c64424ec848cf637||761092235||||1417297|file|v
 avg_access_by_time_70bcfb28|branch|102e40e6b943e08b|b0a1dd502bfc7354|911a2b2701dd48c3|-44765636|../figures/absolute_cost/avg_access_by_time.jpg|t19081.6079282407s|1511a76499d02196|137447|file|vector|avg_access_by_time||10.67||
 avg_access_by_time_ac744db7|branch|815902f5c06173ea|b0a1dd502bfc7354|a01e36c032910b60|690120253|../figures/affordability/avg_access_by_time.jpg|t19081.6079861111s|d63c512b66aa4c9c|145285|file|vector|avg_access_by_time||4.78||
 avg_access_by_time|pattern|e591f12b7a679d1f|b0a1dd502bfc7354||-31731003||||282732|file|vector||avg_access_by_time_70bcfb28*avg_access_by_time_ac744db7|15.45||
+palma_plot_a004522c|branch|546f68c7b60a6fd1|95d75c1084b14809|b63f02abf4e45ce7|-1927831097|../figures/absolute_cost/palma.jpg|t19081.6130324074s|72ea0ba32b779e3b|126043|file|vector|palma_plot||1.05||
+palma_plot_10a9c279|branch|6cc6bf2d18fdbd1f|95d75c1084b14809|903dba6927501225|-1297073766|../figures/affordability/palma.jpg|t19081.6130439815s|4dea8d5f4726d250|149907|file|vector|palma_plot||0.54||
+palma_plot|pattern|f32e558f989c2b3b|95d75c1084b14809||845247040||||275950|file|vector||palma_plot_a004522c*palma_plot_10a9c279|1.59||
 generate_possible_fare_values|function|8c15036df914750e||||||||||||||
 generate_r5_points|function|a10eac23a9d0d23e||||||||||||||
-fill_uber_matrix|function|4d687729f248cb3b||||||||||||||
+fill_uber_matrix|function|98407acbea27e510||||||||||||||
 calculate_affordability|function|e674e43515c09e0e||||||||||||||
 create_avg_access_plot|function|ddccf037e9f0b465||||||||||||||
 create_comparison_scatter_plot|function|37ff9fa504db8912||||||||||||||
@@ -123,7 +125,7 @@ find_relevant_entries|function|7b69ae76c2af1dfc||||||||||||||
 create_map_theme|function|abc0e0bd124ee2d5||||||||||||||
 create_palma_plot|function|addbe41a8149a6ab||||||||||||||
 calculate_access|function|38a7fd52670a9a30||||||||||||||
-.Random.seed|object|e8c7836d227dd3ca||||||||||||||
+.Random.seed|object|b7828b9752e53df0||||||||||||||
 create_line_chart_theme|function|38db9553dadc13cb||||||||||||||
 get_frontier_type|function|e937ef48a6761437||||||||||||||
 create_dist_maps|function|0c36985d84a48cd9||||||||||||||
@@ -133,6 +135,4 @@ keep_pareto_frontier|function|879951c3d67f8663||||||||||||||
 join_uber_fm_transit_frontiers|function|1db4b2227cf41124||||||||||||||
 calculate_walk_uber_frontier|function|239862f3baf3fd76||||||||||||||
 calculate_uber_first_mile_frontier|function|7c05aad182275557||||||||||||||
-palma_plot_a004522c|branch|546f68c7b60a6fd1|95d75c1084b14809|b63f02abf4e45ce7|-1927831097|../figures/absolute_cost/palma.jpg|t19081.6130324074s|72ea0ba32b779e3b|126043|file|vector|palma_plot||1.05||
-palma_plot_10a9c279|branch|6cc6bf2d18fdbd1f|95d75c1084b14809|903dba6927501225|-1297073766|../figures/affordability/palma.jpg|t19081.6130439815s|4dea8d5f4726d250|149907|file|vector|palma_plot||0.54||
-palma_plot|pattern|f32e558f989c2b3b|95d75c1084b14809||845247040||||275950|file|vector||palma_plot_a004522c*palma_plot_10a9c279|1.59||
+full_uber_matrix|stem|5e12f806b82e3e05|0001e7f3ced1079b|17842853f48b27eb|722627198|../data/data/pfrontiers/full_uber_matrix.rds|t19082.6286921296s|6793b6339cb5dd81|4772191|file|vector|||18.06||

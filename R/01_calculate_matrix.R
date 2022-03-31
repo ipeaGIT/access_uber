@@ -280,6 +280,13 @@ fill_uber_matrix <- function(uber_data_path, pickup_data_path, grid_path) {
   
   full_matrix <- travel_time_matrix[distance_matrix, on = c("from_id", "to_id")]
   
+  # for future reference, we mark the travel times and distances either as
+  # manually inputed (using dodgr) or as original values (when manually_inputed
+  # is FALSE). at this point in stage every single value considered here was
+  # calculated via dodgr, so we signal that
+  
+  full_matrix[, manually_inputed := TRUE]
+  
   # dodgr will always find a route from the origin to itself, even if this
   # origin does not appear as a pickup in the uber data. we remove such entries
   # from the full matrix
@@ -305,9 +312,8 @@ fill_uber_matrix <- function(uber_data_path, pickup_data_path, grid_path) {
   # data. for example, if in the uber data from A to B takes 10 minutes, but
   # from A to C takes 5 and from B to C takes 3, then dodgr will return the
   # shortest path from A to B, which is 8. but we want to use the values found
-  # in the uber data whenever possible. so we check for this possibility and
-  # substitute the values if appropriate. we just check if travel_time is
-  # different than the actual value because this was the variable used to route
+  # in the uber data whenever possible. so we substitute the values when the
+  # original dataset includes data on that od pair.
   
   setnames(
     uber_data,
@@ -323,11 +329,14 @@ fill_uber_matrix <- function(uber_data_path, pickup_data_path, grid_path) {
       actual_travel_time = i.travel_time
     )
   ]
-  
-  tol <- sqrt(.Machine$double.eps)
+
   full_matrix[
-    !is.na(actual_travel_time) & abs(actual_travel_time - travel_time) > tol,
-    `:=`(distance = actual_distance, travel_time = actual_travel_time)
+    !is.na(actual_travel_time),
+    `:=`(
+      distance = actual_distance,
+      travel_time = actual_travel_time,
+      manually_inputed = FALSE
+    )
   ]
   
   full_matrix[, `:=`(actual_distance = NULL, actual_travel_time = NULL)]
@@ -354,9 +363,9 @@ fill_uber_matrix <- function(uber_data_path, pickup_data_path, grid_path) {
   ]
   
   # to calculate the cost of each route, we model the effects of the travel time
-  # and the distance on the monetary cost, based on the data from uber_data.
-  # then we use this model to calculate the cost of routes that were calculated
-  # with dodgr_dists().
+  # on the monetary cost, based on the data from uber_data. then we use this
+  # model to calculate the cost of routes that were calculated with
+  # dodgr_dists().
   # uber_data is filtered to include only rio's hexagons, because the cost
   # function may be different out of rio.
   
@@ -411,6 +420,7 @@ fill_uber_matrix <- function(uber_data_path, pickup_data_path, grid_path) {
   
   full_matrix[, c("distance", "waiting_time") := NULL]
   setnames(full_matrix, old = "cost", new = "monetary_cost")
+  setcolorder(full_matrix, setdiff(names(full_matrix), "manually_inputed"))
   
   matrix_dir <- "../data/data/pfrontiers"
   if (!dir.exists(matrix_dir)) dir.create(matrix_dir)
@@ -425,6 +435,7 @@ fill_uber_matrix <- function(uber_data_path, pickup_data_path, grid_path) {
 # walk_matrix_path <- tar_read(walk_only_matrix)
 calculate_walk_uber_frontier <- function(uber_matrix_path, walk_matrix_path) {
   uber_matrix <- readRDS(uber_matrix_path)
+  uber_matrix[, manually_inputed := NULL]
   
   walk_only_matrix <- readRDS(walk_matrix_path)
   walk_only_matrix[, monetary_cost := 0]
