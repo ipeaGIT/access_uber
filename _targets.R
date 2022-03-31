@@ -105,7 +105,7 @@ list(
   tar_target(
     uber_first_mile_pareto_frontier,
     calculate_uber_first_mile_frontier(
-      walk_uber_frontier,
+      full_uber_matrix,
       rapid_transit_stations,
       graph_dir,
       r5_points,
