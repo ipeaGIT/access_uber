@@ -158,3 +158,48 @@ palma_calculator <- function(access_dist) {
   
   return(palma_ratio)
 }
+
+
+# graph_path <- tar_read(graph_dir)
+# points_path <- tar_read(r5_points)
+identify_problematic_hexs <- function(graph_path, points_path) {
+  points <- fread(points_path)
+  r5r_core <- setup_r5(graph_path, verbose = FALSE, use_elevation = TRUE)
+  ttm <- travel_time_matrix(
+    r5r_core,
+    origins = points,
+    destinations = points,
+    mode = "WALK",
+    departure_datetime = as.POSIXct(
+      "08-01-2020 07:00:00",
+      format = "%d-%m-%Y %H:%M:%S"
+    ),
+    max_trip_duration = 120,
+    walk_speed = 3.6,
+    draws_per_minute = 1,
+    n_threads = getOption("N_CORES"),
+    verbose = FALSE
+  )
+  
+  # we are considering problematic the hexagons whose unitary accessibility is
+  # at least 20 hexagons less than their neighbors'
+  
+  unitary_access <- ttm[, .N, by = from_id]
+  unitary_access[
+    ,
+    avg_neighbor_access := vapply(
+      from_id,
+      FUN.VALUE = numeric(1),
+      FUN = function(hex) {
+        neighbors <- h3jsr::get_kring_list(hex)[[1]][[2]]
+        neighbors_access <- unitary_access[from_id %chin% neighbors]$N
+        avg_neighbors_access <- mean(neighbors_access)
+        return(avg_neighbors_access)
+      }
+    )
+  ]
+  
+  problematic <- unitary_access[avg_neighbor_access - N > 20]$from_id
+  
+  return(problematic)
+}

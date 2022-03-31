@@ -133,6 +133,10 @@ list(
     format = "file"
   ),
   tar_target(
+    problematic_hexagons,
+    identify_problematic_hexs(graph_dir, r5_points)
+  ),
+  tar_target(
     accessibility,
     calculate_access(
       frontiers_with_affordability,
