@@ -150,15 +150,25 @@ list(
     format = "file"
   ),
   tar_target(
-    palma,
-    calculate_palma(accessibility, grid_res_8, cost_type),
+    adjusted_accessibility,
+    adjust_transit_access(
+      accessibility,
+      cost_type,
+      problematic_hexagons
+    ),
     pattern = map(accessibility, cost_type),
+    format = "file"
+  ),
+  tar_target(
+    palma,
+    calculate_palma(adjusted_accessibility, grid_res_8, cost_type),
+    pattern = map(adjusted_accessibility, cost_type),
     format = "file"
   ),
   tar_target(
     access_dist,
     create_dist_maps(
-      accessibility,
+      adjusted_accessibility,
       grid_res_8,
       rio_city,
       rio_state,
@@ -168,7 +178,7 @@ list(
       map_theme
     ),
     pattern = cross(
-      map(accessibility, cost_type, monetary_thresholds),
+      map(adjusted_accessibility, cost_type, monetary_thresholds),
       travel_time_thresholds
     ),
     format = "file"
@@ -176,25 +186,25 @@ list(
   tar_target(
     avg_access,
     create_avg_access_plot(
-      accessibility,
+      adjusted_accessibility,
       grid_res_8,
       line_chart_theme,
       travel_time_thresholds,
       cost_type
     ),
-    pattern = map(accessibility, cost_type),
+    pattern = map(adjusted_accessibility, cost_type),
     format = "file"
   ),
   tar_target(
     avg_access_per_group,
     create_avg_access_per_group_plot(
-      accessibility,
+      adjusted_accessibility,
       grid_res_8,
       line_chart_theme,
       travel_time_thresholds,
       cost_type
     ),
-    pattern = map(accessibility, cost_type),
+    pattern = map(adjusted_accessibility, cost_type),
     format = "file"
   ),
   tar_target(
@@ -213,7 +223,7 @@ list(
   tar_target(
     diff_dist,
     create_diff_dist_maps(
-      accessibility,
+      adjusted_accessibility,
       grid_res_8,
       rio_city,
       rio_state,
@@ -223,7 +233,7 @@ list(
       map_theme
     ),
     pattern = cross(
-      map(accessibility, cost_type, monetary_thresholds),
+      map(adjusted_accessibility, cost_type, monetary_thresholds),
       travel_time_thresholds
     ),
     format = "file"
@@ -231,20 +241,20 @@ list(
   tar_target(
     avg_access_by_time,
     create_avg_access_by_time_plot(
-      accessibility,
+      adjusted_accessibility,
       grid_res_8,
       line_chart_theme,
       travel_time_thresholds,
       monetary_thresholds,
       cost_type
     ),
-    pattern = map(accessibility, cost_type, monetary_thresholds),
+    pattern = map(adjusted_accessibility, cost_type, monetary_thresholds),
     format = "file"
   ),
   tar_target(
     transit_vs_uber_fm_comparison,
     create_comparison_scatter_plot(
-      accessibility,
+      adjusted_accessibility,
       grid_res_8,
       line_chart_theme,
       travel_time_thresholds,
@@ -252,7 +262,7 @@ list(
       cost_type
     ),
     pattern = cross(
-      map(accessibility, cost_type, monetary_thresholds),
+      map(adjusted_accessibility, cost_type, monetary_thresholds),
       travel_time_thresholds
     ),
     format = "file"

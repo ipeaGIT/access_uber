@@ -203,3 +203,75 @@ identify_problematic_hexs <- function(graph_path, points_path) {
   
   return(problematic)
 }
+
+
+# access_path <- tar_read(accessibility)[1]
+# type <- tar_read(cost_type)[1]
+# problematic_hexs <- tar_read(problematic_hexagons)
+adjust_transit_access <- function(access_path, type, problematic_hexs) {
+  access_dist <- readRDS(access_path)
+  
+  monetary_column <- ifelse(
+    type == "affordability",
+    "affordability",
+    "absolute_cost"
+  )
+  
+  problematic_hexs_df <- data.table(
+    id = problematic_hexs,
+    neighbors = lapply(
+      problematic_hexs,
+      function(hex) h3jsr::get_kring_list(hex)[[1]][[2]]
+    )
+  )
+  
+  transit_access_dist <- access_dist[mode == "only_transit"]
+  transit_access_dist <- transit_access_dist[! from_id %chin% problematic_hexs]
+  transit_access_dist[, mode := NULL]
+  setkeyv(
+    transit_access_dist,
+    c("from_id", "travel_time", monetary_column)
+  )
+  
+  future::plan(future::multisession, workers = getOption("N_CORES"))
+  
+  access_dist[
+    from_id %chin% problematic_hexs & mode == "only_transit",
+    neighbors_access := furrr::future_pmap_dbl(
+      list(
+        hex = from_id,
+        tt = travel_time,
+        mc = get(monetary_column))
+      ,
+      function(hex, tt, mc) {
+        neighbors <- problematic_hexs_df[id == hex]$neighbors[[1]]
+        
+        their_access <- transit_access_dist[
+          from_id %chin% neighbors &
+            travel_time == tt &
+            get(monetary_column) == mc
+        ]$access
+        
+        mean(their_access)
+      }
+    )
+  ]
+  
+  future::plan(future::sequential)
+  
+  access_dist[!is.na(neighbors_access), access := neighbors_access]
+  access_dist[, neighbors_access := NULL]
+  setindexv(access_dist, NULL)
+  access_dist <- access_dist[
+    order(from_id, mode, travel_time, get(monetary_column))
+  ]
+  
+  access_dir <- "../data/data/access"
+  if (!dir.exists(access_dir)) dir.create(access_dir)
+  
+  access_basename <- paste0(monetary_column, "_adjusted_access.rds")
+  access_path <- file.path(access_dir, access_basename)
+  saveRDS(access_dist, access_path)
+  
+  return(access_path)
+}
