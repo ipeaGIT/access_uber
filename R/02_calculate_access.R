@@ -98,7 +98,7 @@ calculate_access <- function(frontier_paths,
 }
 
 
-# access_path <- tar_read(accessibility)[1]
+# access_path <- tar_read(adjusted_accessibility)[1]
 # grid_path <- tar_read(grid_res_8)
 # type <- tar_read(cost_type)[1]
 calculate_palma <- function(access_path, grid_path, type) {
@@ -208,7 +208,7 @@ identify_problematic_hexs <- function(graph_path, points_path) {
 # access_path <- tar_read(accessibility)[1]
 # type <- tar_read(cost_type)[1]
 # problematic_hexs <- tar_read(problematic_hexagons)
-adjust_transit_access <- function(access_path, type, problematic_hexs) {
+adjust_access <- function(access_path, type, problematic_hexs) {
   access_dist <- readRDS(access_path)
   
   monetary_column <- ifelse(
@@ -217,42 +217,52 @@ adjust_transit_access <- function(access_path, type, problematic_hexs) {
     "absolute_cost"
   )
   
-  problematic_hexs_df <- data.table(
-    id = problematic_hexs,
-    neighbors = lapply(
-      problematic_hexs,
-      function(hex) h3jsr::get_kring_list(hex)[[1]][[2]]
-    )
+  problematic_hexs_list <- lapply(
+    problematic_hexs,
+    function(hex) h3jsr::get_kring_list(hex)[[1]][[2]]
   )
+  names(problematic_hexs_list) <- problematic_hexs
   
-  transit_access_dist <- access_dist[mode == "only_transit"]
-  transit_access_dist <- transit_access_dist[! from_id %chin% problematic_hexs]
-  transit_access_dist[, mode := NULL]
+  all_neighbors <- unique(unlist(problematic_hexs_list))
+  
+  # subsetting the accessibility dataset is by far the most expensive step when
+  # adjusting the values, computationally wise. so we create a smaller dataset
+  # containing only relevant entries to try to speed this process up. the
+  # problematic hexagons themselves are removed from the dataset so they don't
+  # influence the mean of eventual problematic neighbors
+  
+  smaller_access_dist <- access_dist[
+    mode %chin% c("only_transit", "uber_fm_transit_combined")
+  ]
+  smaller_access_dist <- smaller_access_dist[from_id %chin% all_neighbors]
+  smaller_access_dist <- smaller_access_dist[! from_id %chin% problematic_hexs]
   setkeyv(
-    transit_access_dist,
-    c("from_id", "travel_time", monetary_column)
+    smaller_access_dist,
+    c("from_id", "mode", "travel_time", monetary_column)
   )
   
   future::plan(future::multisession, workers = getOption("N_CORES"))
   
   access_dist[
-    from_id %chin% problematic_hexs & mode == "only_transit",
+    from_id %chin% problematic_hexs,
     neighbors_access := furrr::future_pmap_dbl(
       list(
         hex = from_id,
         tt = travel_time,
-        mc = get(monetary_column))
-      ,
-      function(hex, tt, mc) {
-        neighbors <- problematic_hexs_df[id == hex]$neighbors[[1]]
+        mc = get(monetary_column),
+        sc = mode
+      ),
+      function(hex, tt, mc, sc) {
+        neighbors <- problematic_hexs_list[[hex]]
         
-        their_access <- transit_access_dist[
+        neighbors_access <- smaller_access_dist[
           from_id %chin% neighbors &
             travel_time == tt &
-            get(monetary_column) == mc
+            get(monetary_column) == mc &
+            mode == sc
         ]$access
         
-        mean(their_access)
+        mean(neighbors_access)
       }
     )
   ]

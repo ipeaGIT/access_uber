@@ -20,7 +20,7 @@ create_map_theme <- function() {
 }
 
 
-# access_path <- tar_read(accessibility)[1]
+# access_path <- tar_read(adjusted_accessibility)[1]
 # grid_path <- tar_read(grid_res_8)
 # rio_city_path <- tar_read(rio_city)
 # rio_state_path <- tar_read(rio_state)
@@ -141,7 +141,7 @@ create_dist_maps <- function(access_path,
 }
 
 
-# access_path <- tar_read(accessibility)[1]
+# access_path <- tar_read(adjusted_accessibility)[1]
 # grid_path <- tar_read(grid_res_8)
 # rio_city_path <- tar_read(rio_city)
 # rio_state_path <- tar_read(rio_state)
@@ -254,7 +254,7 @@ create_diff_dist_maps <- function(access_path,
 }
 
 
-# access_path <- tar_read(accessibility)[1]
+# access_path <- tar_read(adjusted_accessibility)[1]
 # grid_path <- tar_read(grid_res_8)
 # line_chart_theme <- tar_read(line_chart_theme)
 # travel_time_thresholds <- tar_read(travel_time_thresholds)
@@ -346,7 +346,7 @@ create_avg_access_plot <- function(access_path,
 }
 
 
-# access_path <- tar_read(accessibility)[1]
+# access_path <- tar_read(adjusted_accessibility)[1]
 # grid_path <- tar_read(grid_res_8)
 # line_chart_theme <- tar_read(line_chart_theme)
 # travel_time_thresholds <- tar_read(travel_time_thresholds)
@@ -565,7 +565,7 @@ create_palma_plot <- function(palma_path,
 }
 
 
-# access_path <- tar_read(accessibility)[1]
+# access_path <- tar_read(adjusted_accessibility)[1]
 # grid_path <- tar_read(grid_res_8)
 # line_chart_theme <- tar_read(line_chart_theme)
 # travel_time_thresholds <- tar_read(travel_time_thresholds)
@@ -674,7 +674,7 @@ create_avg_access_by_time_plot <- function(access_path,
 }
 
 
-# access_path <- tar_read(accessibility)[1]
+# access_path <- tar_read(adjusted_accessibility)[1]
 # grid_path <- tar_read(grid_res_8)
 # line_chart_theme <- tar_read(line_chart_theme)
 # travel_time_cutoff <- tar_read(travel_time_thresholds)[1]

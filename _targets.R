@@ -151,7 +151,7 @@ list(
   ),
   tar_target(
     adjusted_accessibility,
-    adjust_transit_access(
+    adjust_access(
       accessibility,
       cost_type,
       problematic_hexagons
