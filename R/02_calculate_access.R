@@ -182,24 +182,50 @@ identify_problematic_hexs <- function(graph_path, points_path) {
   )
   
   # we are considering problematic the hexagons whose unitary accessibility is
-  # at least 20 hexagons less than their neighbors'
+  # at least 20 hexagons less than their neighbors'. since problematic hexagons
+  # can have problematic neighbors, and their neighbors' accessibility will
+  # impact in their classification as problematic, we have to do a recursive
+  # identification
+  
+  problematic <- character()
+  
+  all_origins <- unique(ttm$from_id)
+  names(all_origins) <- all_origins
+  all_neighbors <- lapply(
+    all_origins,
+    function(hex) h3jsr::get_kring_list(hex)[[1]][[2]]
+  )
   
   unitary_access <- ttm[, .N, by = from_id]
-  unitary_access[
-    ,
-    avg_neighbor_access := vapply(
-      from_id,
-      FUN.VALUE = numeric(1),
-      FUN = function(hex) {
-        neighbors <- h3jsr::get_kring_list(hex)[[1]][[2]]
-        neighbors_access <- unitary_access[from_id %chin% neighbors]$N
-        avg_neighbors_access <- mean(neighbors_access)
-        return(avg_neighbors_access)
-      }
-    )
-  ]
+  do_check <- TRUE
   
-  problematic <- unitary_access[avg_neighbor_access - N > 20]$from_id
+  while (do_check) {
+    unitary_access[
+      ,
+      avg_neighbor_access := vapply(
+        from_id,
+        FUN.VALUE = numeric(1),
+        FUN = function(hex) {
+          neighbors <- all_neighbors[[hex]]
+          neighbors_access <- unitary_access[from_id %chin% neighbors]$N
+          avg_neighbors_access <- mean(neighbors_access)
+          return(avg_neighbors_access)
+        }
+      )
+    ]
+    
+    new_problematics <- unitary_access[avg_neighbor_access - N > 15]$from_id
+    
+    if (all(new_problematics %chin% problematic)) {
+      do_check <- FALSE
+    } else {
+      problematic <- c(problematic, setdiff(new_problematics, problematic))
+      unitary_access[
+        from_id %chin% new_problematics,
+        N := as.integer(avg_neighbor_access)
+      ]
+    }
+  }
   
   return(problematic)
 }
