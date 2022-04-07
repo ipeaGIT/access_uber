@@ -243,27 +243,52 @@ adjust_access <- function(access_path, type, problematic_hexs) {
     "absolute_cost"
   )
   
-  problematic_hexs_list <- lapply(
+  neighbors_list <- lapply(
     problematic_hexs,
-    function(hex) h3jsr::get_kring_list(hex)[[1]][[2]]
+    function(hex) h3jsr::get_kring_list(hex, ring_size = 2)
   )
-  names(problematic_hexs_list) <- problematic_hexs
+  names(neighbors_list) <- problematic_hexs
   
-  all_neighbors <- unique(unlist(problematic_hexs_list))
+  first_order_neighbors <- lapply(
+    neighbors_list,
+    function(l) l[[1]][[2]]
+  )
+  second_order_neighbors <- lapply(
+    neighbors_list,
+    function(l) l[[1]][[3]]
+  )
   
   # subsetting the accessibility dataset is by far the most expensive step when
-  # adjusting the values, computationally wise. so we create a smaller dataset
+  # adjusting the values, computationally wise. so we create smaller datasets
   # containing only relevant entries to try to speed this process up. the
   # problematic hexagons themselves are removed from the dataset so they don't
   # influence the mean of eventual problematic neighbors
   
-  smaller_access_dist <- access_dist[
+  first_order_access_dist <- access_dist[
     mode %chin% c("only_transit", "uber_fm_transit_combined")
   ]
-  smaller_access_dist <- smaller_access_dist[from_id %chin% all_neighbors]
-  smaller_access_dist <- smaller_access_dist[! from_id %chin% problematic_hexs]
+  first_order_access_dist <- first_order_access_dist[
+    from_id %chin% unique(unlist(first_order_neighbors))
+  ]
+  first_order_access_dist <- first_order_access_dist[
+    ! from_id %chin% problematic_hexs
+  ]
   setkeyv(
-    smaller_access_dist,
+    first_order_access_dist,
+    c("from_id", "mode", "travel_time", monetary_column)
+  )
+  
+  second_order_access_dist <- access_dist[
+    mode %chin% c("only_transit", "uber_fm_transit_combined")
+  ]
+  second_order_access_dist <- second_order_access_dist[
+    from_id %chin% unique(unlist(second_order_neighbors))
+  ]
+  second_order_access_dist <- second_order_access_dist[
+    ! from_id %chin% problematic_hexs
+  ]
+  setkeyv(
+    second_order_access_dist,
     c("from_id", "mode", "travel_time", monetary_column)
   )
   
@@ -279,16 +304,26 @@ adjust_access <- function(access_path, type, problematic_hexs) {
         sc = mode
       ),
       function(hex, tt, mc, sc) {
-        neighbors <- problematic_hexs_list[[hex]]
+        fo_neighbors <- first_order_neighbors[[hex]]
         
-        neighbors_access <- smaller_access_dist[
-          from_id %chin% neighbors &
-            travel_time == tt &
-            get(monetary_column) == mc &
-            mode == sc
-        ]$access
+        if (!any(fo_neighbors %chin% first_order_access_dist$from_id)) {
+          so_neighbors <- second_order_neighbors[[hex]]
+          neigh_access <- second_order_access_dist[
+            from_id %chin% so_neighbors &
+              travel_time == tt &
+              get(monetary_column) == mc &
+              mode == sc
+          ]$access
+        } else {
+          neigh_access <- first_order_access_dist[
+            from_id %chin% fo_neighbors &
+              travel_time == tt &
+              get(monetary_column) == mc &
+              mode == sc
+          ]$access
+        }
         
-        mean(neighbors_access)
+        mean(neigh_access)
       }
     )
   ]
