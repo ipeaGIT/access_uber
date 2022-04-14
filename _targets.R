@@ -66,10 +66,10 @@ list(
   ),
   tar_target(line_chart_theme, create_line_chart_theme()),
   tar_target(map_theme, create_map_theme()),
-  tar_target(travel_time_thresholds, c(30, 60, 90, 120)),
+  tar_target(travel_time_thresholds, c(30, 60, 90)),
   tar_target(
     monetary_thresholds,
-    list(absolute = seq(0, 24, by = 6), affordability = seq(0, 0.6, by = 0.1))
+    list(absolute = seq(0, 24, by = 6), affordability = seq(0, 0.4, by = 0.1))
   ),
   tar_target(cost_type, c("absolute", "affordability")),
   tar_target(r5_points, generate_r5_points(grid_res_8), format = "file"),
@@ -241,6 +241,19 @@ list(
   tar_target(
     avg_access_by_time,
     create_avg_access_by_time_plot(
+      adjusted_accessibility,
+      grid_res_8,
+      line_chart_theme,
+      travel_time_thresholds,
+      monetary_thresholds,
+      cost_type
+    ),
+    pattern = map(adjusted_accessibility, cost_type, monetary_thresholds),
+    format = "file"
+  ),
+  tar_target(
+    avg_access_by_time_per_group,
+    create_avg_access_by_time_per_group_plot(
       adjusted_accessibility,
       grid_res_8,
       line_chart_theme,

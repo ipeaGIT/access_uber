@@ -1,4 +1,4 @@
-# frontier_paths <- tar_read(frontiers_with_accessibility)
+# frontier_paths <- tar_read(frontiers_with_affordability)
 # travel_time_thresholds <- tar_read(travel_time_thresholds)
 # monetary_thresholds_sublist <- tar_read(monetary_thresholds)[1]
 # grid_path <- tar_read(grid_res_8)
@@ -295,7 +295,8 @@ adjust_access <- function(access_path, type, problematic_hexs) {
   future::plan(future::multisession, workers = getOption("N_CORES"))
   
   access_dist[
-    from_id %chin% problematic_hexs,
+    from_id %chin% problematic_hexs & 
+      mode %chin% c("only_transit", "uber_fm_transit_combined"),
     neighbors_access := furrr::future_pmap_dbl(
       list(
         hex = from_id,

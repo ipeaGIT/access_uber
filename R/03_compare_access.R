@@ -40,11 +40,7 @@ create_dist_maps <- function(access_path,
   grid <- setDT(readRDS(grid_path))
   
   monetary_thresholds <- monetary_thresholds_sublist[[1]]
-  monetary_thresholds <- if (type == "affordability") {
-    monetary_thresholds[c(-1, -6, -7)]
-  } else {
-    monetary_thresholds[-1]
-  }
+  monetary_thresholds <- setdiff(monetary_thresholds, 0)
   
   monetary_column <- ifelse(
     type == "affordability",
@@ -161,11 +157,7 @@ create_diff_dist_maps <- function(access_path,
   grid <- setDT(readRDS(grid_path))
   
   monetary_thresholds <- monetary_thresholds_sublist[[1]]
-  monetary_thresholds <- if (type == "affordability") {
-    monetary_thresholds[c(-1, -6, -7)]
-  } else {
-    monetary_thresholds[-1]
-  }
+  monetary_thresholds <- setdiff(monetary_thresholds, 0)
   
   monetary_column <- ifelse(
     type == "affordability",
@@ -322,7 +314,7 @@ create_avg_access_plot <- function(access_path,
     scale_color_brewer(name = "Scenario", palette = "Paired") +
     scale_x_continuous(name = scale_x_name, labels = scale_x_labels) +
     scale_y_continuous(
-      name = "Average accessibility (% of total jobs in each city)",
+      name = "Average accessibility (% of total jobs)",
       labels = scales::label_percent(accuracy = 1, scale = 100 / total_jobs)
     ) +
     line_chart_theme
@@ -437,7 +429,7 @@ create_avg_access_per_group_plot <- function(access_path,
     ) +
     scale_x_continuous(name = scale_x_name, labels = scale_x_labels) +
     scale_y_continuous(
-      name = "Average accessibility (% of total jobs in each city)",
+      name = "Average accessibility (% of total jobs)",
       labels = scales::label_percent(accuracy = 1, scale = 100 / total_jobs)
     ) +
     guides(
@@ -581,11 +573,7 @@ create_avg_access_by_time_plot <- function(access_path,
   grid <- setDT(readRDS(grid_path))
   
   monetary_thresholds <- monetary_thresholds_sublist[[1]]
-  monetary_thresholds <- if (type == "affordability") {
-    monetary_thresholds[c(-1, -6, -7)]
-  } else {
-    monetary_thresholds[-1]
-  }
+  monetary_thresholds <- setdiff(monetary_thresholds, 0)
   
   monetary_column <- ifelse(
     type == "affordability",
@@ -612,6 +600,20 @@ create_avg_access_by_time_plot <- function(access_path,
     .(avg_access = weighted.mean(access, w = population)),
     keyby = .(mode, travel_time, cost_cutoff = get(monetary_column))
   ]
+  
+  # filter the only_uber curve to trim it when it becomes fully horizontal
+  
+  access[
+    ,
+    previous_value := shift(avg_access, fill = 0),
+    by = .(mode, cost_cutoff)
+  ]
+  access[, diff_from_prev := (avg_access - previous_value) / previous_value]
+  access <- access[
+    mode != "Only uber" |
+      (mode == "Only uber" & (diff_from_prev > 0.001 | avg_access == 0))
+  ]
+  access[, c("previous_value", "diff_from_prev") := NULL]
   setnames(access, old = "cost_cutoff", new = monetary_column)
   
   if (type == "affordability") {
@@ -650,7 +652,7 @@ create_avg_access_by_time_plot <- function(access_path,
     scale_color_brewer(name = "Scenario", palette = "Paired") +
     scale_x_continuous(name = "Travel time threshold", breaks = x_breaks) +
     scale_y_continuous(
-      name = "Average accessibility (% of total jobs in each city)",
+      name = "Average accessibility (% of total jobs)",
       labels = scales::label_percent(accuracy = 1, scale = 100 / total_jobs)
     ) +
     line_chart_theme
@@ -662,6 +664,148 @@ create_avg_access_by_time_plot <- function(access_path,
   if (!dir.exists(type_dir)) dir.create(type_dir)
   
   figure_path <- file.path(type_dir, "avg_access_by_time.jpg")
+  ggsave(
+    figure_path,
+    plot = p,
+    width = 15,
+    height = 11,
+    units = "cm"
+  )
+  
+  return(figure_path)
+}
+
+
+# access_path <- tar_read(adjusted_accessibility)[2]
+# grid_path <- tar_read(grid_res_8)
+# line_chart_theme <- tar_read(line_chart_theme)
+# travel_time_thresholds <- tar_read(travel_time_thresholds)
+# monetary_thresholds_sublist <- tar_read(monetary_thresholds)[2]
+# type <- tar_read(cost_type)[2]
+create_avg_access_by_time_per_group_plot <- function(access_path,
+                                                     grid_path,
+                                                     line_chart_theme,
+                                                     travel_time_thresholds,
+                                                     monetary_thresholds_sublist,
+                                                     type) {
+  access <- readRDS(access_path)
+  grid <- setDT(readRDS(grid_path))
+  
+  monetary_thresholds <- monetary_thresholds_sublist[[1]]
+  monetary_thresholds <- setdiff(monetary_thresholds, 0)
+  
+  monetary_column <- ifelse(
+    type == "affordability",
+    "affordability",
+    "absolute_cost"
+  )
+  
+  access <- access[get(monetary_column) %in% monetary_thresholds]
+  access[
+    grid,
+    on = c(from_id = "id_hex"),
+    `:=`(
+      population = i.pop_total,
+      decile = i.decil
+    )
+  ]
+  access[decile == 10, group := "richest_10"]
+  access[decile >= 1 & decile <= 4, group := "poorest_40"]
+  access <- access[!is.na(group)]
+  access <- access[
+    ,
+    .(avg_access = weighted.mean(access, w = population)),
+    keyby = .(group, mode, travel_time, cost_cutoff = get(monetary_column))
+  ]
+  
+  access[
+    ,
+    mode := factor(
+      mode,
+      levels = c(
+        "only_transit",
+        "uber_fm_transit_combined",
+        "only_uber"
+      ),
+      labels = c("Only transit", "Uber first mile +\nTransit", "Only uber")
+    )
+  ]
+  access[
+    ,
+    group := factor(
+      group,
+      levels = c("richest_10", "poorest_40"),
+      labels = c("Richest 10%", "Poorest 40%")
+    )
+  ]
+  
+  # filter the only_uber curve to trim it when it becomes fully horizontal
+  
+  access[
+    ,
+    previous_value := shift(avg_access, fill = 0),
+    by = .(mode, cost_cutoff, group)
+  ]
+  access[, diff_from_prev := (avg_access - previous_value) / previous_value]
+  access <- access[
+    mode != "Only uber" |
+      (mode == "Only uber" & (diff_from_prev > 0.001 | avg_access == 0))
+  ]
+  access[, c("previous_value", "diff_from_prev") := NULL]
+  setnames(access, old = "cost_cutoff", new = monetary_column)
+  
+  if (type == "affordability") {
+    access[
+      ,
+      affordability := factor(
+        affordability,
+        levels = monetary_thresholds,
+        labels = scales::label_percent(accuracy = 1)(monetary_thresholds)
+      )
+    ]
+  } else {
+    access[
+      ,
+      absolute_cost := factor(
+        absolute_cost,
+        levels = monetary_thresholds,
+        labels = scales::label_dollar(prefix = "R$ ")(monetary_thresholds)
+      )
+    ]
+  }
+  
+  total_jobs <- sum(grid$empregos_total)
+  x_breaks <- c(0, travel_time_thresholds)
+  
+  p <- ggplot(access) +
+    geom_line(
+      aes(
+        travel_time,
+        avg_access,
+        color = mode,
+        linetype = group
+      )
+    ) +
+    facet_wrap(~ get(monetary_column), nrow = 2) +
+    scale_color_brewer(name = "Scenario", palette = "Paired") +
+    scale_x_continuous(name = "Travel time threshold", breaks = x_breaks) +
+    scale_y_continuous(
+      name = "Average accessibility (% of total jobs)",
+      labels = scales::label_percent(accuracy = 1, scale = 100 / total_jobs)
+    ) +
+    guides(
+      color = guide_legend(nrow = 2, byrow = TRUE),
+      linetype = guide_legend(nrow = 2)
+    ) +
+    line_chart_theme
+  
+  figures_dir <- "../figures"
+  if (!dir.exists(figures_dir)) dir.create(figures_dir)
+  
+  type_dir <- file.path(figures_dir, monetary_column)
+  if (!dir.exists(type_dir)) dir.create(type_dir)
+  
+  figure_path <- file.path(type_dir, "avg_access_by_time_per_group.jpg")
   ggsave(
     figure_path,
     plot = p,
@@ -690,11 +834,7 @@ create_comparison_scatter_plot <- function(access_path,
   grid <- setDT(readRDS(grid_path))
   
   monetary_thresholds <- monetary_thresholds_sublist[[1]]
-  monetary_thresholds <- if (type == "affordability") {
-    monetary_thresholds[c(-1, -6, -7)]
-  } else {
-    monetary_thresholds[-1]
-  }
+  monetary_thresholds <- setdiff(monetary_thresholds, 0)
   
   monetary_column <- ifelse(
     type == "affordability",
