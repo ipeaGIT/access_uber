@@ -703,10 +703,52 @@ join_uber_fm_transit_frontiers <- function(uber_frontier_path,
 }
 
 
+# grid_path <- tar_read(grid_res_8)
+adjust_grid_income <- function(grid_path) {
+  # to adjust the income based on brazilian inflation, we download a data series
+  # that shows how prices historically evolved when adjusted by the ipca index
+  
+  response <- httr::GET(
+    "http://ipeadata.gov.br/api/odata4/ValoresSerie(SERCODIGO='PRECOS12_IPCA12')"
+  )
+  response <- httr::content(response)$value
+  
+  values <- rbindlist(response)
+  values[, setdiff(names(values), c("VALDATA", "VALVALOR")) := NULL]
+  values[, VALDATA := as.Date(VALDATA)]
+  
+  # the sociodemographic data in our grid object comes from the 2010 census.
+  # we want to adjust it to 2019 values, when our uber was collected
+  
+  value_2010 <- values[VALDATA == as.Date("2010-10-01")]$VALVALOR
+  value_2019 <- values[VALDATA == as.Date("2019-10-01")]$VALVALOR
+  
+  adjustment_rate <- value_2019 / value_2010
+  
+  grid <- setDT(readRDS(grid_path))
+  grid[
+    ,
+    `:=`(
+      renda_total = renda_total * adjustment_rate,
+      renda_capita = renda_capita * adjustment_rate
+    )
+  ]
+  grid[
+    ,
+    setdiff(names(grid), c("id_hex", "renda_total", "renda_capita")) := NULL
+  ]
+  
+  path <- "../data/data/income_adjusted_grid.rds"
+  saveRDS(grid, path)
+  
+  return(path)
+}
+
+
 # only_uber_path <- tar_read(full_uber_matrix)
 # only_transit_path <- tar_read(transit_pareto_frontier)
 # uber_transit_comb_path <- tar_read(uber_fm_transit_combined_frontier)
-# grid_path <- tar_read(grid_res_8)
+# grid_path <- tar_read(income_adjusted_grid)
 # path <- tar_read(full_uber_matrix)
 calculate_affordability <- function(only_uber_path,
                                     only_transit_path,

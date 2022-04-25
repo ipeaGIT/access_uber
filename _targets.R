@@ -74,6 +74,11 @@ list(
   tar_target(cost_type, c("absolute", "affordability")),
   tar_target(r5_points, generate_r5_points(grid_res_8), format = "file"),
   tar_target(
+    income_adjusted_grid,
+    adjust_grid_income(grid_res_8),
+    format = "file"
+  ),
+  tar_target(
     pickup_data_res_8,
     aggregate_waiting_times(pickup_data, grid_res_8),
     format = "file"
@@ -128,7 +133,7 @@ list(
       walk_uber_frontier,
       transit_pareto_frontier,
       uber_fm_transit_combined_frontier,
-      grid_res_8
+      income_adjusted_grid
     ),
     format = "file"
   ),
