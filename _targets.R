@@ -65,8 +65,13 @@ list(
     format = "file"
   ),
   tar_target(
-    car_distances,
+    car_od_matrix,
     "../data/data-raw/aop_generated/OD_TI_carro_rio_06AM_distancias.csv",
+    format = "file"
+  ),
+  tar_target(
+    car_matrix_res_8,
+    aggregate_car_matrix(car_od_matrix),
     format = "file"
   ),
   tar_target(line_chart_theme, create_line_chart_theme()),
