@@ -104,7 +104,12 @@ list(
   ),
   tar_target(
     full_uber_matrix,
-    fill_uber_matrix(uber_data, pickup_data_res_8, grid_res_8),
+    fill_uber_matrix(
+      uber_data,
+      pickup_data_res_8,
+      grid_res_8,
+      car_od_matrix
+    ),
     format = "file"
   ),
   tar_target(

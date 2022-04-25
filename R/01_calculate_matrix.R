@@ -208,7 +208,11 @@ aggregate_waiting_times <- function(pickup_data_path, grid_path) {
 # uber_data_path <- tar_read(uber_data)
 # pickup_data_path <- tar_read(pickup_data_res_8)
 # grid_path <- tar_read(grid_res_8)
-fill_uber_matrix <- function(uber_data_path, pickup_data_path, grid_path) {
+# car_od_matrix_path <- tar_read(car_od_matrix)
+fill_uber_matrix <- function(uber_data_path,
+                             pickup_data_path,
+                             grid_path,
+                             car_od_matrix_path) {
   uber_data <- fread(uber_data_path)
   uber_data <- uber_data[
     date_block_2019 == "mar8_dec20" &
@@ -234,6 +238,49 @@ fill_uber_matrix <- function(uber_data_path, pickup_data_path, grid_path) {
     old = desired_uber_columns,
     new = c("from", "to", "cost", "travel_time", "distance", "num_trips")
   )
+  
+  # keeping only hexagons inside rio city to fill the matrix based only on the
+  # trips that happened inside it (since the other, that happened outside the
+  # city, may have very different costs and follow different traffic patterns)
+  
+  grid <- setDT(readRDS(grid_path))
+  
+  uber_data <- uber_data[
+    from %chin% grid$id_hex & to %chin% grid$id_hex
+  ]
+  
+  # to fill the distance and time values, we find the correlation between uber's
+  # values with the car values and calculate estimated values based on these.
+  
+  uber_data[
+    car_od_matrix,
+    on = c(from = "origin_hex", to = "destination_hex"),
+    `:=`(
+      car_time = i.Total_Time,
+      car_distance = i.Total_Distance
+    )
+  ]
+  
+  time_lm <- lm(
+    travel_time ~ car_time,
+    uber_data[from != to & !(is.na(car_time))]
+  )
+  
+  distance_lm <- lm(
+    distance ~ car_distance,
+    uber_data[from != to & !(is.na(car_distance))]
+  )
+  
+  
+  full_matrix <- full_matrix[
+    from_id %chin% grid$id_hex & to_id %chin% grid$id_hex
+  ]
+  
+  
+  
+  
+  
+  
   
   # dodgr_dists() uses a column name 'dists' to calculate the shortest path
   # between two edges. but if a 'weights' column is present, it calculates the
