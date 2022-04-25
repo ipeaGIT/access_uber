@@ -64,6 +64,11 @@ list(
     "../data/data-raw/aop_generated/rio_state.rds",
     format = "file"
   ),
+  tar_target(
+    car_distances,
+    "../data/data-raw/aop_generated/OD_TI_carro_rio_06AM_distancias.csv",
+    format = "file"
+  ),
   tar_target(line_chart_theme, create_line_chart_theme()),
   tar_target(map_theme, create_map_theme()),
   tar_target(travel_time_thresholds, c(30, 60, 90)),
