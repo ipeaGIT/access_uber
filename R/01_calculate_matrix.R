@@ -205,36 +205,6 @@ aggregate_waiting_times <- function(pickup_data_path, grid_path) {
 }
 
 
-# car_od_matrix_path <- tar_read(car_od_matrix)
-aggregate_car_matrix <- function(car_od_matrix_path) {
-  car_od_matrix <- fread(car_od_matrix_path)
-  
-  unique_hexs <- unique(
-    c(car_od_matrix$origin_hex, car_od_matrix$destination_hex)
-  )
-  hex_parents <- h3jsr::get_parent(unique_hexs, res = 8)
-  names(hex_parents) <- unique_hexs
-  
-  car_od_matrix[
-    ,
-    `:=`(
-      origin_hex = hex_parents[origin_hex],
-      destination_hex = hex_parents[destination_hex]
-    )
-  ]
-  car_od_matrix <- car_od_matrix[
-    ,
-    .(Total_Time = mean(Total_Time), Total_Distance = mean(Total_Distance)),
-    by = .(origin_hex, destination_hex)
-  ]
-  
-  path <- "../data/data/aggregated_car_od_matrix.rds"
-  saveRDS(car_od_matrix, path)
-  
-  return(path)
-}
-
-
 # uber_data_path <- tar_read(uber_data)
 # pickup_data_path <- tar_read(pickup_data_res_8)
 # grid_path <- tar_read(grid_res_8)
