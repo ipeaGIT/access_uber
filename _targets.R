@@ -72,6 +72,7 @@ list(
   ),
   tar_target(line_chart_theme, create_line_chart_theme()),
   tar_target(map_theme, create_map_theme()),
+  tar_target(context_map_theme, create_context_map_theme()),
   tar_target(travel_time_thresholds, c(30, 60, 90)),
   tar_target(
     monetary_thresholds,
@@ -294,6 +295,16 @@ list(
     pattern = cross(
       map(adjusted_accessibility, cost_type, monetary_thresholds),
       travel_time_thresholds
+    ),
+    format = "file"
+  ),
+  tar_target(
+    pop_density_map,
+    create_pop_density_map(
+      grid_res_9,
+      rio_city,
+      rio_state,
+      context_map_theme
     ),
     format = "file"
   )
