@@ -509,16 +509,13 @@ calculate_uber_first_mile_frontier <- function(uber_matrix_path,
   stations_to_hex[, geometry := NULL]
   
   # calculate travel times from the origins to the transit stations, considering
-  # Uber's travel times.
-  # first filter uber_matrix to only contain trips with travel time lower than
-  # 120 minutes and hexagons with population/opportunities data.
-  # also, temporarily filtering by the cost as well, but not sure if that makes
-  # sense in the long run
+  # Uber's travel times. first filter uber_matrix to only contain trips with
+  # travel time lower than 120 minutes and hexagons with
+  # population/opportunities data.
   
   uber_matrix <- readRDS(uber_matrix_path)
   uber_matrix <- uber_matrix[
     travel_time < 120 &
-      monetary_cost < 30 &
       from_id %chin% points$id &
       to_id %chin% points$id
   ]
