@@ -108,7 +108,8 @@ list(
       uber_data,
       pickup_data_res_8,
       grid_res_8,
-      car_od_matrix
+      car_od_matrix,
+      r5_points
     ),
     format = "file"
   ),

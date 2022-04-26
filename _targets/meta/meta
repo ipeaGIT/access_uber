@@ -17,7 +17,6 @@ r5_points|stem|78db49fef2844ed4|3f5d0735d849fa70|f7d6ded31dac8f9d|-1010752099|..
 graph_dir|stem|92e615687cd08484|5cf2c39d61f165e3|ef46db3751d8e999|1477339001|../r5/rio|t19069.8606597222s|908ec9ea9f0a90f4|0|file|vector|||0.02||
 walk_only_matrix|stem|a7acb98503768191|ce76c0bb97fed2af|26fdaf3c7607b412|-1196878624|../data/data/pfrontiers/walk_matrix.rds|t19079.6300578704s|4765d7dade0628a3|26258|file|vector|||38.71||
 transit_pareto_frontier|stem|6d130443217136dd|75846f720f442c69|2207fc2fb03991fe|1381276434|../data/data/pfrontiers/absolute/only_transit.rds|t19080.7501967593s|a5dbb0b57293b0de|3752828|file|vector|||78618.81||
-full_uber_matrix|stem|5e12f806b82e3e05|0001e7f3ced1079b|17842853f48b27eb|722627198|../data/data/pfrontiers/full_uber_matrix.rds|t19082.6286921296s|6793b6339cb5dd81|4772191|file|vector|||18.06||
 walk_uber_frontier|stem|237f682137ad4fb8|2de4cf18dec12977|056105af2297626c|-650428354|../data/data/pfrontiers/absolute/only_uber.rds|t19082.8053356481s|bf40720c43f251d5|4725290|file|vector|||12.92||
 uber_first_mile_pareto_frontier|stem|7f76d9e93ce0a493|329e8d0809090903|9de14d2e108b2a11|-1175457655|../data/data/pfrontiers/absolute/uber_first_mile.rds|t19083.155150463s|e26436203180bbca|6676279|file|vector|||11689.46||
 uber_fm_transit_combined_frontier|stem|a22999ef572f5996|f05b2064a6f28bec|410d2efd25b4962b|-431043514|../data/data/pfrontiers/absolute/uber_fm_transit_combined.rds|t19083.1557407407s|dd9335cab182a115|8245418|file|vector|||51.53||
@@ -74,9 +73,10 @@ income_adjusted_grid|stem|6fd766dd70f1e7b8|4387c9b538d8524c|e1ce2c46a5b6ec13|-21
 frontiers_with_affordability|stem|8b4535ec3d1d9896|938f1b7b190e96a6|9168a125ab2dcbe5|941446169|../data/data/pfrontiers/affordability/only_uber.rds*../data/data/pfrontiers/affordability/only_transit.rds*../data/data/pfrontiers/affordability/uber_fm_transit_combined.rds|t19107.744212963s|b04254c48badf410|28305061|file|vector|||19.95||
 aggregate_car_matrix|function|5c13153c62f004f6||||||||||||||
 car_od_matrix|stem|f70191df277a1941|479f7e236ec84bd7|ef46db3751d8e999|-1710104550|../data/data-raw/aop_generated/OD_TI_carro_rio_06AM_distancias_H8.csv|t19107.8012268519s|76fcdea9d9367227|120297815|file|vector|||0||
+pickup_data_res_8|stem|a65d77543e36597d|d8c32f42d65cafb6|5e0e29ba3dc0d55e|-239493902|../data/data//pickup_res_8.rds|t19108.6571296296s|7253b3e9d716df1a|24611|file|vector|||1.28||
 generate_possible_fare_values|function|8c15036df914750e||||||||||||||
 generate_r5_points|function|a10eac23a9d0d23e||||||||||||||
-fill_uber_matrix|function|1e04b26e72800bac||||||||||||||
+fill_uber_matrix|function|5d33eaaa138cb301||||||||||||||
 adjust_grid_income|function|2640812b162cdb05||||||||||||||
 calculate_affordability|function|e674e43515c09e0e||||||||||||||
 create_avg_access_plot|function|944c52471422daae||||||||||||||
@@ -93,7 +93,7 @@ create_map_theme|function|abc0e0bd124ee2d5||||||||||||||
 create_avg_access_by_time_per_group_plot|function|13c968ee1f0ac76a||||||||||||||
 create_palma_plot|function|addbe41a8149a6ab||||||||||||||
 calculate_access|function|38a7fd52670a9a30||||||||||||||
-.Random.seed|object|6f8cc400e3b5290a||||||||||||||
+.Random.seed|object|7295c3af027071c6||||||||||||||
 adjust_access|function|7d5c6cdb521079b1||||||||||||||
 create_line_chart_theme|function|38db9553dadc13cb||||||||||||||
 create_dist_maps|function|8cdcc88f5ea913d1||||||||||||||
@@ -104,4 +104,4 @@ keep_pareto_frontier|function|879951c3d67f8663||||||||||||||
 join_uber_fm_transit_frontiers|function|1db4b2227cf41124||||||||||||||
 calculate_walk_uber_frontier|function|0d05586c91b9b6b1||||||||||||||
 calculate_uber_first_mile_frontier|function|7c05aad182275557||||||||||||||
-pickup_data_res_8|stem|a65d77543e36597d|d8c32f42d65cafb6|5e0e29ba3dc0d55e|-239493902|../data/data//pickup_res_8.rds|t19108.6571296296s|7253b3e9d716df1a|24611|file|vector|||1.28||
+full_uber_matrix|stem|7278d3bebe037b33|5a03839e40cd7f8f|e0fd80984af154b6|722627198|../data/data/pfrontiers/full_uber_matrix.rds|t19108.6619097222s|411e64af0fa6a25d|6877457|file|vector|||11.57||

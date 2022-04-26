@@ -219,10 +219,12 @@ aggregate_waiting_times <- function(pickup_data_path, grid_path) {
 # pickup_data_path <- tar_read(pickup_data_res_8)
 # grid_path <- tar_read(grid_res_8)
 # car_od_matrix_path <- tar_read(car_od_matrix)
+# points_path <- tar_read(r5_points)
 fill_uber_matrix <- function(uber_data_path,
                              pickup_data_path,
                              grid_path,
-                             car_od_matrix_path) {
+                             car_od_matrix_path,
+                             points_path) {
   uber_data <- fread(uber_data_path)
   uber_data <- uber_data[
     date_block_2019 == "mar8_dec20" &
@@ -261,6 +263,15 @@ fill_uber_matrix <- function(uber_data_path,
   
   # to fill the distance and time values, we find the correlation between uber's
   # values with the car values and calculate estimated values based on these.
+  # to fill the cost values, we find the correlation between cost, time and
+  # distance in the uber data and then use these values to estimate the cost
+  # based on the new estimated time and distance values.
+  # we remove the trips from hexagons to themselves from the first two
+  # regressions because they seem to be a bit problematic on uber's end. in
+  # those cases, we populate the values with the avg time and distance from hexs
+  # to themselves.
+  
+  car_od_matrix <- fread(car_od_matrix_path)
   
   uber_data[
     car_od_matrix,
@@ -281,165 +292,114 @@ fill_uber_matrix <- function(uber_data_path,
     uber_data[from != to & !(is.na(car_distance))]
   )
   
+  cost_lm <- lm(cost ~ distance + travel_time, uber_data)
   
-  full_matrix <- full_matrix[
-    from_id %chin% grid$id_hex & to_id %chin% grid$id_hex
-  ]
-  
-  
-  
-  
-  
-  
-  
-  # dodgr_dists() uses a column name 'dists' to calculate the shortest path
-  # between two edges. but if a 'weights' column is present, it calculates the
-  # shortest path according to those weights, but return the final distance
-  # based on 'dists'.
-  # so here, we calculate two matrices: one to calculate the shortest path based
-  # on the travel time, and another to calculate the distance of this shortest
-  # path. we first calculate a matrix with 'travel_time' as 'dists', and then
-  # use these travel times as the weights when calculating the distance matrix
-  
-  setnames(
-    uber_data,
-    old = c("travel_time", "distance"),
-    new = c("dists", "length")
+  hex_to_itself <- uber_data[from == to]
+  avg_time_to_itself <- weighted.mean(
+    hex_to_itself$travel_time,
+    hex_to_itself$num_trips
   )
-  travel_time_matrix <- dodgr_dists(uber_data)
-  travel_time_matrix <- as.data.table(travel_time_matrix, keep.rownames = TRUE)
-  travel_time_matrix <- melt(
-    travel_time_matrix,
-    id.vars = "rn",
-    variable.factor = FALSE
+  avg_dist_to_itself <- weighted.mean(
+    hex_to_itself$distance,
+    hex_to_itself$num_trips
   )
-  setnames(
-    travel_time_matrix,
-    c("rn", "variable", "value"),
-    c("from_id", "to_id", "travel_time")
-  )
-  travel_time_matrix <- travel_time_matrix[!is.na(travel_time)]
   
-  setnames(uber_data, old = c("dists", "length"), new = c("weights", "dists"))
-  distance_matrix <- dodgr_dists(uber_data)
-  distance_matrix <- as.data.table(distance_matrix, keep.rownames = TRUE)
-  distance_matrix <- melt(
-    distance_matrix,
-    id.vars = "rn",
-    variable.factor = FALSE
-  )
-  setnames(
-    distance_matrix,
-    c("rn", "variable", "value"),
-    c("from_id", "to_id", "distance")
-  )
-  distance_matrix <- distance_matrix[!is.na(distance)]
+  # create a full matrix using the points sent to r5r. then first fill it using
+  # the actual values found in uber data, and then estimate new ones using the
+  # objects above
   
-  full_matrix <- travel_time_matrix[distance_matrix, on = c("from_id", "to_id")]
-  
-  # for future reference, we mark the travel times and distances either as
-  # manually inputed (using dodgr) or as original values (when manually_inputed
-  # is FALSE). at this point in stage every single value considered here was
-  # calculated via dodgr, so we signal that
-  
-  full_matrix[, manually_inputed := TRUE]
-  
-  # dodgr will always find a route from the origin to itself, even if this
-  # origin does not appear as a pickup in the uber data. we remove such entries
-  # from the full matrix
-  
-  pickup_hexs <- unique(uber_data$from)
-  full_matrix <- full_matrix[from_id %chin% pickup_hexs]
-  
-  # up to this point we needed the uber_data including all cities from the
-  # metropolitan region to calculate the time and distance between all hexagons
-  # (some hexagons at the border of the city may only be connected to hexagons
-  # from other cities, so if we filtered the data from the beginning to drop
-  # these hexagons we could have a full_matrix not as complete). we don't need
-  # these hexs anymore, so we can filter them out.
-  
-  grid <- setDT(readRDS(grid_path))
-  
-  uber_data <- uber_data[from %chin% grid$id_hex & to %chin% grid$id_hex]
-  full_matrix <- full_matrix[
-    from_id %chin% grid$id_hex & to_id %chin% grid$id_hex
-  ]
-  
-  # dodgr may theoretically return values lower than those found in the uber
-  # data. for example, if in the uber data from A to B takes 10 minutes, but
-  # from A to C takes 5 and from B to C takes 3, then dodgr will return the
-  # shortest path from A to B, which is 8. but we want to use the values found
-  # in the uber data whenever possible. so we substitute the values when the
-  # original dataset includes data on that od pair.
-  
-  setnames(
-    uber_data,
-    old = c("weights", "dists"),
-    new = c("travel_time", "distance")
+  points <- fread(points_path)
+  full_matrix <- CJ(
+    from = points$id,
+    to = points$id
   )
   
   full_matrix[
     uber_data,
-    on = c(from_id = "from", to_id = "to"),
+    on = c("from", "to"),
     `:=`(
-      actual_distance = i.distance,
-      actual_travel_time = i.travel_time
+      cost = i.cost,
+      distance = i.distance,
+      travel_time = i.travel_time
     )
   ]
-
+  full_matrix[, manually_inputed := fifelse(is.na(cost), TRUE, FALSE)]
+  
   full_matrix[
-    !is.na(actual_travel_time),
+    from == to & is.na(cost),
     `:=`(
-      distance = actual_distance,
-      travel_time = actual_travel_time,
-      manually_inputed = FALSE
+      travel_time = avg_time_to_itself,
+      distance = avg_dist_to_itself
     )
   ]
   
-  full_matrix[, `:=`(actual_distance = NULL, actual_travel_time = NULL)]
+  # we have to bring the values from the car od matrix to the full matrix in
+  # order to estimate the uber values. but some pairs do not appear on the car
+  # od matrix, which introduces some NAs to the matrix. we fill these NAs with
+  # the average values found in the data, when filtered to keep the routed
+  # points
   
-  # dodgr_dists() always calculates the travel time and distance from a hex to
-  # itself as 0. but the uber data contains entries with travel times and
-  # distances from hexagons to themselves. so we calculate the average travel
-  # time and distance of these cases and use it to fill the values of trips from
-  # a hex to itself that are not present in uber_data.
-  
-  from_hex_to_itself <- uber_data[from == to]
-  avg_distance <- weighted.mean(
-    from_hex_to_itself$distance,
-    w = from_hex_to_itself$num_trips
-  )
-  avg_travel_time <- weighted.mean(
-    from_hex_to_itself$travel_time,
-    w = from_hex_to_itself$num_trips
-  )
-  
-  full_matrix[
-    from_id == to_id & travel_time == 0,
-    `:=`(distance = avg_distance, travel_time = avg_travel_time)
+  filtered_car_matrix <- car_od_matrix[
+    origin_hex %chin% points$id & destination_hex %chin% points$id
   ]
   
-  # to calculate the cost of each route, we model the effects of the travel time
-  # on the monetary cost, based on the data from uber_data. then we use this
-  # model to calculate the cost of routes that were calculated with
-  # dodgr_dists().
-  # uber_data is filtered to include only rio's hexagons, because the cost
-  # function may be different out of rio.
+  avg_car_time <- mean(filtered_car_matrix$Total_Time)
+  avg_car_dist <- mean(filtered_car_matrix$Total_Distance)
   
-  cost_lm <- lm(cost ~ distance, uber_data)
-  coefs <- cost_lm$coefficients
-  coefs[is.na(coefs)] <- 0
+  full_matrix[
+    car_od_matrix,
+    on = c(from = "origin_hex", to = "destination_hex"),
+    `:=`(
+      car_time = i.Total_Time,
+      car_distance = i.Total_Distance
+    )
+  ]
+  full_matrix[is.na(car_time), car_time := avg_car_time]
+  full_matrix[is.na(car_distance), car_distance := avg_car_dist]
   
-  full_matrix[uber_data, on = c(from_id = "from", to_id = "to"), cost := i.cost]
+  full_matrix[
+    is.na(distance),
+    distance := distance_lm$coefficients["(Intercept)"] +
+      distance_lm$coefficients["car_distance"] * car_distance
+  ]
+  full_matrix[
+    is.na(travel_time),
+    travel_time := time_lm$coefficients["(Intercept)"] +
+      time_lm$coefficients["car_time"] * car_time
+  ]
+  
+  # estimating time and distance via regression introduces some negative values,
+  # because of the negative intercept and low car time/distance values. so we
+  # take the minimum values in the actual uber data and use them to substitute
+  # these negative and very low values
+  # OBS: ISSO DA VALORES MENORES DO QUE OS MÉDIOS DE HEXAGONOS ENTRE SI MESMOS
+  
+  min_uber_time <- min(uber_data$travel_time)
+  min_uber_dist <- min(uber_data$distance)
+  
+  full_matrix[distance < min_uber_dist, distance := min_uber_dist]
+  full_matrix[travel_time < min_uber_time, travel_time := min_uber_time]
+  
+  # estimating the cost is also done via a regression. this regression may
+  # introduce very low costs, because of low distances and travel times, which
+  # are much lower than uber's actual minimum fare. in fact, we also have some
+  # low values in the actual uber data. so we substitute those by the minimum
+  # fare in rio at the time, which was around 5 reais
+  # OBS: QUAL VALOR USAR CERTINHO?
+  
   full_matrix[
     is.na(cost),
-    cost := coefs["(Intercept)"] + distance * coefs["distance"]
+    cost := cost_lm$coefficients["(Intercept)"] +
+      distance * cost_lm$coefficients["distance"] +
+      travel_time * cost_lm$coefficients["travel_time"]
   ]
+  
+  minimum_uber_fare <- 5
+  full_matrix[cost < minimum_uber_fare, cost := minimum_uber_fare]
   
   # we have to add to the travel time the mean waiting time at each origin,
   # after converting it from seconds to minutes.
-  # we do this after routing and calculating the cost because we don't want to
-  # "propagate" waiting times when routing, and because waiting times do not
+  # we do this after calculating the cost because waiting times do not
   # influence the monetary cost of a trip.
   # some hexagons do not have waiting time data, so we calculate the weighted
   # mean waiting time in the city of rio and substitute the NAs using this value
@@ -449,7 +409,7 @@ fill_uber_matrix <- function(uber_data_path,
   
   full_matrix[
     pickup_data,
-    on = c(from_id = "hex_addr"),
+    on = c(from = "hex_addr"),
     waiting_time := i.mean_wait_time
   ]
   
@@ -471,12 +431,19 @@ fill_uber_matrix <- function(uber_data_path,
     `:=`(travel_time = round(travel_time), cost = round(cost / 0.05) * 0.05)
   ]
   
-  # we won't need the distance between two hexagons anymore (we needed to
-  # calculate the cost), and neither the waiting time at origin, so we can drop
-  # them
+  # we won't need the distance between two hexagons (we needed to calculate the
+  # cost), the waiting time at origin and the car-related columns anymore, so we
+  # can drop them
   
-  full_matrix[, c("distance", "waiting_time") := NULL]
-  setnames(full_matrix, old = "cost", new = "monetary_cost")
+  full_matrix[
+    ,
+    c("distance", "waiting_time", "car_time", "car_distance") := NULL
+  ]
+  setnames(
+    full_matrix,
+    old = c("cost", "from", "to"),
+    new = c("monetary_cost", "from_id", "to_id")
+  )
   setcolorder(full_matrix, setdiff(names(full_matrix), "manually_inputed"))
   
   matrix_dir <- "../data/data/pfrontiers"
@@ -487,6 +454,7 @@ fill_uber_matrix <- function(uber_data_path,
   
   return(matrix_path)
 }
+
 
 # uber_matrix_path <- tar_read(full_uber_matrix)
 # walk_matrix_path <- tar_read(walk_only_matrix)
