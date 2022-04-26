@@ -509,13 +509,14 @@ calculate_uber_first_mile_frontier <- function(uber_matrix_path,
   stations_to_hex[, geometry := NULL]
   
   # calculate travel times from the origins to the transit stations, considering
-  # Uber's travel times. first filter uber_matrix to only contain trips with
-  # travel time lower than 120 minutes and hexagons with
-  # population/opportunities data.
+  # Uber's travel times. in our definition, a first mile leg takes at most 30
+  # minutes, and must necessarily be faster than the transit leg. so first we
+  # filter the uber matrix to contain only trips with travel time lower than or
+  # equal to 30 minutes and hexagons with population/opportunities data.
   
   uber_matrix <- readRDS(uber_matrix_path)
   uber_matrix <- uber_matrix[
-    travel_time < 120 &
+    travel_time <= 30 &
       from_id %chin% points$id &
       to_id %chin% points$id
   ]
@@ -596,9 +597,10 @@ calculate_uber_first_mile_frontier <- function(uber_matrix_path,
   )
   remaining_frontier[, departure_minute := as.integer(departure_minute)]
   
-  # bind remaining_frontier with first_mile_matrix. calculate the total travel
-  # time and cost, and then keep only the pareto frontier of these new total
-  # travel time and cost values
+  # bind remaining_frontier with first_mile_matrix. keep only trips whose
+  # transit legs are longer than the uber leg, calculate the total travel time
+  # and cost, and then keep only the pareto frontier of these new total travel
+  # time and cost values
   
   frontier <- merge(
     first_mile_matrix,
@@ -644,6 +646,8 @@ calculate_uber_first_mile_frontier <- function(uber_matrix_path,
       "remaining_cost"
     )
   )
+  
+  frontier <- frontier[remaining_time >= first_mile_time]
   frontier[
     ,
     `:=`(
