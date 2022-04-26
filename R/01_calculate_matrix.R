@@ -179,7 +179,17 @@ aggregate_waiting_times <- function(pickup_data_path, grid_path) {
   ]
   
   parent_res_8 <- h3jsr::get_parent(pickup_data$hex_addr, res = 8)
-  pickup_data <- cbind(pickup_data, parent_hex = parent_res_8)
+  pickup_data[, parent_hex := parent_res_8]
+  
+  # pickup data includes a few NAs waiting times. we substitute these by the
+  # weighted average value
+  # OBS: ISSO É ALGO ERRADO JÁ DO DADO QUE NOS FOI DADO
+  
+  avg_wait_time <- weighted.mean(
+    pickup_data[!is.na(mean_wait_time)]$mean_wait_time,
+    pickup_data[!is.na(mean_wait_time)]$num_pickups
+  )
+  pickup_data[is.na(mean_wait_time), mean_wait_time := avg_wait_time]
   
   aggregated_data <- pickup_data[
     ,
@@ -188,7 +198,7 @@ aggregate_waiting_times <- function(pickup_data_path, grid_path) {
       frac_driver_cancel = weighted.mean(frac_driver_cancel, w = num_pickups),
       mean_wait_time = weighted.mean(mean_wait_time, w = num_pickups)
     ),
-    keyby = parent_hex
+    by = parent_hex
   ]
   setnames(aggregated_data, old = "parent_hex", new = "hex_addr")
   
@@ -198,7 +208,7 @@ aggregate_waiting_times <- function(pickup_data_path, grid_path) {
   aggregated_data <- aggregated_data[hex_addr %chin% grid$id_hex]
   
   data_dir <- "../data/data/"
-  path <- file.path(data_dir, "pickup_anonymized_res_8.rds")
+  path <- file.path(data_dir, "pickup_res_8.rds")
   saveRDS(aggregated_data, path)
   
   return(path)
