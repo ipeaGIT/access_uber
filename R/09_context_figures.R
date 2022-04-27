@@ -5,12 +5,14 @@ create_context_map_theme <- function() {
       panel.background = element_rect(fill = "#aadaff", color = NA),
       axis.text = element_blank(),
       axis.ticks = element_blank(),
+      axis.title = element_blank(),
       legend.position = c(1, 0),
       legend.justification = c(1, 0),
       legend.direction = "horizontal",
       legend.box.just = "right",
       legend.background = element_rect(fill = "#aadaff", color = NA),
       legend.title = element_text(hjust = 1),
+      legend.text = element_text(size = 9),
       strip.text.x = element_text(color = "grey30"),
       plot.margin = grid::unit(c(0, 0, 0, 0), "mm")
     )
@@ -20,11 +22,14 @@ create_context_map_theme <- function() {
 # rio_city_path <- tar_read(rio_city)
 create_north <- function(rio_city_path) {
   city_border <- readRDS(rio_city_path)
-  expanded_city_border <- st_buffer(city_border, 3000)
+  expanded_city_border <- st_buffer(city_border, 4000)
+  less_expanded_city_border <- st_buffer(city_border, 2000)
   
   north_data <- city_border
   north_data_bbox <- st_bbox(north_data)
   north_data_bbox["xmin"] <- st_bbox(expanded_city_border)["xmin"]
+  north_data_bbox["ymin"] <- st_bbox(less_expanded_city_border)["ymin"]
+  north_data_bbox["ymax"] <- st_bbox(less_expanded_city_border)["ymax"]
   attr(st_geometry(north_data), "bbox") <- north_data_bbox
   
   north <- ggsn::north(
@@ -38,16 +43,44 @@ create_north <- function(rio_city_path) {
 }
 
 
+# rio_city_path <- tar_read(rio_city)
+create_scalebar <- function(rio_city_path) {
+  city_border <- readRDS(rio_city_path)
+  expanded_city_border <- st_buffer(city_border, 1500)
+  
+  scalebar_data <- city_border
+  scalebar_data_bbox <- st_bbox(scalebar_data)
+  scalebar_data_bbox["ymin"] <- st_bbox(expanded_city_border)["ymin"]
+  attr(st_geometry(scalebar_data), "bbox") <- scalebar_data_bbox
+  
+  scalebar <- ggsn::scalebar(
+    data = scalebar_data, 
+    dist = 10, 
+    dist_unit = "km",
+    location = "bottomleft", 
+    transform = TRUE, 
+    model = "WGS84",
+    border.size = 0.3, 
+    st.size = 3,
+    st.dist = 0.03
+  )
+  
+  return(scalebar)
+}
+
+
 # grid_path <- tar_read(grid_res_9)
 # rio_city_path <- tar_read(rio_city)
 # rio_state_path <- tar_read(rio_state)
 # map_theme <- tar_read(context_map_theme)
 # north <- tar_read(north)
+# scalebar <- tar_read(scalebar)
 create_pop_density_map <- function(grid_path,
                                    rio_city_path,
                                    rio_state_path,
                                    map_theme,
-                                   north) {
+                                   north,
+                                   scalebar) {
   grid <- setDT(readRDS(grid_path))
   grid <- grid[
     pop_total > 0 |
@@ -60,15 +93,18 @@ create_pop_density_map <- function(grid_path,
   grid[, pop_density := pop_total / area]
   
   city_border <- readRDS(rio_city_path)
+  expanded_city_border <- st_buffer(city_border, 2000)
   state_border <- readRDS(rio_state_path)
+  
   xlim <- c(st_bbox(city_border)[1], st_bbox(city_border)[3])
-  ylim <- c(st_bbox(city_border)[2], st_bbox(city_border)[4])
+  ylim <- c(st_bbox(expanded_city_border)[2], st_bbox(expanded_city_border)[4])
   
   p <- ggplot(st_sf(grid)) +
     geom_sf(data = state_border, color = NA, fill = "#efeeec") +
     geom_sf(aes(fill = pop_density), color = NA) +
     geom_sf(data = city_border, color = "black", fill = NA, size = 0.3) +
     north +
+    scalebar +
     coord_sf(xlim = xlim, ylim = ylim) +
     scale_fill_gradient(
       name = "Pop. density\n(1000/km²)",
@@ -83,7 +119,7 @@ create_pop_density_map <- function(grid_path,
     figure_path,
     plot = p,
     width = 15,
-    height = 8,
+    height = 9,
     units = "cm"
   )
   

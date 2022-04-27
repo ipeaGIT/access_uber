@@ -303,13 +303,18 @@ list(
     create_north(rio_city)
   ),
   tar_target(
+    scalebar,
+    create_scalebar(rio_city)
+  ),
+  tar_target(
     pop_density_map,
     create_pop_density_map(
       grid_res_9,
       rio_city,
       rio_state,
       context_map_theme,
-      north
+      north,
+      scalebar
     ),
     format = "file"
   )
