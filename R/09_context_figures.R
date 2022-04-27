@@ -190,6 +190,79 @@ create_income_decile_map <- function(grid_path,
 }
 
 
+# pickup_data_path <- tar_read(pickup_data)
+# rio_city_path <- tar_read(rio_city)
+# rio_state_path <- tar_read(rio_state)
+# map_theme <- tar_read(context_map_theme)
+# north <- tar_read(north)
+# scalebar <- tar_read(scalebar)
+create_pickup_density_map <- function(pickup_data_path,
+                                      rio_city_path,
+                                      rio_state_path,
+                                      map_theme,
+                                      north,
+                                      scalebar) {
+  pickup_data <- fread(pickup_data_path)
+  pickup_data <- pickup_data[
+    date_block_2019 == "mar8_dec20" &
+      weekday_weekend == "weekday" &
+      time_block == "morning_peak"
+  ]
+  pickup_data[
+    ,
+    setdiff(names(pickup_data), c("hex_addr", "num_pickups")) := NULL
+  ]
+  pickup_data <- h3jsr::h3_to_polygon(pickup_data, simple = FALSE)
+  pickup_data <- st_transform(pickup_data, 4674)
+  
+  city_border <- readRDS(rio_city_path)
+  does_intersect <- st_intersects(pickup_data, city_border, sparse = FALSE)
+  pickup_data <- pickup_data[does_intersect, ]
+  
+  setDT(pickup_data)
+  pickup_data[, area := as.numeric(st_area(st_sf(pickup_data))) / 1000000]
+  pickup_data[, pickup_density := num_pickups / area]
+  
+  expanded_city_border <- st_buffer(city_border, 2000)
+  state_border <- readRDS(rio_state_path)
+  
+  xlim <- c(st_bbox(city_border)[1], st_bbox(city_border)[3])
+  ylim <- c(st_bbox(expanded_city_border)[2], st_bbox(expanded_city_border)[4])
+  
+  p <- ggplot(st_sf(pickup_data)) +
+    geom_sf(data = state_border, color = NA, fill = "#efeeec") +
+    geom_sf(aes(fill = pickup_density), color = NA) +
+    geom_sf(data = city_border, color = "black", fill = NA, size = 0.3) +
+    north +
+    scalebar +
+    coord_sf(xlim = xlim, ylim = ylim) +
+    scale_fill_gradient(
+      name = "Pickup density\n(1000/km²)",
+      low = "#efeeec",
+      high = "mediumorchid3",
+      trans = scales::trans_new(
+        "cubic root",
+        transform = function(x) x^(1/3),
+        inverse = function(x) x^3
+      ),
+      breaks = c(3000, 30000, 300000),
+      label = scales::label_number(scale = 1/1000, accuracy = 1)
+    ) +
+    map_theme
+  
+  figure_path <- "../figures/context/pickup_density.png"
+  ggsave(
+    figure_path,
+    plot = p,
+    width = 15,
+    height = 9,
+    units = "cm"
+  )
+  
+  return(figure_path)
+}
+
+
 # library(geobr)
 # library(maptiles)
 # library(dplyr)

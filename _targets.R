@@ -329,5 +329,17 @@ list(
       scalebar
     ),
     format = "file"
+  ),
+  tar_target(
+    pickup_density_map,
+    create_pickup_density_map(
+      pickup_data,
+      rio_city,
+      rio_state,
+      context_map_theme,
+      north,
+      scalebar
+    ),
+    format = "file"
   )
 )
