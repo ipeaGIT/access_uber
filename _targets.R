@@ -31,6 +31,11 @@ list(
     format = "file"
   ),
   tar_target(
+    dropoff_data,
+    "../data/data-raw/rio_dropoffs.csv",
+    format = "file"
+  ),
+  tar_target(
     rapid_transit_stations,
     "../data/data-raw/aop_generated/rapid_transit_stations_city.csv",
     format = "file"
@@ -334,6 +339,18 @@ list(
     pickup_density_map,
     create_pickup_density_map(
       pickup_data,
+      rio_city,
+      rio_state,
+      context_map_theme,
+      north,
+      scalebar
+    ),
+    format = "file"
+  ),
+  tar_target(
+    dropoff_density_map,
+    create_dropoff_density_map(
+      dropoff_data,
       rio_city,
       rio_state,
       context_map_theme,
