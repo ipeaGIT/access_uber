@@ -317,5 +317,17 @@ list(
       scalebar
     ),
     format = "file"
+  ),
+  tar_target(
+    income_decile_map,
+    create_income_decile_map(
+      grid_res_9,
+      rio_city,
+      rio_state,
+      context_map_theme,
+      north,
+      scalebar
+    ),
+    format = "file"
   )
 )

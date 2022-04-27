@@ -78,6 +78,7 @@ palma_plot|pattern|212d152f7439558e|95d75c1084b14809||845247040||||232234|file|v
 scalebar|stem|0614c1cb13e1bbfc|3ad7523dd2f92b8f|8b5597495f0ad897|1890180467||t19109.5728703704s|3aa0068b3b5bdc86|48581|rds|vector|||0.72||
 context_map_theme|stem|0c8032efba18ce57|c4201d04b33ba0f5|46aefafe97b64809|399955992||t19109.5770138889s|716601dcac5322bd|1430|rds|vector|||0||
 north|stem|6828d83c00c1f04d|9cfa212cc4bb5f40|533f07c865e5ea5e|1917062665||t19109.5791666667s|d62908977cf6dd44|357302|rds|vector|||0.86||
+pop_density_map|stem|13ef19bd7d7ce22a|557cb9084ebd8692|9b630182958b63bd|-591468313|../figures/context/pop_density.png|t19109.5796412037s|9559389c1adec28d|179805|file|vector|||2.81||
 generate_possible_fare_values|function|8c15036df914750e||||||||||||||
 generate_r5_points|function|a10eac23a9d0d23e||||||||||||||
 create_scalebar|function|dada88d35787fc03||||||||||||||
@@ -101,15 +102,16 @@ create_avg_access_by_time_per_group_plot|function|13c968ee1f0ac76a||||||||||||||
 create_context_map_theme|function|d774e2c7b9751981||||||||||||||
 create_palma_plot|function|addbe41a8149a6ab||||||||||||||
 calculate_access|function|38a7fd52670a9a30||||||||||||||
-.Random.seed|object|e722b366b677bf0b||||||||||||||
+.Random.seed|object|cd38174d998ce09f||||||||||||||
 adjust_access|function|7d5c6cdb521079b1||||||||||||||
 create_line_chart_theme|function|38db9553dadc13cb||||||||||||||
 get_frontier_type|function|e937ef48a6761437||||||||||||||
 create_dist_maps|function|8cdcc88f5ea913d1||||||||||||||
+create_income_decile_map|function|c24f49e786de95c8||||||||||||||
 calculate_transit_frontier|function|49eb505f80d115cf||||||||||||||
 calculate_palma|function|1f592499cc8fbdc1||||||||||||||
 keep_pareto_frontier|function|879951c3d67f8663||||||||||||||
 join_uber_fm_transit_frontiers|function|1db4b2227cf41124||||||||||||||
 calculate_walk_uber_frontier|function|0d05586c91b9b6b1||||||||||||||
 calculate_uber_first_mile_frontier|function|1cd5cdb27963c8ab||||||||||||||
-pop_density_map|stem|13ef19bd7d7ce22a|557cb9084ebd8692|9b630182958b63bd|-591468313|../figures/context/pop_density.png|t19109.5796412037s|9559389c1adec28d|179805|file|vector|||2.81||
+income_decile_map|stem|66d43cd75f2a7d44|8cc59c266a9ddffa|9b3c1796249c7b16|-1903632347|../figures/context/income_decile.png|t19109.6143634259s|3ec395359a671527|141691|file|vector|||3.54||

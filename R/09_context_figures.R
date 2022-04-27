@@ -126,7 +126,70 @@ create_pop_density_map <- function(grid_path,
   return(figure_path)
 }
 
-# 
+
+# grid_path <- tar_read(grid_res_9)
+# rio_city_path <- tar_read(rio_city)
+# rio_state_path <- tar_read(rio_state)
+# map_theme <- tar_read(context_map_theme)
+# north <- tar_read(north)
+# scalebar <- tar_read(scalebar)
+create_income_decile_map <- function(grid_path,
+                                     rio_city_path,
+                                     rio_state_path,
+                                     map_theme,
+                                     north,
+                                     scalebar) {
+  grid <- setDT(readRDS(grid_path))
+  grid <- grid[
+    pop_total > 0 |
+      renda_total > 0 |
+      empregos_total > 0 |
+      saude_total > 0 |
+      edu_total > 0
+  ]
+  grid <- grid[decil > 0]
+  grid[
+    ,
+    decil := factor(
+      decil,
+      levels = 1:10
+    )
+  ]
+  
+  city_border <- readRDS(rio_city_path)
+  expanded_city_border <- st_buffer(city_border, 2000)
+  state_border <- readRDS(rio_state_path)
+  
+  xlim <- c(st_bbox(city_border)[1], st_bbox(city_border)[3])
+  ylim <- c(st_bbox(expanded_city_border)[2], st_bbox(expanded_city_border)[4])
+  
+  p <- ggplot(st_sf(grid)) +
+    geom_sf(data = state_border, color = NA, fill = "#efeeec") +
+    geom_sf(aes(fill = decil), color = NA) +
+    geom_sf(data = city_border, color = "black", fill = NA, size = 0.3) +
+    north +
+    scalebar +
+    coord_sf(xlim = xlim, ylim = ylim) +
+    scale_fill_brewer(
+      name = "Income\ndecile",
+      palette = "RdBu"
+    ) +
+    guides(fill = guide_legend(byrow = TRUE)) +
+    map_theme
+  
+  figure_path <- "../figures/context/income_decile.png"
+  ggsave(
+    figure_path,
+    plot = p,
+    width = 15,
+    height = 9,
+    units = "cm"
+  )
+  
+  return(figure_path)
+}
+
+
 # library(geobr)
 # library(maptiles)
 # library(dplyr)
