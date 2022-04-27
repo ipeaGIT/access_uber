@@ -1,6 +1,6 @@
 options(
-  java.parameters = "-Xmx100G",
-  N_CORES = 30L
+  java.parameters = "-Xmx50G",
+  N_CORES = 15L
 )
 RcppParallel::setThreadOptions(numThreads = getOption("N_CORES"))
 
@@ -299,12 +299,17 @@ list(
     format = "file"
   ),
   tar_target(
+    north,
+    create_north(rio_city)
+  ),
+  tar_target(
     pop_density_map,
     create_pop_density_map(
       grid_res_9,
       rio_city,
       rio_state,
-      context_map_theme
+      context_map_theme,
+      north
     ),
     format = "file"
   )

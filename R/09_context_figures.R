@@ -17,14 +17,37 @@ create_context_map_theme <- function() {
 }
 
 
+# rio_city_path <- tar_read(rio_city)
+create_north <- function(rio_city_path) {
+  city_border <- readRDS(rio_city_path)
+  expanded_city_border <- st_buffer(city_border, 3000)
+  
+  north_data <- city_border
+  north_data_bbox <- st_bbox(north_data)
+  north_data_bbox["xmin"] <- st_bbox(expanded_city_border)["xmin"]
+  attr(st_geometry(north_data), "bbox") <- north_data_bbox
+  
+  north <- ggsn::north(
+    data = north_data,
+    location = "topleft",
+    scale = 0.15,
+    symbol = 4
+  )
+  
+  return(north)
+}
+
+
 # grid_path <- tar_read(grid_res_9)
 # rio_city_path <- tar_read(rio_city)
 # rio_state_path <- tar_read(rio_state)
 # map_theme <- tar_read(context_map_theme)
+# north <- tar_read(north)
 create_pop_density_map <- function(grid_path,
                                    rio_city_path,
                                    rio_state_path,
-                                   map_theme) {
+                                   map_theme,
+                                   north) {
   grid <- setDT(readRDS(grid_path))
   grid <- grid[
     pop_total > 0 |
@@ -45,6 +68,7 @@ create_pop_density_map <- function(grid_path,
     geom_sf(data = state_border, color = NA, fill = "#efeeec") +
     geom_sf(aes(fill = pop_density), color = NA) +
     geom_sf(data = city_border, color = "black", fill = NA, size = 0.3) +
+    north +
     coord_sf(xlim = xlim, ylim = ylim) +
     scale_fill_gradient(
       name = "Pop. density\n(1000/km²)",
