@@ -372,7 +372,6 @@ fill_uber_matrix <- function(uber_data_path,
   # because of the negative intercept and low car time/distance values. so we
   # take the minimum values in the actual uber data and use them to substitute
   # these negative and very low values
-  # OBS: ISSO DA VALORES MENORES DO QUE OS MÉDIOS DE HEXAGONOS ENTRE SI MESMOS
   
   min_uber_time <- min(uber_data$travel_time)
   min_uber_dist <- min(uber_data$distance)
@@ -385,7 +384,6 @@ fill_uber_matrix <- function(uber_data_path,
   # are much lower than uber's actual minimum fare. in fact, we also have some
   # low values in the actual uber data. so we substitute those by the minimum
   # fare in rio at the time, which was around 5 reais
-  # OBS: QUAL VALOR USAR CERTINHO?
   
   full_matrix[
     is.na(cost),

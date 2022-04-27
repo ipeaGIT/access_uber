@@ -17,7 +17,6 @@ source("R/01_calculate_matrix.R", encoding = "UTF-8")
 source("R/02_calculate_access.R", encoding = "UTF-8")
 source("R/03_compare_access.R", encoding = "UTF-8")
 source("R/09_context_figures.R", encoding = "UTF-8")
-source("R/misc.R", encoding = "UTF-8")
 
 list(
   tar_target(
