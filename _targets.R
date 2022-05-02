@@ -357,5 +357,10 @@ list(
       scalebar
     ),
     format = "file"
+  ),
+  tar_target(
+    edge_bundles,
+    create_edge_bundles(uber_data, grid_res_8),
+    format = "file"
   )
 )

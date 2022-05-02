@@ -82,6 +82,8 @@ pop_density_map|stem|13ef19bd7d7ce22a|557cb9084ebd8692|9b630182958b63bd|-5914683
 income_decile_map|stem|66d43cd75f2a7d44|8cc59c266a9ddffa|9b3c1796249c7b16|-1903632347|../figures/context/income_decile.png|t19109.6143634259s|3ec395359a671527|141691|file|vector|||3.54||
 pickup_density_map|stem|9f89f659ca8ebf1f|c87f84aaaffc8b10|086c508391d81a2a|1853110943|../figures/context/pickup_density.png|t19109.6569791667s|512c245e33545f5a|176068|file|vector|||8.82||
 dropoff_data|stem|cd2a5aae922ff9a7|d0fc7943ec0cbf91|ef46db3751d8e999|772232055|../data/data-raw/rio_dropoffs.csv|t18885.7108912037s|0cf44c3dc3e483fe|11914957|file|vector|||0||
+get_frontier_type|function|e937ef48a6761437||||||||||||||
+dropoff_density_map|stem|7892045e626692e1|f0c8e3cadaee18e6|16b8bb06b191f14b|-960011209|../figures/context/dropoff_density.png|t19109.7401273148s|48fe3354e7b6072e|176127|file|vector|||9.2||
 create_dropoff_density_map|function|a1599c273820dd84||||||||||||||
 fill_uber_matrix|function|5d33eaaa138cb301||||||||||||||
 palma_calculator|function|fe1d968794237f52||||||||||||||
@@ -89,10 +91,10 @@ create_scalebar|function|dada88d35787fc03||||||||||||||
 find_relevant_entries|function|7b69ae76c2af1dfc||||||||||||||
 create_dist_maps|function|8cdcc88f5ea913d1||||||||||||||
 create_comparison_scatter_plot|function|6bdd9144ba99b1d9||||||||||||||
-get_frontier_type|function|e937ef48a6761437||||||||||||||
 create_map_theme|function|abc0e0bd124ee2d5||||||||||||||
 identify_problematic_hexs|function|d0fd29c74993b81f||||||||||||||
-.Random.seed|object|980dcc589a657a73||||||||||||||
+create_edge_bundles|function|d5d5dcf5c1ff8ada||||||||||||||
+.Random.seed|object|16d08034f1f03e03||||||||||||||
 create_line_chart_theme|function|38db9553dadc13cb||||||||||||||
 adjust_grid_income|function|2640812b162cdb05||||||||||||||
 calculate_walk_matrix|function|448c104840316c3a||||||||||||||
@@ -119,4 +121,4 @@ calculate_transit_frontier|function|49eb505f80d115cf||||||||||||||
 calculate_uber_first_mile_frontier|function|1cd5cdb27963c8ab||||||||||||||
 join_uber_fm_transit_frontiers|function|1db4b2227cf41124||||||||||||||
 calculate_walk_uber_frontier|function|0d05586c91b9b6b1||||||||||||||
-dropoff_density_map|stem|7892045e626692e1|f0c8e3cadaee18e6|16b8bb06b191f14b|-960011209|../figures/context/dropoff_density.png|t19109.7401273148s|48fe3354e7b6072e|176127|file|vector|||9.2||
+edge_bundles|stem|10c4d80d433b1189|15c4e945b57775bd|0e89422b551b17f3|-555297087|../data/data/edge_bundles_list.rds|t19114.7311805556s|a8222b3c7a125c31|29819176|file|vector|||6234.53||
