@@ -273,6 +273,16 @@ list(
     format = "file"
   ),
   tar_target(
+    diff_per_group_boxplot,
+    create_diff_per_group_plot(
+      adjusted_accessibility,
+      grid_res_8,
+      monetary_thresholds,
+      line_chart_theme
+    ),
+    format = "file"
+  ),
+  tar_target(
     avg_access_by_time,
     create_avg_access_by_time_plot(
       adjusted_accessibility,
