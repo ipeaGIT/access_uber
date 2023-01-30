@@ -784,7 +784,8 @@ create_avg_access_by_time_per_group_plot <- function(access_path,
         avg_access,
         color = mode,
         linetype = group
-      )
+      ),
+      size = 1
     ) +
     facet_wrap(~ get(monetary_column), nrow = 2) +
     scale_color_brewer(name = "Scenario", palette = "Paired") +

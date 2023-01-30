@@ -419,6 +419,60 @@ create_edge_bundles <- function(uber_data_path, grid_path) {
 }
 
 
+# edge_bundles_path <- tar_read(edge_bundles)
+# rio_city_path <- tar_read(rio_city)
+# rio_state_path <- tar_read(rio_state)
+# map_theme <- tar_read(context_map_theme)
+# north <- tar_read(north)
+# scalebar <- tar_read(scalebar)
+create_edge_maps <- function(edge_bundles_path,
+                             rio_city_path,
+                             rio_state_path,
+                             map_theme,
+                             north,
+                             scalebar) {
+  edge_bundles <- readRDS(edge_bundles_path)
+  edge_bundles[
+    ,
+    type := factor(
+      type,
+      levels = c("full", "rich", "poor"),
+      labels = c("All origins", "Rich origins", "Poor origins")
+    )
+  ]
+  
+  city_border <- readRDS(rio_city_path)
+  expanded_city_border <- st_buffer(city_border, 2000)
+  state_border <- readRDS(rio_state_path)
+  
+  xlim <- c(st_bbox(city_border)[1], st_bbox(city_border)[3])
+  ylim <- c(st_bbox(expanded_city_border)[2], st_bbox(expanded_city_border)[4])
+  
+  p <- ggplot(st_sf(edge_bundles, crs = 4326)) +
+    geom_sf(data = state_border, color = NA, fill = "#efeeec") +
+    geom_sf(aes(size = num_trips), alpha = 0.01, color = "mediumorchid3") +
+    geom_sf(data = city_border, color = "black", fill = NA, size = 0.3) +
+    facet_wrap(~ type, ncol = 1, strip.position = "left") +
+    north +
+    scalebar +
+    coord_sf(xlim = xlim, ylim = ylim) +
+    scale_size(range = c(0.1, 3)) +
+    map_theme +
+    theme(strip.text = element_text(size = 11))
+  
+  figure_path <- "../figures/context/edge_bundles.png"
+  ggsave(
+    figure_path,
+    plot = p,
+    width = 15,
+    height = 25.5,
+    units = "cm"
+  )
+  
+  return(figure_path)
+}
+
+
 # library(geobr)
 # library(maptiles)
 # library(dplyr)
