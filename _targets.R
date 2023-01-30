@@ -261,6 +261,18 @@ list(
     format = "file"
   ),
   tar_target(
+    diff_dist_map,
+    create_single_diff_dist_map(
+      adjusted_accessibility,
+      grid_res_8,
+      rio_city,
+      rio_state,
+      monetary_thresholds,
+      map_theme
+    ),
+    format = "file"
+  ),
+  tar_target(
     avg_access_by_time,
     create_avg_access_by_time_plot(
       adjusted_accessibility,

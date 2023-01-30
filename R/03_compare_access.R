@@ -245,7 +245,7 @@ create_diff_dist_maps <- function(access_path,
   return(figure_path)
 }
 
-
+# 
 # access_path <- tar_read(adjusted_accessibility)[1]
 # grid_path <- tar_read(grid_res_8)
 # line_chart_theme <- tar_read(line_chart_theme)
@@ -784,8 +784,7 @@ create_avg_access_by_time_per_group_plot <- function(access_path,
         avg_access,
         color = mode,
         linetype = group
-      ),
-      size = 1
+      )
     ) +
     facet_wrap(~ get(monetary_column), nrow = 2) +
     scale_color_brewer(name = "Scenario", palette = "Paired") +
@@ -941,6 +940,137 @@ create_comparison_scatter_plot <- function(access_path,
     plot = p,
     width = 15,
     height = 15,
+    units = "cm"
+  )
+  
+  return(figure_path)
+}
+
+
+# access_path <- tar_read(adjusted_accessibility)
+# grid_path <- tar_read(grid_res_8)
+# rio_city_path <- tar_read(rio_city)
+# rio_state_path <- tar_read(rio_state)
+# monetary_thresholds_list <- tar_read(monetary_thresholds)
+# map_theme <- tar_read(map_theme)
+create_single_diff_dist_map <- function(access_path,
+                                        grid_path,
+                                        rio_city_path,
+                                        rio_state_path,
+                                        monetary_thresholds_list,
+                                        map_theme) {
+  access <- lapply(access_path, readRDS)
+  grid <- setDT(readRDS(grid_path))
+  
+  monetary_thresholds <- lapply(
+    monetary_thresholds_list,
+    function(.x) setdiff(.x, 0)
+  )
+  
+  monetary_column_names <- c("absolute_cost", "affordability")
+  
+  access_diff <- mapply(
+    access,
+    monetary_thresholds,
+    monetary_column_names,
+    SIMPLIFY = FALSE,
+    FUN = function(access_data, cutoffs, colname) {
+      access_data <- access_data[travel_time == 60]
+      access_data <- access_data[get(colname) %in% cutoffs]
+      access_data <- access_data[mode != "only_uber"]
+      
+      access_diff <- dcast(access_data, ... ~ mode, value.var = "access")
+      access_diff[, diff := uber_fm_transit_combined - only_transit]
+      access_diff[grid, on = c(from_id = "id_hex"), geometry := i.geometry]
+      
+      setnames(access_diff, old = colname, new = "cutoff")
+    }
+  )
+  
+  # the text on each panel is different, depending on the type of monetary cost
+  # we're looking at (the first list object uses absolute costs, the second uses
+  # relative costs)
+  
+  access_diff[[1]][
+    ,
+    cutoff := factor(
+      cutoff,
+      levels = monetary_thresholds[[1]],
+      labels = scales::label_number(suffix = " BRL")(monetary_thresholds[[1]])
+    )
+  ]
+  
+  access_diff[[2]][
+    ,
+    cutoff := factor(
+      cutoff,
+      levels = monetary_thresholds[[2]],
+      labels = scales::label_percent(accuracy = 1)(monetary_thresholds[[2]])
+    )
+  ]
+  
+  access_diff <- lapply(access_diff, st_sf)
+  
+  city_border <- readRDS(rio_city_path)
+  state_border <- readRDS(rio_state_path)
+  xlim <- c(st_bbox(city_border)[1], st_bbox(city_border)[3])
+  ylim <- c(st_bbox(city_border)[2], st_bbox(city_border)[4])
+  
+  total_jobs <- sum(grid$empregos_total)
+  max_diff <- max(
+    vapply(access_diff, function(.x) max(.x$diff), FUN.VALUE = numeric(1))
+  )
+  
+  y_axis_name <- c(
+    "Absolute monetary cost threshold",
+    "Relative monetary cost threshold"
+  )
+  
+  plots <- mapply(
+    access_diff,
+    y_axis_name,
+    SIMPLIFY = FALSE,
+    FUN = function(access_diff_df, axis_name) {
+      ggplot(access_diff_df) +
+        geom_sf(data = state_border, color = NA, fill = "#efeeec") +
+        geom_sf(aes(fill = diff), color = NA) +
+        geom_sf(data = city_border, color = "black", fill = NA, size = 0.3) +
+        facet_wrap(~ cutoff, ncol = 2) +
+        coord_sf(xlim = xlim, ylim = ylim) +
+        scale_fill_gradient(
+          name = "Accessibility diff.\n(% of total jobs)",
+          low = "#efeeec",
+          high = "firebrick3",
+          labels = scales::label_percent(accuracy = 1, scale = 100 / total_jobs),
+          limits = c(0, max_diff)
+        ) +
+        labs(y = axis_name) +
+        guides(fill = guide_colorbar(title.vjust = 1)) +
+        map_theme
+    }
+  )
+  
+  maps_legend <- cowplot::get_legend(plots[[1]])
+  
+  p <- cowplot::plot_grid(
+    plots[[1]] + theme(legend.position = "none"),
+    plots[[2]] + theme(legend.position = "none"),
+    maps_legend,
+    ncol = 1,
+    labels = c("A", "B"),
+    rel_heights = c(1, 1, 0.15)
+  )
+  
+  figures_dir <- "../figures"
+  if (!dir.exists(figures_dir)) dir.create(figures_dir)
+  
+  figure_basename <- "combine_diff_maps_60min.png"
+  figure_path <- file.path(figures_dir, figure_basename)
+  ggsave(
+    figure_path,
+    plot = p,
+    width = 15,
+    height = 20,
     units = "cm"
   )
   
