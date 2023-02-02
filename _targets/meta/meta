@@ -1,5 +1,5 @@
 name|type|data|command|depend|seed|path|time|size|bytes|format|repository|iteration|parent|children|seconds|warnings|error
-.Random.seed|object|ed9e9a5cbfbecf4b|||||||||||||||
+.Random.seed|object|45c2b907fbadc612|||||||||||||||
 access_dist|pattern|db40517422a96e60|2e5ad6a3d90f2030||1251667589||||2056098|file|local|vector||access_dist_54a49fb4*access_dist_013a7c08*access_dist_ee405ed8*access_dist_b391d991*access_dist_a3e95d10*access_dist_214c465c|61.53||
 access_dist_013a7c08|branch|eff19e97e090b4bf|2e5ad6a3d90f2030|13e80ae19bb29a67|-674238514|../figures/absolute_cost/access_dist_maps/60min.jpg|t19109.1105208333s|d0ca68971c541595|342434|file|local|vector|access_dist||11.5||
 access_dist_214c465c|branch|917e3a2c75ed9526|2e5ad6a3d90f2030|4ce20a3d4039f31f|-441302599|../figures/affordability/access_dist_maps/90min.jpg|t19109.1109606481s|ebf8c484fdeb662c|363471|file|local|vector|access_dist||8.85||
@@ -59,7 +59,7 @@ create_line_chart_theme|function|38db9553dadc13cb|||||||||||||||
 create_map_theme|function|abc0e0bd124ee2d5|||||||||||||||
 create_north|function|9335bff2afc152b4|||||||||||||||
 create_palma_plot|function|addbe41a8149a6ab|||||||||||||||
-create_paper_context_figure|function|6917f21f354c4c6b|||||||||||||||
+create_paper_context_figure|function|135b8af73d9704ab|||||||||||||||
 create_pickup_density_map|function|1f446ed4fa37affc|||||||||||||||
 create_pop_density_map|function|e99ed7cc70e5d952|||||||||||||||
 create_scalebar|function|dada88d35787fc03|||||||||||||||
@@ -83,6 +83,7 @@ frontiers_with_affordability|stem|6ea0d4bf40d0d1c8|938f1b7b190e96a6|600a91c77cf6
 full_uber_matrix|stem|7278d3bebe037b33|5a03839e40cd7f8f|e0fd80984af154b6|722627198|../data/data/pfrontiers/full_uber_matrix.rds|t19108.6619097222s|411e64af0fa6a25d|6877457|file|local|vector|||11.57||
 generate_possible_fare_values|function|8c15036df914750e|||||||||||||||
 generate_r5_points|function|a10eac23a9d0d23e|||||||||||||||
+generate_transit_shapes|function|8679af78f16aff30|||||||||||||||
 get_frontier_type|function|e937ef48a6761437|||||||||||||||
 graph_dir|stem|92e615687cd08484|5cf2c39d61f165e3|ef46db3751d8e999|1477339001|../r5/rio|t19069.8606597222s|908ec9ea9f0a90f4|0|file|local|vector|||0.02||
 grid_res_8|stem|0467fb10b8da2a43|606d5354f5832dc5|ef46db3751d8e999|-723635523|../data/data-raw/aop_generated/hex_agregado_rio_08_2019.rds|t19047.8645717593s|93034555ac0bc1fc|865274|file|local|vector|||0.01||
@@ -103,6 +104,7 @@ palma_calculator|function|fe1d968794237f52|||||||||||||||
 palma_plot|pattern|212d152f7439558e|95d75c1084b14809||845247040||||232234|file|local|vector||palma_plot_2dd335f5*palma_plot_2dfa6837|1||
 palma_plot_2dd335f5|branch|5a1375fb8cedf089|95d75c1084b14809|4d87ad43126b39c1|1691343799|../figures/absolute_cost/palma.jpg|t19109.1110648148s|f4f64f118933477b|111237|file|local|vector|palma_plot||0.47||
 palma_plot_2dfa6837|branch|464597b9df34daef|95d75c1084b14809|4f662724940a5199|1366703178|../figures/affordability/palma.jpg|t19109.1110648148s|23fc16889d12bb47|120997|file|local|vector|palma_plot||0.53||
+paper_context_figure|stem|f16777a9eef15a89|89b89b1093b589c8|f14bd157aeb881d3|-446806423|../figures/context/paper_context_figure.png|t19390.8822916667s|300f2788c6543905|229781|file|local|vector|||21.31||
 pickup_data|stem|167d974c7e1668fa|ace5fa025079035d|ef46db3751d8e999|-1959206477|../data/data-raw/rio_pickups.csv|t18885.7997916667s|d17928f38290fc70|16605355|file|local|vector|||0||
 pickup_data_res_8|stem|a65d77543e36597d|d8c32f42d65cafb6|5e0e29ba3dc0d55e|-239493902|../data/data//pickup_res_8.rds|t19108.6571296296s|7253b3e9d716df1a|24611|file|local|vector|||1.28||
 pickup_density_map|stem|c2ff67ffcc1c790a|c87f84aaaffc8b10|2c1f05f96133ff6c|1853110943|../figures/context/pickup_density.png|t19390.634537037s|977ea04c340afdc2|174726|file|local|vector|||8.25||
@@ -116,6 +118,7 @@ rio_fare_calculator|stem|80288745acdb27c8|26d742c7915611a8|ef46db3751d8e999|1183
 rio_state|stem|be4f658fc08129f8|227f95995a594b08|ef46db3751d8e999|-1405533772|../data/data-raw/aop_generated/rio_state.rds|t18460.6852083333s|e189ae8d80bc1587|308242|file|local|vector|||0||
 scalebar|stem|0614c1cb13e1bbfc|3ad7523dd2f92b8f|8b5597495f0ad897|1890180467||t19109.5728703704s|3aa0068b3b5bdc86|48581|rds|local|vector|||0.72||
 transit_pareto_frontier|stem|6d130443217136dd|75846f720f442c69|2207fc2fb03991fe|1381276434|../data/data/pfrontiers/absolute/only_transit.rds|t19080.7501967593s|a5dbb0b57293b0de|3752828|file|local|vector|||78618.81||
+transit_shapes|stem|c7b75c46a6be5999|09d0e31ad32078d8|626db3372e1c30d9|-1042408950||t19390.7048842593s|6214f84a08ebdbc4|2175399|rds|local|vector|||3.77||
 transit_vs_uber_fm_comparison|pattern|4f0c4f3ae255341c|b6336ecc3a241444||-863769087||||1469298|file|local|vector||transit_vs_uber_fm_comparison_54a49fb4*transit_vs_uber_fm_comparison_013a7c08*transit_vs_uber_fm_comparison_ee405ed8*transit_vs_uber_fm_comparison_b391d991*transit_vs_uber_fm_comparison_a3e95d10*transit_vs_uber_fm_comparison_214c465c|23.13||
 transit_vs_uber_fm_comparison_013a7c08|branch|67484fae1c4a9973|b6336ecc3a241444|593efa502502f327|1727467542|../figures/absolute_cost/comparison_scatter/60min.jpg|t19109.1094791667s|b2c1bd061f60ffb0|260320|file|local|vector|transit_vs_uber_fm_comparison||5.07||
 transit_vs_uber_fm_comparison_214c465c|branch|7c02927d1439a90f|b6336ecc3a241444|428539ddad86c1a6|917938678|../figures/affordability/comparison_scatter/90min.jpg|t19109.1096296296s|2caf40eb1741d516|264749|file|local|vector|transit_vs_uber_fm_comparison||2.56||

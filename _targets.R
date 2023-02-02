@@ -379,6 +379,19 @@ list(
       scalebar
     ),
     format = "file"
+  ),
+  tar_target(
+    paper_context_figure,
+    create_paper_context_figure(
+      grid_res_9,
+      grid_res_8,
+      rio_city,
+      rio_state,
+      context_map_theme,
+      north,
+      graph_dir
+    ),
+    format = "file"
   )
   # ,
   # tar_target(
