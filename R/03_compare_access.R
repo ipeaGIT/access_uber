@@ -60,7 +60,7 @@ create_dist_maps <- function(access_path,
         "uber_fm_transit_combined",
         "only_uber"
       ),
-      labels = c("Only transit", "Uber first mile + Transit", "Only uber")
+      labels = c("Only transit", "Ride-hailing first mile + Transit", "Only uber")
     )
   ]
   
@@ -79,7 +79,7 @@ create_dist_maps <- function(access_path,
       absolute_cost := factor(
         absolute_cost,
         levels = monetary_thresholds,
-        labels = scales::label_dollar(prefix = "R$ ")(monetary_thresholds)
+        labels = scales::label_number(suffix = " BRL")(monetary_thresholds)
       )
     ]
   }
@@ -102,7 +102,7 @@ create_dist_maps <- function(access_path,
   p <- ggplot(access) +
     geom_sf(data = state_border, color = NA, fill = "#efeeec") +
     geom_sf(aes(fill = access), color = NA) +
-    geom_sf(data = city_border, color = "black", fill = NA, size = 0.3) +
+    geom_sf(data = city_border, color = "black", fill = NA, linewidth = 0.3) +
     facet_grid(get(monetary_column) ~ mode, switch = "y") +
     coord_sf(xlim = xlim, ylim = ylim) +
     scale_fill_viridis_c(
@@ -592,7 +592,7 @@ create_avg_access_by_time_plot <- function(access_path,
         "uber_fm_transit_combined",
         "only_uber"
       ),
-      labels = c("Only transit", "Uber first mile + Transit", "Only uber")
+      labels = c("Only transit", "Ride-hailing first mile + Transit", "Only uber")
     )
   ]
   access <- access[
@@ -631,7 +631,7 @@ create_avg_access_by_time_plot <- function(access_path,
       absolute_cost := factor(
         absolute_cost,
         levels = monetary_thresholds,
-        labels = scales::label_dollar(prefix = "R$ ")(monetary_thresholds)
+        labels = scales::label_number(suffix = " BRL")(monetary_thresholds)
       )
     ]
   }
@@ -727,7 +727,7 @@ create_avg_access_by_time_per_group_plot <- function(access_path,
         "uber_fm_transit_combined",
         "only_uber"
       ),
-      labels = c("Only transit", "Uber first mile +\nTransit", "Only uber")
+      labels = c("Only transit", "Ride-hailing first mile +\nTransit", "Only uber")
     )
   ]
   access[
@@ -769,7 +769,7 @@ create_avg_access_by_time_per_group_plot <- function(access_path,
       absolute_cost := factor(
         absolute_cost,
         levels = monetary_thresholds,
-        labels = scales::label_dollar(prefix = "R$ ")(monetary_thresholds)
+        labels = scales::label_number(prefix = " BRL")(monetary_thresholds)
       )
     ]
   }
@@ -795,7 +795,7 @@ create_avg_access_by_time_per_group_plot <- function(access_path,
     ) +
     guides(
       color = guide_legend(nrow = 2, byrow = TRUE),
-      linetype = guide_legend(nrow = 2)
+      linetype = guide_legend(title = "Group", nrow = 2)
     ) +
     line_chart_theme
   
@@ -1034,7 +1034,7 @@ create_single_diff_dist_map <- function(access_path,
       ggplot(access_diff_df) +
         geom_sf(data = state_border, color = NA, fill = "#efeeec") +
         geom_sf(aes(fill = diff), color = NA) +
-        geom_sf(data = city_border, color = "black", fill = NA, size = 0.3) +
+        geom_sf(data = city_border, color = "gray60", fill = NA, linewidth = 0.3) +
         facet_wrap(~ cutoff, ncol = 2) +
         coord_sf(xlim = xlim, ylim = ylim) +
         scale_fill_gradient(
