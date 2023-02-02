@@ -212,7 +212,7 @@ create_pickup_density_map <- function(pickup_data_path,
     ,
     setdiff(names(pickup_data), c("hex_addr", "num_pickups")) := NULL
   ]
-  pickup_data <- h3jsr::h3_to_polygon(pickup_data, simple = FALSE)
+  pickup_data <- h3jsr::cell_to_polygon(pickup_data, simple = FALSE)
   pickup_data <- st_transform(pickup_data, 4674)
   
   city_border <- readRDS(rio_city_path)
@@ -285,7 +285,7 @@ create_dropoff_density_map <- function(dropoff_data_path,
     ,
     setdiff(names(dropoff_data), c("hex_addr", "num_dropoffs")) := NULL
   ]
-  dropoff_data <- h3jsr::h3_to_polygon(dropoff_data, simple = FALSE)
+  dropoff_data <- h3jsr::cell_to_polygon(dropoff_data, simple = FALSE)
   dropoff_data <- st_transform(dropoff_data, 4674)
   
   city_border <- readRDS(rio_city_path)

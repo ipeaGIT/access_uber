@@ -1,5 +1,5 @@
 name|type|data|command|depend|seed|path|time|size|bytes|format|repository|iteration|parent|children|seconds|warnings|error
-.Random.seed|object|58290b22a034cf28|||||||||||||||
+.Random.seed|object|ed9e9a5cbfbecf4b|||||||||||||||
 access_dist|pattern|db40517422a96e60|2e5ad6a3d90f2030||1251667589||||2056098|file|local|vector||access_dist_54a49fb4*access_dist_013a7c08*access_dist_ee405ed8*access_dist_b391d991*access_dist_a3e95d10*access_dist_214c465c|61.53||
 access_dist_013a7c08|branch|eff19e97e090b4bf|2e5ad6a3d90f2030|13e80ae19bb29a67|-674238514|../figures/absolute_cost/access_dist_maps/60min.jpg|t19109.1105208333s|d0ca68971c541595|342434|file|local|vector|access_dist||11.5||
 access_dist_214c465c|branch|917e3a2c75ed9526|2e5ad6a3d90f2030|4ce20a3d4039f31f|-441302599|../figures/affordability/access_dist_maps/90min.jpg|t19109.1109606481s|ebf8c484fdeb662c|363471|file|local|vector|access_dist||8.85||
@@ -51,7 +51,7 @@ create_context_map_theme|function|d774e2c7b9751981|||||||||||||||
 create_diff_dist_maps|function|7fbb32f620bb873f|||||||||||||||
 create_diff_per_group_plot|function|3a896401f6b7514a|||||||||||||||
 create_dist_maps|function|8cdcc88f5ea913d1|||||||||||||||
-create_dropoff_density_map|function|a1599c273820dd84|||||||||||||||
+create_dropoff_density_map|function|af523d771799aaf4|||||||||||||||
 create_edge_bundles|function|d5d5dcf5c1ff8ada|||||||||||||||
 create_edge_maps|function|145c6c7298f61c8a|||||||||||||||
 create_income_decile_map|function|c24f49e786de95c8|||||||||||||||
@@ -59,7 +59,8 @@ create_line_chart_theme|function|38db9553dadc13cb|||||||||||||||
 create_map_theme|function|abc0e0bd124ee2d5|||||||||||||||
 create_north|function|9335bff2afc152b4|||||||||||||||
 create_palma_plot|function|addbe41a8149a6ab|||||||||||||||
-create_pickup_density_map|function|66b8040ef30daab6|||||||||||||||
+create_paper_context_figure|function|6917f21f354c4c6b|||||||||||||||
+create_pickup_density_map|function|1f446ed4fa37affc|||||||||||||||
 create_pop_density_map|function|e99ed7cc70e5d952|||||||||||||||
 create_scalebar|function|dada88d35787fc03|||||||||||||||
 create_single_diff_dist_map|function|2485f86c0ae5af0b|||||||||||||||
@@ -73,7 +74,7 @@ diff_dist_ee405ed8|branch|2930a6730fcfa984|db36f6ae44a8d0c0|0323369323b6f342|-17
 diff_dist_map|stem|e0ee4af0e18831f0|8fc2668ff2484008|2b138b8da746273f|275730594|../figures/combine_diff_maps_60min.png|t19387.8446527778s|150f445827cde7ef|223669|file|local|vector|||14.43||
 diff_per_group_boxplot|stem|3ea5d65c4a226f80|cdd9ce97a6ef046e|4e11f9ccea345d0e|645467139|../figures/combined_diff_per_group_60min.png|t19387.8901736111s|436d0b02f7b301e2|26599|file|local|vector|||13.42|1m22mThe following aesthetics were dropped during statistical transformation 32mweight39m36mi39m This can happen when ggplot fails to infer the correct grouping structure in  the data.36mi39m Did you forget to specify a group aesthetic or to convert a numerical  variable into a factor. 1m22mThe following aesthetics were dropped during statistical transformation 32mweight39m36mi39m This can happen when ggplot fails to infer the correct grouping structure in  the data.36mi39m Did you forget to specify a group aesthetic or to convert a numerical  variable into a factor. 1m22mThe following aesthetics were dropped during statistical transformation 32mweight39m36mi39m This can happen when ggplot fails to infer the correct grouping structure in  the data.36mi39m Did you forget to specify a group aesthetic or to convert a numerical  variable into a factor. 1m22mThe following aesthetics were dropped during statistical transformation 32mweight39m36mi39m This can happen when ggplot fails to infer the correct grouping structure in  the data.36mi39m Did you forget to specify a group aesthetic or to convert a numerical  variable into a factor. 1m22mThe following aesthetics were dropped during statistical transformation 32mweight39m36mi39m This can happen when ggplot fails to infer the correct grouping structure in  the data.36mi39m Did you forget to specify a group aesthetic or to convert a numerical  variable into a factor. 1m22mThe following aesthetics were dropped during statistical transformation 32mweight39m36mi39m This can happen when ggplot fails to infer the correct grouping structure in  the data.36mi39m Did you forget to specify a group aesthetic or to convert a numerical  variable into a factor. 1m22mThe following aesthetics were dropped during statistical transformation 32mweight39m36mi39m This can happen when ggplot fails to infer the correct grouping structu|
 dropoff_data|stem|cd2a5aae922ff9a7|d0fc7943ec0cbf91|ef46db3751d8e999|772232055|../data/data-raw/rio_dropoffs.csv|t18885.7108912037s|0cf44c3dc3e483fe|11914957|file|local|vector|||0||
-dropoff_density_map|stem|7892045e626692e1|f0c8e3cadaee18e6|16b8bb06b191f14b|-960011209|../figures/context/dropoff_density.png|t19109.7401273148s|48fe3354e7b6072e|176127|file|local|vector|||9.2||
+dropoff_density_map|stem|fa99bb85bc5d3255|f0c8e3cadaee18e6|421e31d3bb89de69|-960011209|../figures/context/dropoff_density.png|t19390.6344328704s|c6fed5f2153d794d|173881|file|local|vector|||10.68||
 edge_bundle_map|stem|28932e155262aca8|2229762c55ed88c0|c60c49837055abad|1472955047|../figures/context/edge_bundles.png|t19115.7464351852s|4e5e51d809eaa4cb|1152649|file|local|vector|||1283.42||
 edge_bundles|stem|10c4d80d433b1189|15c4e945b57775bd|0e89422b551b17f3|-555297087|../data/data/edge_bundles_list.rds|t19114.7311805556s|a8222b3c7a125c31|29819176|file|local|vector|||6234.53||
 fill_uber_matrix|function|5d33eaaa138cb301|||||||||||||||
@@ -88,13 +89,13 @@ grid_res_8|stem|0467fb10b8da2a43|606d5354f5832dc5|ef46db3751d8e999|-723635523|..
 grid_res_9|stem|08b6689a43126f66|b2f7244aeb6417d0|ef46db3751d8e999|-426584538|../data/data-raw/aop_generated/hex_agregado_rio_09_2019.rds|t19047.8648032407s|ec897c661ed4e32d|6080534|file|local|vector|||0||
 identify_problematic_hexs|function|d0fd29c74993b81f|||||||||||||||
 income_adjusted_grid|stem|6fd766dd70f1e7b8|4387c9b538d8524c|e1ce2c46a5b6ec13|-2136429160|../data/data/income_adjusted_grid.rds|t19107.7439814815s|7f00aaffa6e484e4|27561|file|local|vector|||0.3||
-income_decile_map|stem|66d43cd75f2a7d44|8cc59c266a9ddffa|9b3c1796249c7b16|-1903632347|../figures/context/income_decile.png|t19109.6143634259s|3ec395359a671527|141691|file|local|vector|||3.54||
+income_decile_map|stem|a8f9c934bbdeac78|8cc59c266a9ddffa|8260a9d4a80be01f|-1903632347|../figures/context/income_decile.png|t19390.6315162037s|c6ae98777f7bdc06|141851|file|local|vector|||2.22||
 join_uber_fm_transit_frontiers|function|1db4b2227cf41124|||||||||||||||
 keep_pareto_frontier|function|879951c3d67f8663|||||||||||||||
 line_chart_theme|stem|070856fd5481faa1|22675d9bff70871f|921bc5a431977ee5|179411206||t19069.8402662037s|250cf1081ef035b5|1372|rds|local|vector|||0||
 map_theme|stem|63c9fd2d05e56176|46b85e1c8c6b48da|36ad7b598c79141d|-1473563871||t19069.8402662037s|8e0cdea899caf800|1395|rds|local|vector|||0.02||
 monetary_thresholds|stem|b600de44788e9c28|970b4d838da7c440|427605ea16fe4df4|799221874||t19096.6007638889s|5d187c60ba6cbe2f|140|rds|local|vector||monetary_thresholds_9a09b1be*monetary_thresholds_64ee9245|0||
-north|stem|6828d83c00c1f04d|9cfa212cc4bb5f40|533f07c865e5ea5e|1917062665||t19109.5791666667s|d62908977cf6dd44|357302|rds|local|vector|||0.86||
+north|stem|831e1aa3a50b07f3|9cfa212cc4bb5f40|533f07c865e5ea5e|1917062665||t19390.6314351852s|baa7b0783bacb1c8|441530|rds|local|vector|||8.42||
 palma|pattern|a3aad73e7cfe4e95|8873ffc4ee42e9fd||-384345662||||32996|file|local|vector||palma_57080d65*palma_402b063e|26.38||
 palma_402b063e|branch|2a77d9c453df473b|8873ffc4ee42e9fd|9a24098207700771|-153263458|../data/data/access/affordability_palma.rds|t19109.1099421296s|bc1704a66cb1f25f|11056|file|local|vector|palma||6.5||
 palma_57080d65|branch|a1b243726884bd35|8873ffc4ee42e9fd|4826fe6a20f19c25|1232373990|../data/data/access/absolute_cost_palma.rds|t19109.1098611111s|1092904af5fe7737|21940|file|local|vector|palma||19.88||
@@ -104,9 +105,9 @@ palma_plot_2dd335f5|branch|5a1375fb8cedf089|95d75c1084b14809|4d87ad43126b39c1|16
 palma_plot_2dfa6837|branch|464597b9df34daef|95d75c1084b14809|4f662724940a5199|1366703178|../figures/affordability/palma.jpg|t19109.1110648148s|23fc16889d12bb47|120997|file|local|vector|palma_plot||0.53||
 pickup_data|stem|167d974c7e1668fa|ace5fa025079035d|ef46db3751d8e999|-1959206477|../data/data-raw/rio_pickups.csv|t18885.7997916667s|d17928f38290fc70|16605355|file|local|vector|||0||
 pickup_data_res_8|stem|a65d77543e36597d|d8c32f42d65cafb6|5e0e29ba3dc0d55e|-239493902|../data/data//pickup_res_8.rds|t19108.6571296296s|7253b3e9d716df1a|24611|file|local|vector|||1.28||
-pickup_density_map|stem|9f89f659ca8ebf1f|c87f84aaaffc8b10|086c508391d81a2a|1853110943|../figures/context/pickup_density.png|t19109.6569791667s|512c245e33545f5a|176068|file|local|vector|||8.82||
+pickup_density_map|stem|c2ff67ffcc1c790a|c87f84aaaffc8b10|2c1f05f96133ff6c|1853110943|../figures/context/pickup_density.png|t19390.634537037s|977ea04c340afdc2|174726|file|local|vector|||8.25||
 pipeline|object|61e15f956e037ea8|||||||||||||||
-pop_density_map|stem|13ef19bd7d7ce22a|557cb9084ebd8692|9b630182958b63bd|-591468313|../figures/context/pop_density.png|t19109.5796412037s|9559389c1adec28d|179805|file|local|vector|||2.81||
+pop_density_map|stem|651b18283ba7f0c6|557cb9084ebd8692|899e2bf32ae893df|-591468313|../figures/context/pop_density.png|t19390.6314814815s|9c7a0adb3eb3e4f5|178817|file|local|vector|||3.73||
 problematic_hexagons|stem|d1f7eb3e5e063863|746785616976948d|cab60f7ab675fe02|-1195248950||t19089.578275463s|29c36eda41389134|347|rds|local|vector|||66.64||
 r5_points|stem|78db49fef2844ed4|3f5d0735d849fa70|f7d6ded31dac8f9d|-1010752099|../data/data/points_rio_09_2019.csv|t19069.8598263889s|3ad60a6df928ace8|69890|file|local|vector|||0.55|st_centroid assumes attributes are constant over geometries of x|
 rapid_transit_stations|stem|b990003d19e2d22c|0236e16890b27480|ef46db3751d8e999|-964730623|../data/data-raw/aop_generated/rapid_transit_stations_city.csv|t18997.8441898148s|fa9fc913b68a479e|11528|file|local|vector|||0||
