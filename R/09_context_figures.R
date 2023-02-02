@@ -336,87 +336,141 @@ create_dropoff_density_map <- function(dropoff_data_path,
 }
 
 
-# uber_data_path <- tar_read(uber_data)
-# grid_path <- tar_read(grid_res_8)
-create_edge_bundles <- function(uber_data_path, grid_path) {
-  grid <- setDT(readRDS(grid_path))
-  
-  uber_data <- fread(uber_data_path)
-  uber_data <- uber_data[
-    date_block_2019 == "mar8_dec20" &
-      weekday_weekend == "weekday" &
-      time_block == "morning_peak"
-  ]
-  uber_data <- uber_data[
-    pickup_hex8 %chin% grid$id_hex & dropoff_hex8 %chin% grid$id_hex
-  ]
-  uber_data[
-    grid,
-    on = c(pickup_hex8 = "id_hex"),
-    decile := i.decil
-  ]
-  
-  cols_to_keep <- c("pickup_hex8", "dropoff_hex8", "num_trips", "decile")
-  uber_data[, setdiff(names(uber_data), cols_to_keep) := NULL]
-  
-  hex_coordinates <- h3jsr::h3_to_point(grid$id_hex, simple = FALSE)
-  hex_coordinates <- setDT(sfheaders::sf_to_df(hex_coordinates, fill = TRUE))
-  hex_coordinates[, c("h3_resolution", "sfg_id", "point_id") := NULL]
-  
-  rich_data <- uber_data[decile >= 9]
-  poor_data <- uber_data[decile >= 1 & decile <= 4]
-  
-  full_network <- igraph::graph_from_data_frame(
-    uber_data,
-    vertices = hex_coordinates
-  )
-  rich_network <- igraph::graph_from_data_frame(
-    rich_data,
-    vertices = hex_coordinates
-  )
-  poor_network <- igraph::graph_from_data_frame(
-    poor_data,
-    vertices = hex_coordinates
-  )
-  
-  edges_list <- lapply(
-    list(full_network, rich_network, poor_network),
-    edgebundle::edge_bundle_path,
-    xy = hex_coordinates[, .(x, y)],
-    max_distortion = 12,
-    weight_fac =  4,
-    segments = 20
-  )
-  edges_list <- lapply(
-    edges_list,
-    sfheaders::sf_linestring,
-    x = "x",
-    y = "y",
-    linestring_id = "group"
-  )
-  edges_list <- mapply(
-    edges_list,
-    list(uber_data, rich_data, poor_data),
-    SIMPLIFY = FALSE,
-    FUN = function(edges, data) {
-      setDT(edges)
-      edges[, `:=`(num_trips = data$num_trips, decile = data$decile)]
-      edges
-    }
-  )
-  names(edges_list) <- c("full", "rich", "poor")
-  edges_list <- rbindlist(edges_list, idcol = "type")
-  edges_list[, group := NULL]
-  
-  data_dir <- "../data/data"
-  if (!dir.exists(data_dir)) dir.create(data_dir)
-  
-  data_basename <- "edge_bundles_list.rds"
-  data_path <- file.path(data_dir, data_basename)
-  saveRDS(edges_list, data_path)
-  
-  return(data_path)
-}
+# # uber_data_path <- tar_read(uber_data)
+# # grid_path <- tar_read(grid_res_8)
+# create_edge_bundles <- function(uber_data_path, grid_path) {
+#   grid <- setDT(readRDS(grid_path))
+#   
+#   uber_data <- fread(uber_data_path)
+#   uber_data <- uber_data[
+#     date_block_2019 == "mar8_dec20" &
+#       weekday_weekend == "weekday" &
+#       time_block == "morning_peak"
+#   ]
+#   uber_data <- uber_data[
+#     pickup_hex8 %chin% grid$id_hex & dropoff_hex8 %chin% grid$id_hex
+#   ]
+#   uber_data[
+#     grid,
+#     on = c(pickup_hex8 = "id_hex"),
+#     decile := i.decil
+#   ]
+#   
+#   cols_to_keep <- c("pickup_hex8", "dropoff_hex8", "num_trips", "decile")
+#   uber_data[, setdiff(names(uber_data), cols_to_keep) := NULL]
+#   
+#   hex_coordinates <- h3jsr::h3_to_point(grid$id_hex, simple = FALSE)
+#   hex_coordinates <- setDT(sfheaders::sf_to_df(hex_coordinates, fill = TRUE))
+#   hex_coordinates[, c("h3_resolution", "sfg_id", "point_id") := NULL]
+#   
+#   rich_data <- uber_data[decile >= 9]
+#   poor_data <- uber_data[decile >= 1 & decile <= 4]
+#   
+#   full_network <- igraph::graph_from_data_frame(
+#     uber_data,
+#     vertices = hex_coordinates
+#   )
+#   rich_network <- igraph::graph_from_data_frame(
+#     rich_data,
+#     vertices = hex_coordinates
+#   )
+#   poor_network <- igraph::graph_from_data_frame(
+#     poor_data,
+#     vertices = hex_coordinates
+#   )
+#   
+#   edges_list <- lapply(
+#     list(full_network, rich_network, poor_network),
+#     edgebundle::edge_bundle_path,
+#     xy = hex_coordinates[, .(x, y)],
+#     max_distortion = 12,
+#     weight_fac =  4,
+#     segments = 20
+#   )
+#   edges_list <- lapply(
+#     edges_list,
+#     sfheaders::sf_linestring,
+#     x = "x",
+#     y = "y",
+#     linestring_id = "group"
+#   )
+#   edges_list <- mapply(
+#     edges_list,
+#     list(uber_data, rich_data, poor_data),
+#     SIMPLIFY = FALSE,
+#     FUN = function(edges, data) {
+#       setDT(edges)
+#       edges[, `:=`(num_trips = data$num_trips, decile = data$decile)]
+#       edges
+#     }
+#   )
+#   names(edges_list) <- c("full", "rich", "poor")
+#   edges_list <- rbindlist(edges_list, idcol = "type")
+#   edges_list[, group := NULL]
+#   
+#   data_dir <- "../data/data"
+#   if (!dir.exists(data_dir)) dir.create(data_dir)
+#   
+#   data_basename <- "edge_bundles_list.rds"
+#   data_path <- file.path(data_dir, data_basename)
+#   saveRDS(edges_list, data_path)
+#   
+#   return(data_path)
+# }
+# 
+# 
+# # edge_bundles_path <- tar_read(edge_bundles)
+# # rio_city_path <- tar_read(rio_city)
+# # rio_state_path <- tar_read(rio_state)
+# # map_theme <- tar_read(context_map_theme)
+# # north <- tar_read(north)
+# # scalebar <- tar_read(scalebar)
+# create_edge_maps <- function(edge_bundles_path,
+#                              rio_city_path,
+#                              rio_state_path,
+#                              map_theme,
+#                              north,
+#                              scalebar) {
+#   edge_bundles <- readRDS(edge_bundles_path)
+#   edge_bundles[
+#     ,
+#     type := factor(
+#       type,
+#       levels = c("full", "rich", "poor"),
+#       labels = c("All origins", "Rich origins", "Poor origins")
+#     )
+#   ]
+#   
+#   city_border <- readRDS(rio_city_path)
+#   expanded_city_border <- st_buffer(city_border, 2000)
+#   state_border <- readRDS(rio_state_path)
+#   
+#   xlim <- c(st_bbox(city_border)[1], st_bbox(city_border)[3])
+#   ylim <- c(st_bbox(expanded_city_border)[2], st_bbox(expanded_city_border)[4])
+#   
+#   p <- ggplot(st_sf(edge_bundles, crs = 4326)) +
+#     geom_sf(data = state_border, color = NA, fill = "#efeeec") +
+#     geom_sf(aes(size = num_trips), alpha = 0.01, color = "mediumorchid3") +
+#     geom_sf(data = city_border, color = "black", fill = NA, size = 0.3) +
+#     facet_wrap(~ type, ncol = 1, strip.position = "left") +
+#     north +
+#     scalebar +
+#     coord_sf(xlim = xlim, ylim = ylim) +
+#     scale_size(range = c(0.1, 3)) +
+#     map_theme +
+#     theme(strip.text = element_text(size = 11))
+#   
+#   figure_path <- "../figures/context/edge_bundles.png"
+#   ggsave(
+#     figure_path,
+#     plot = p,
+#     width = 15,
+#     height = 25.5,
+#     units = "cm"
+#   )
+#   
+#   return(figure_path)
+# }
 
 
 # edge_bundles_path <- tar_read(edge_bundles)

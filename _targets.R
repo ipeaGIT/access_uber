@@ -379,22 +379,23 @@ list(
       scalebar
     ),
     format = "file"
-  ),
-  tar_target(
-    edge_bundles,
-    create_edge_bundles(uber_data, grid_res_8),
-    format = "file"
-  ),
-  tar_target(
-    edge_bundle_map,
-    create_edge_maps(
-      edge_bundles,
-      rio_city,
-      rio_state,
-      context_map_theme,
-      north,
-      scalebar
-    ),
-    format = "file"
   )
+  # ,
+  # tar_target(
+  #   edge_bundles,
+  #   create_edge_bundles(uber_data, grid_res_8),
+  #   format = "file"
+  # ),
+  # tar_target(
+  #   edge_bundle_map,
+  #   create_edge_maps(
+  #     edge_bundles,
+  #     rio_city,
+  #     rio_state,
+  #     context_map_theme,
+  #     north,
+  #     scalebar
+  #   ),
+  #   format = "file"
+  # )
 )
