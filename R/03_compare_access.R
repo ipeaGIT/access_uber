@@ -1083,9 +1083,9 @@ create_single_diff_dist_map <- function(access_path,
 # monetary_thresholds_list <- tar_read(monetary_thresholds)
 # line_chart_theme <- tar_read(line_chart_theme)
 create_diff_per_group_plot <- function(access_path,
-                                        grid_path,
-                                        monetary_thresholds_list,
-                                        line_chart_theme) {
+                                       grid_path,
+                                       monetary_thresholds_list,
+                                       line_chart_theme) {
   access <- lapply(access_path, readRDS)
   grid <- setDT(readRDS(grid_path))
   
@@ -1124,8 +1124,8 @@ create_diff_per_group_plot <- function(access_path,
         ,
         pop_group := factor(
           pop_group,
-          levels = c("richest_10", "poorest_40"),
-          labels = c("Richest", "Poorest")
+          levels = c("poorest_40", "richest_10"),
+          labels = c("Poorest", "Wealthiest")
         )
       ]
       
@@ -1184,6 +1184,7 @@ create_diff_per_group_plot <- function(access_path,
           labels = scales::label_percent(accuracy = 1, scale = 100 / total_jobs),
           limits = c(0, max_diff)
         ) +
+        scale_color_manual(values = c("#b2182b", "#2166ac")) + 
         line_chart_theme +
         theme(
           legend.position = "none",
