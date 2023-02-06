@@ -215,8 +215,81 @@ aggregate_waiting_times <- function(pickup_data_path, grid_path) {
 }
 
 
-# uber_data_path <- tar_read(uber_data)
 # pickup_data_path <- tar_read(pickup_data_res_8)
+# points_path <- tar_read(r5_points)
+fill_waiting_times <- function(pickup_data_path, points_path) {
+  pickup_data <- readRDS(pickup_data_path)
+  points <- fread(points_path)
+  
+  missing_hexs <- setdiff(points$id, pickup_data$hex_addr)
+  
+  # we calculate the waiting times as the weighted average of the neighbors'
+  # waiting times, which means that we only calculated the waiting times of the
+  # hexagons with at least one neighbor in the pickup dataset. in each loop pass
+  # some hexagons are added to the dataset, so the waiting times of hexagons
+  # that originally didn't have any neighbors in the dataset are calculated from
+  # the waiting times that were calculated in the previous loop pass
+  
+  do_loop <- TRUE
+  
+  while (do_loop) {
+    hexs_to_fill <- missing_hexs
+    
+    neighbors_list <- lapply(
+      missing_hexs,
+      function(hex) h3jsr::get_disk(hex, ring_size = 1)
+    )
+    names(neighbors_list) <- missing_hexs
+    
+    neighbors_avg_wait <- lapply(
+      neighbors_list,
+      function(neighbors) {
+        avg_wait <- pickup_data[
+          hex_addr %in% neighbors[[1]],
+          .(wait = weighted.mean(mean_wait_time, w = num_pickups))
+        ]$wait
+      }
+    )
+    
+    wait_vector <- vapply(
+      neighbors_avg_wait,
+      FUN = function(.x) ifelse(length(.x) > 0, .x, NA_real_),
+      FUN.VALUE = numeric(1)
+    )
+    
+    avg_wait_df <- data.table::data.table(
+      hex_addr = names(wait_vector),
+      num_pickups = 1,
+      mean_wait_time = wait_vector
+    )
+    avg_wait_df <- avg_wait_df[!is.na(mean_wait_time)]
+    
+    pickup_data <- rbind(pickup_data, avg_wait_df, fill = TRUE)
+    
+    missing_hexs <- setdiff(points$id, pickup_data$hex_addr)
+    
+    if (identical(missing_hexs, hexs_to_fill)) {
+      do_loop <- FALSE
+    }
+  }
+  
+  # we still have 5 hexs with missing wait times because they're all located in
+  # paqueta, an island with no uber access. in this case, we won't need to
+  # calculate this wait times anyway.
+  
+  data_dir <- "../data/data/"
+  path <- file.path(data_dir, "pickup_res_8_filled.rds")
+  saveRDS(pickup_data, path)
+  
+  return(path)
+}
+
+
+
+
+
+# uber_data_path <- tar_read(uber_data)
+# pickup_data_path <- tar_read(pickup_data_res_8_filled)
 # grid_path <- tar_read(grid_res_8)
 # car_od_matrix_path <- tar_read(car_od_matrix)
 # points_path <- tar_read(r5_points)

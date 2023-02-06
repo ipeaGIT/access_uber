@@ -95,6 +95,11 @@ list(
     format = "file"
   ),
   tar_target(
+    pickup_data_res_8_filled,
+    fill_waiting_times(pickup_data_res_8, r5_points),
+    format = "file"
+  ),
+  tar_target(
     walk_only_matrix,
     calculate_walk_matrix(r5_points, graph_dir),
     format = "file"
@@ -112,7 +117,7 @@ list(
     full_uber_matrix,
     fill_uber_matrix(
       uber_data,
-      pickup_data_res_8,
+      pickup_data_res_8_filled,
       grid_res_8,
       car_od_matrix,
       r5_points
