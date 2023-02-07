@@ -472,11 +472,12 @@ fill_uber_matrix <- function(uber_data_path,
   # after converting it from seconds to minutes.
   # we do this after calculating the cost because waiting times do not
   # influence the monetary cost of a trip.
-  # some hexagons do not have waiting time data, so we calculate the weighted
-  # mean waiting time in the city of rio and substitute the NAs using this value
+  # the hexagons that do not have wait time data are located in paqueta, an
+  # island neighborhood disconnected from rio's "mainland" in which there can't
+  # be any uber trips. so we remove any trips that have these hexagons either as
+  # origin or destination
   
   pickup_data <- readRDS(pickup_data_path)
-  pickup_data <- pickup_data[hex_addr %chin% grid$id_hex]
   
   full_matrix[
     pickup_data,
@@ -484,14 +485,12 @@ fill_uber_matrix <- function(uber_data_path,
     waiting_time := i.mean_wait_time
   ]
   
-  avg_mean_wait_time <- weighted.mean(
-    pickup_data$mean_wait_time,
-    w = pickup_data$num_pickups
-  )
-  full_matrix[is.na(waiting_time), waiting_time := avg_mean_wait_time]
-  
   full_matrix[, waiting_time := waiting_time / 60]
   full_matrix[, travel_time := travel_time + waiting_time]
+  
+  paqueta_hexs <- unique(full_matrix[is.na(waiting_time)]$from)
+  
+  full_matrix <- full_matrix[!(from %in% paqueta_hexs | to %in% paqueta_hexs)]
   
   # since r5r::travel_time_matrix() always returns travel times as integers, we
   # round travel time to the closest integer. also, we round the costs to the
