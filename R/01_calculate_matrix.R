@@ -38,7 +38,7 @@ generate_r5_points <- function(grid_path) {
 calculate_walk_matrix <- function(points_path, graph_path) {
   points <- fread(points_path)
   
-  r5r_core <- setup_r5(graph_path, verbose = FALSE, use_elevation = TRUE)
+  r5r_core <- setup_r5(graph_path, verbose = FALSE)
   
   walking_speed <- 3.6
   
@@ -54,7 +54,7 @@ calculate_walk_matrix <- function(points_path, graph_path) {
     time_window = 1,
     draws_per_minute = 1,
     max_trip_duration = 30,
-    max_walk_dist = 1800,
+    max_walk_time = 30,
     walk_speed = walking_speed,
     n_threads = getOption("N_CORES"),
     verbose = FALSE
@@ -73,12 +73,12 @@ calculate_walk_matrix <- function(points_path, graph_path) {
   min_walking_duration <- as.integer(round(min_walking_duration))
   
   walk_matrix[
-    from_id == to_id & travel_time < min_walking_duration,
-    travel_time := min_walking_duration
+    from_id == to_id & travel_time_p50 < min_walking_duration,
+    travel_time_p50 := min_walking_duration
   ]
   walk_matrix[
-    travel_time < min_walking_duration,
-    travel_time := min_walking_duration
+    travel_time_p50 < min_walking_duration,
+    travel_time_p50 := min_walking_duration
   ]
   
   file_path <- paste0("../data/data/pfrontiers/walk_matrix.rds")
@@ -96,7 +96,7 @@ calculate_transit_frontier <- function(points_path,
                                        rio_fare_calculator_path) {
   points <- fread(points_path)
   
-  r5r_core <- setup_r5(graph_path, verbose = FALSE, use_elevation = TRUE)
+  r5r_core <- setup_r5(graph_path, verbose = FALSE)
   
   # to calculate the frontier, we have to specify the monetary cost cutoffs. we
   # pick values to use as cutoffs based on rio's fare values (for now we're
@@ -104,7 +104,7 @@ calculate_transit_frontier <- function(points_path,
   
   max_rides <- 4
   
-  rio_fare_calculator <- r5r::read_fare_calculator(rio_fare_calculator_path)
+  rio_fare_calculator <- r5r::read_fare_structure(rio_fare_calculator_path)
   possible_fare_values <- generate_possible_fare_values(
     rio_fare_calculator,
     max_value = 18,
@@ -123,15 +123,15 @@ calculate_transit_frontier <- function(points_path,
       format = "%d-%m-%Y %H:%M:%S"
     ),
     time_window = 60,
-    draws_per_minute = 1,
     max_trip_duration = 120,
-    max_walk_dist = 1800,
+    max_walk_time = 30,
     max_rides = max_rides,
     walk_speed = walking_speed,
-    monetary_cost_cutoffs = possible_fare_values,
-    fare_calculator_settings = rio_fare_calculator,
+    fare_cutoffs = possible_fare_values,
+    fare_structure = rio_fare_calculator,
     n_threads = getOption("N_CORES"),
-    verbose = FALSE
+    verbose = FALSE,
+    progress = getOption("SHOW_R5R_PROGRESS")
   )
   frontier[, percentile := NULL]
   
@@ -534,6 +534,7 @@ calculate_walk_uber_frontier <- function(uber_matrix_path, walk_matrix_path) {
   
   walk_only_matrix <- readRDS(walk_matrix_path)
   walk_only_matrix[, monetary_cost := 0]
+  data.table::setnames(walk_only_matrix, "travel_time_p50", "travel_time")
   
   walk_uber_frontier <- rbind(uber_matrix, walk_only_matrix)
   walk_uber_frontier <- keep_pareto_frontier(walk_uber_frontier)
@@ -605,13 +606,13 @@ calculate_uber_first_mile_frontier <- function(uber_matrix_path,
   # to calculate the frontier, we have to specify the monetary cost cutoffs. we
   # pick values to use as cutoffs based on rio's fare values
   
-  r5r_core <- setup_r5(graph_path, verbose = FALSE, use_elevation = TRUE)
+  r5r_core <- setup_r5(graph_path, verbose = FALSE)
   
   uber_trip_lengths <- unique(first_mile_matrix$travel_time)
   uber_trip_lengths <- uber_trip_lengths[order(uber_trip_lengths)]
   
   max_rides <- 4
-  rio_fare_calculator <- read_fare_calculator(rio_fare_calculator_path)
+  rio_fare_calculator <- r5r::read_fare_structure(rio_fare_calculator_path)
   possible_fare_values <- generate_possible_fare_values(
     rio_fare_calculator,
     max_value = 18,
@@ -636,14 +637,14 @@ calculate_uber_first_mile_frontier <- function(uber_matrix_path,
         mode = c("WALK", "TRANSIT"),
         departure_datetime = departure_datetime,
         time_window = 1,
-        draws_per_minute = 1,
         max_trip_duration = max_trip_duration,
-        max_walk_dist = 1800,
+        max_walk_time = 30,
         max_rides = max_rides,
-        monetary_cost_cutoffs = possible_fare_values,
-        fare_calculator_settings = rio_fare_calculator,
+        fare_cutoffs = possible_fare_values,
+        fare_structure = rio_fare_calculator,
         n_threads = getOption("N_CORES"),
-        verbose = FALSE
+        verbose = FALSE,
+        progress = TRUE
       )
       frontier[, percentile := NULL]
       
@@ -651,8 +652,8 @@ calculate_uber_first_mile_frontier <- function(uber_matrix_path,
       # to consider walking-only trips after uber first mile. it's important to
       # remove these entries afterwards, instead of simply not providing 0 as
       # a cutoff, because if we didn't provide 0 as a cutoff we could have
-      # walking-only trips "hidden" in the upper limits, such as 380 or 405 (and
-      # we wouldn't be able to identify them).
+      # walking-only trips "hidden" in the upper limits, such as 3.80 or 4.05
+      # (and we wouldn't be able to identify them).
       
       frontier <- frontier[monetary_cost != 0]
       
@@ -755,7 +756,7 @@ generate_possible_fare_values <- function(rio_fare_calculator,
                                           max_rides) {
   values <- c(
     0,
-    rio_fare_calculator$fares_per_mode$fare,
+    rio_fare_calculator$fares_per_type$fare,
     rio_fare_calculator$fares_per_transfer$fare
   )
   values <- unique(values)

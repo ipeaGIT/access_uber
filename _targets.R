@@ -1,6 +1,7 @@
 options(
   java.parameters = "-Xmx50G",
-  N_CORES = 15L
+  N_CORES = 30L,
+  SHOW_R5R_PROGRESS = TRUE
 )
 RcppParallel::setThreadOptions(numThreads = getOption("N_CORES"))
 
@@ -56,7 +57,7 @@ list(
   ),
   tar_target(
     rio_fare_calculator,
-    "../data/data-raw/aop_generated/rio_fares_v3.zip",
+    "../data/data-raw/aop_generated/rio_fares_v4.zip",
     format = "file"
   ),
   tar_target(

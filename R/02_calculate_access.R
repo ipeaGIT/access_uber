@@ -164,7 +164,8 @@ palma_calculator <- function(access_dist) {
 # points_path <- tar_read(r5_points)
 identify_problematic_hexs <- function(graph_path, points_path) {
   points <- fread(points_path)
-  r5r_core <- setup_r5(graph_path, verbose = FALSE, use_elevation = TRUE)
+  r5r_core <- setup_r5(graph_path, verbose = FALSE)
+  
   ttm <- travel_time_matrix(
     r5r_core,
     origins = points,
@@ -182,7 +183,7 @@ identify_problematic_hexs <- function(graph_path, points_path) {
   )
   
   # we are considering problematic the hexagons whose unitary accessibility is
-  # at least 20 hexagons less than their neighbors'. since problematic hexagons
+  # at least 15 hexagons less than their neighbors'. since problematic hexagons
   # can have problematic neighbors, and their neighbors' accessibility will
   # impact in their classification as problematic, we have to do a recursive
   # identification
@@ -193,7 +194,7 @@ identify_problematic_hexs <- function(graph_path, points_path) {
   names(all_origins) <- all_origins
   all_neighbors <- lapply(
     all_origins,
-    function(hex) h3jsr::get_kring_list(hex)[[1]][[2]]
+    function(hex) h3jsr::get_disk_list(hex)[[1]][[2]]
   )
   
   unitary_access <- ttm[, .N, by = from_id]
