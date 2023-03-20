@@ -188,12 +188,6 @@ list(
     format = "file"
   ),
   tar_target(
-    palma,
-    calculate_palma(adjusted_accessibility, grid_res_8, cost_type),
-    pattern = map(adjusted_accessibility, cost_type),
-    format = "file"
-  ),
-  tar_target(
     access_dist,
     create_dist_maps(
       adjusted_accessibility,
@@ -233,19 +227,6 @@ list(
       cost_type
     ),
     pattern = map(adjusted_accessibility, cost_type),
-    format = "file"
-  ),
-  tar_target(
-    palma_plot,
-    create_palma_plot(
-      palma,
-      grid_res_8,
-      line_chart_theme,
-      travel_time_thresholds,
-      monetary_thresholds,
-      cost_type
-    ),
-    pattern = map(palma, cost_type, monetary_thresholds),
     format = "file"
   ),
   tar_target(
