@@ -252,12 +252,12 @@ create_diff_dist_maps <- function(access_path,
 # travel_time_thresholds <- tar_read(travel_time_thresholds)
 # monetary_thresholds_sublist <- tar_read(monetary_thresholds)[1]
 # type <- tar_read(cost_type)[1]
-create_avg_access_by_time_plot <- function(access_path,
-                                           grid_path,
-                                           line_chart_theme,
-                                           travel_time_thresholds,
-                                           monetary_thresholds_sublist,
-                                           type) {
+create_avg_access_plot <- function(access_path,
+                                   grid_path,
+                                   line_chart_theme,
+                                   travel_time_thresholds,
+                                   monetary_thresholds_sublist,
+                                   type) {
   access <- readRDS(access_path)
   grid <- setDT(readRDS(grid_path))
   
@@ -352,7 +352,7 @@ create_avg_access_by_time_plot <- function(access_path,
   type_dir <- file.path(figures_dir, monetary_column)
   if (!dir.exists(type_dir)) dir.create(type_dir)
   
-  figure_path <- file.path(type_dir, "avg_access_by_time.jpg")
+  figure_path <- file.path(type_dir, "avg_access.jpg")
   ggsave(
     figure_path,
     plot = p,
@@ -371,12 +371,12 @@ create_avg_access_by_time_plot <- function(access_path,
 # travel_time_thresholds <- tar_read(travel_time_thresholds)
 # monetary_thresholds_sublist <- tar_read(monetary_thresholds)[2]
 # type <- tar_read(cost_type)[2]
-create_avg_access_by_time_per_group_plot <- function(access_path,
-                                                     grid_path,
-                                                     line_chart_theme,
-                                                     travel_time_thresholds,
-                                                     monetary_thresholds_sublist,
-                                                     type) {
+create_avg_access_per_group_plot <- function(access_path,
+                                             grid_path,
+                                             line_chart_theme,
+                                             travel_time_thresholds,
+                                             monetary_thresholds_sublist,
+                                             type) {
   access <- readRDS(access_path)
   grid <- setDT(readRDS(grid_path))
   
@@ -494,7 +494,7 @@ create_avg_access_by_time_per_group_plot <- function(access_path,
   type_dir <- file.path(figures_dir, monetary_column)
   if (!dir.exists(type_dir)) dir.create(type_dir)
   
-  figure_path <- file.path(type_dir, "avg_access_by_time_per_group.jpg")
+  figure_path <- file.path(type_dir, "avg_access_per_group.jpg")
   ggsave(
     figure_path,
     plot = p,

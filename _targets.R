@@ -246,8 +246,8 @@ list(
     format = "file"
   ),
   tar_target(
-    avg_access_by_time,
-    create_avg_access_by_time_plot(
+    avg_access,
+    create_avg_access_plot(
       adjusted_accessibility,
       grid_res_8,
       line_chart_theme,
@@ -259,8 +259,8 @@ list(
     format = "file"
   ),
   tar_target(
-    avg_access_by_time_per_group,
-    create_avg_access_by_time_per_group_plot(
+    avg_access_per_group,
+    create_avg_access_per_group_plot(
       adjusted_accessibility,
       grid_res_8,
       line_chart_theme,
