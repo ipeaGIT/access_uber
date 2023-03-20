@@ -1,5 +1,5 @@
 name|type|data|command|depend|seed|path|time|size|bytes|format|repository|iteration|parent|children|seconds|warnings|error
-.Random.seed|object|5c8fb334add98d26|||||||||||||||
+.Random.seed|object|6feb8a40a20f3366|||||||||||||||
 access_dist|pattern|b09739a566ce8c6b|2e5ad6a3d90f2030||1251667589||||1870860|file|local|vector||access_dist_54a49fb4*access_dist_013a7c08*access_dist_ee405ed8*access_dist_b391d991*access_dist_a3e95d10*access_dist_214c465c|165.77||
 access_dist_013a7c08|branch|ab3e479d8e0dbd6a|2e5ad6a3d90f2030|61efd58384f8dd26|-674238514|../figures/absolute_cost/access_dist_maps/60min.jpg|t19436.5921064815s|cd442a44942af3a0|346267|file|local|vector|access_dist||38.95||
 access_dist_214c465c|branch|114e7ef38a523aeb|2e5ad6a3d90f2030|f79afe4b7a788303|-441302599|../figures/affordability/access_dist_maps/90min.jpg|t19436.5931134259s|403b53bf58fe18b9|293052|file|local|vector|access_dist||16.14||
@@ -53,7 +53,7 @@ create_line_chart_theme|function|38db9553dadc13cb|||||||||||||||
 create_map_theme|function|abc0e0bd124ee2d5|||||||||||||||
 create_north|function|9335bff2afc152b4|||||||||||||||
 create_palma_plot|function|addbe41a8149a6ab|||||||||||||||
-create_paper_context_figure|function|135b8af73d9704ab|||||||||||||||
+create_paper_context_figure|function|b5bc165cd78174e3|||||||||||||||
 create_pickup_density_map|function|1f446ed4fa37affc|||||||||||||||
 create_pop_density_map|function|e99ed7cc70e5d952|||||||||||||||
 create_scalebar|function|dada88d35787fc03|||||||||||||||
@@ -79,12 +79,15 @@ income_adjusted_grid|stem|6fd766dd70f1e7b8|4387c9b538d8524c|e1ce2c46a5b6ec13|-21
 income_decile_map|stem|a8f9c934bbdeac78|8cc59c266a9ddffa|8260a9d4a80be01f|-1903632347|../figures/context/income_decile.png|t19390.6315162037s|c6ae98777f7bdc06|141851|file|local|vector|||2.22||
 join_uber_fm_transit_frontiers|function|1db4b2227cf41124|||||||||||||||
 keep_pareto_frontier|function|879951c3d67f8663|||||||||||||||
+lang|stem|bd039fb3431c6724|a559daf4d30520ad|a3dad144c40657ed|-1451205486||t19436.6800810185s|7db3a3265500c98f|59|rds|local|vector|||0.01||
 line_chart_theme|stem|070856fd5481faa1|22675d9bff70871f|921bc5a431977ee5|179411206||t19069.8402662037s|250cf1081ef035b5|1372|rds|local|vector|||0||
 map_theme|stem|63c9fd2d05e56176|46b85e1c8c6b48da|36ad7b598c79141d|-1473563871||t19069.8402662037s|8e0cdea899caf800|1395|rds|local|vector|||0.02||
 monetary_thresholds|stem|b600de44788e9c28|970b4d838da7c440|427605ea16fe4df4|799221874||t19096.6007638889s|5d187c60ba6cbe2f|140|rds|local|vector||monetary_thresholds_9a09b1be*monetary_thresholds_64ee9245|0||
 north|stem|831e1aa3a50b07f3|9cfa212cc4bb5f40|533f07c865e5ea5e|1917062665||t19390.6314351852s|baa7b0783bacb1c8|441530|rds|local|vector|||8.42||
 palma_calculator|function|fe1d968794237f52|||||||||||||||
-paper_context_figure|stem|f16777a9eef15a89|89b89b1093b589c8|c34dce8183e2a2f0|-446806423|../figures/context/paper_context_figure.png|t19432.5929166667s|300f2788c6543905|229781|file|local|vector|||30.52||
+paper_context_figure|pattern|b33f41eb11b05798|18d6f5ce754abffc||-446806423||||460614|file|local|vector||paper_context_figure_767dba5b*paper_context_figure_0501be0e|15.27||
+paper_context_figure_0501be0e|branch|9a93fac0fbc7f11a|18d6f5ce754abffc|dae771feeaddc4a7|733792097|../figures/pt/context/paper_context_figure.png|t19436.7072800926s|693f125a1176fac1|230833|file|local|vector|paper_context_figure||7.11||
+paper_context_figure_767dba5b|branch|f16777a9eef15a89|18d6f5ce754abffc|8b312f6833e4fa52|1706195776|../figures/en/context/paper_context_figure.png|t19436.7071990741s|300f2788c6543905|229781|file|local|vector|paper_context_figure||8.16||
 pickup_data|stem|167d974c7e1668fa|ace5fa025079035d|ef46db3751d8e999|-1959206477|../data/data-raw/rio_pickups.csv|t18885.7997916667s|d17928f38290fc70|16605355|file|local|vector|||0||
 pickup_data_res_8|stem|a65d77543e36597d|d8c32f42d65cafb6|5e0e29ba3dc0d55e|-239493902|../data/data//pickup_res_8.rds|t19108.6571296296s|7253b3e9d716df1a|24611|file|local|vector|||1.28||
 pickup_data_res_8_filled|stem|f24538834d42b68c|1e4e33126834eb97|2b6cfc79b86099dd|168609970|../data/data//pickup_res_8_filled.rds|t19394.8846180556s|cc01b6c0c9bab799|26799|file|local|vector|||3.78||

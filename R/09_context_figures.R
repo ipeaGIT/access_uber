@@ -480,13 +480,15 @@ create_dropoff_density_map <- function(dropoff_data_path,
 # map_theme <- tar_read(context_map_theme)
 # north <- tar_read(north)
 # graph_dir_path <- tar_read(graph_dir)
+# lang <- tar_read(lang)[1]
 create_paper_context_figure <- function(grid_res_9_path,
                                         grid_res_8_path,
                                         rio_city_path,
                                         rio_state_path,
                                         map_theme,
                                         north,
-                                        graph_dir_path) {
+                                        graph_dir_path,
+                                        lang) {
   transit_shapes <- generate_transit_shapes(graph_dir_path)
   
   grid_res_9 <- setDT(readRDS(grid_res_9_path))
@@ -544,6 +546,31 @@ create_paper_context_figure <- function(grid_res_9_path,
   xlim <- c(st_bbox(expanded_city_border)[1], st_bbox(city_border)[3])
   ylim <- c(st_bbox(more_expanded_city_border)[2], st_bbox(expanded_city_border)[4])
   
+  if (lang == "en") {
+    fg_labels <- list(
+      decile = "Income\ndecile",
+      pop_density = "Pop. density\n(1000/km²)",
+      job_density = "Job density\n(1000/km²)",
+      transport_mode = "Mode",
+      rapid_transit = c("BRT", "Rail", "Subway"),
+      bus = "Bus"
+    )
+  } else {
+    transit_shapes$mode <- factor(
+      transit_shapes$mode,
+      labels = c("BRT", "Ônibus", "Barca", "Trem", "Metrô", "VLT")
+    )
+    
+    fg_labels <- list(
+      decile = "Decil de\nrenda",
+      pop_density = "Dens. populacional\n(1000/km²)",
+      job_density = "Dens. de empregos\n(1000/km²)",
+      transport_mode = "Modo",
+      rapid_transit = c("BRT", "Trem", "Metrô"),
+      bus = "Ônibus"
+    )
+  }
+  
   deciles <- ggplot(st_sf(grid_res_9)) +
     geom_sf(data = state_border, color = NA, fill = "#efeeec") +
     geom_sf(aes(fill = decil), color = NA) +
@@ -551,7 +578,7 @@ create_paper_context_figure <- function(grid_res_9_path,
     north +
     coord_sf(xlim = xlim, ylim = ylim) +
     scale_fill_brewer(
-      name = "Income\ndecile",
+      name = fg_labels$decile,
       palette = "RdBu"
     ) +
     guides(fill = guide_legend(byrow = TRUE)) +
@@ -561,7 +588,7 @@ create_paper_context_figure <- function(grid_res_9_path,
     geom_sf(data = state_border, color = NA, fill = "#efeeec") +
     geom_sf(aes(fill = pop_density), color = NA) +
     geom_sf(
-      data = subset(transit_shapes, mode %in% c("BRT", "Rail", "Subway")),
+      data = subset(transit_shapes, mode %in% fg_labels$rapid_transit),
       aes(linetype = mode),
       color = "gray65",
       linewidth = 0.4
@@ -569,13 +596,13 @@ create_paper_context_figure <- function(grid_res_9_path,
     geom_sf(data = city_border, color = "black", fill = NA) +
     coord_sf(xlim = xlim, ylim = ylim) +
     scale_fill_gradient(
-      name = "Pop. density\n(1000/km²)",
+      name = fg_labels$pop_density,
       low = "#efeeec",
       high = "firebrick3",
       label = scales::label_number(scale = 1/1000)
     ) +
     scale_linetype_manual(
-      name = "Mode",
+      name = fg_labels$transport_mode,
       values = c("solid", "solid", "dotted", "twodash", "dashed", "solid"),
       drop = FALSE
     ) +
@@ -586,7 +613,7 @@ create_paper_context_figure <- function(grid_res_9_path,
     geom_sf(data = state_border, color = NA, fill = "#efeeec") +
     geom_sf(aes(fill = job_density), color = NA) +
     geom_sf(
-      data = subset(transit_shapes, mode %in% c("BRT", "Rail", "Subway")),
+      data = subset(transit_shapes, mode %in% fg_labels$rapid_transit),
       aes(linetype = mode),
       color = "gray65",
       linewidth = 0.4
@@ -595,7 +622,7 @@ create_paper_context_figure <- function(grid_res_9_path,
     scalebar +
     coord_sf(xlim = xlim, ylim = ylim) +
     scale_fill_gradient(
-      name = "Job density\n(1000/km²)",
+      name = fg_labels$job_density,
       low = "#efeeec",
       high = "firebrick3",
       label = scales::label_number(scale = 1/1000),
@@ -603,7 +630,7 @@ create_paper_context_figure <- function(grid_res_9_path,
       breaks = c(0, 10000, 40000, 60000)
     ) +
     scale_linetype_manual(
-      name = "Mode",
+      name = fg_labels$transport_mode,
       values = c("solid", "solid", "dotted", "twodash", "dashed", "solid"),
       drop = FALSE
     ) +
@@ -613,24 +640,24 @@ create_paper_context_figure <- function(grid_res_9_path,
   transit_distribution <- ggplot() +
     geom_sf(data = state_border, color = NA, fill = "#efeeec") +
     geom_sf(
-      data = subset(transit_shapes, mode == "Bus"),
+      data = subset(transit_shapes, mode == fg_labels$bus),
       color = "gray85",
       linewidth = 0.3
     ) +
     geom_sf(
-      data = subset(transit_shapes, mode != "Bus"),
+      data = subset(transit_shapes, mode != fg_labels$bus),
       aes(linetype = mode, color = mode),
       linewidth = 0.5
     ) +
     geom_sf(data = city_border, color = "black", fill = NA) +
     coord_sf(xlim = xlim, ylim = ylim) +
     scale_linetype_manual(
-      name = "Mode",
+      name = fg_labels$transport_mode,
       values = c("solid", "solid", "dotted", "twodash", "dashed", "solid"),
       drop = FALSE
     ) +
     scale_color_manual(
-      name = "Mode",
+      name = fg_labels$transport_mode,
       values = c("firebrick3", "gray85", "sienna3", "royalblue4", "seagreen4", "dodgerblue3"),
       drop = FALSE
     ) +
@@ -646,7 +673,13 @@ create_paper_context_figure <- function(grid_res_9_path,
     labels = c("A", "B", "C", "D")
   )
   
-  figure_path <- "../figures/context/paper_context_figure.png"
+  lang_dir <- file.path("../figures", lang)
+  if (!dir.exists(lang_dir)) dir.create(lang_dir)
+  
+  context_dir <- file.path(lang_dir, "context")
+  if (!dir.exists(context_dir)) dir.create(context_dir)
+  
+  figure_path <- file.path(context_dir, "paper_context_figure.png")
   ggsave(
     figure_path,
     plot = p,

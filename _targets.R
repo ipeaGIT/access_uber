@@ -75,6 +75,7 @@ list(
     "../data/data-raw/aop_generated/OD_TI_carro_rio_06AM_distancias_H8.csv",
     format = "file"
   ),
+  tar_target(lang, c("en", "pt")),
   tar_target(line_chart_theme, create_line_chart_theme()),
   tar_target(map_theme, create_map_theme()),
   tar_target(context_map_theme, create_context_map_theme()),
@@ -318,26 +319,10 @@ list(
       rio_state,
       context_map_theme,
       north,
-      graph_dir
+      graph_dir,
+      lang
     ),
+    pattern = map(lang),
     format = "file"
   )
-  # ,
-  # tar_target(
-  #   edge_bundles,
-  #   create_edge_bundles(uber_data, grid_res_8),
-  #   format = "file"
-  # ),
-  # tar_target(
-  #   edge_bundle_map,
-  #   create_edge_maps(
-  #     edge_bundles,
-  #     rio_city,
-  #     rio_state,
-  #     context_map_theme,
-  #     north,
-  #     scalebar
-  #   ),
-  #   format = "file"
-  # )
 )
