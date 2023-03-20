@@ -206,24 +206,6 @@ list(
     format = "file"
   ),
   tar_target(
-    diff_dist,
-    create_diff_dist_maps(
-      adjusted_accessibility,
-      grid_res_8,
-      rio_city,
-      rio_state,
-      cost_type,
-      travel_time_thresholds,
-      monetary_thresholds,
-      map_theme
-    ),
-    pattern = cross(
-      map(adjusted_accessibility, cost_type, monetary_thresholds),
-      travel_time_thresholds
-    ),
-    format = "file"
-  ),
-  tar_target(
     diff_dist_map,
     create_single_diff_dist_map(
       adjusted_accessibility,
