@@ -206,30 +206,6 @@ list(
     format = "file"
   ),
   tar_target(
-    avg_access,
-    create_avg_access_plot(
-      adjusted_accessibility,
-      grid_res_8,
-      line_chart_theme,
-      travel_time_thresholds,
-      cost_type
-    ),
-    pattern = map(adjusted_accessibility, cost_type),
-    format = "file"
-  ),
-  tar_target(
-    avg_access_per_group,
-    create_avg_access_per_group_plot(
-      adjusted_accessibility,
-      grid_res_8,
-      line_chart_theme,
-      travel_time_thresholds,
-      cost_type
-    ),
-    pattern = map(adjusted_accessibility, cost_type),
-    format = "file"
-  ),
-  tar_target(
     diff_dist,
     create_diff_dist_maps(
       adjusted_accessibility,
