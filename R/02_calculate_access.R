@@ -20,29 +20,21 @@ calculate_access <- function(frontier_paths,
   frontiers[grid, on = c(to_id = "id_hex"), dest_jobs := i.empregos_total]
 
   # loop over different combinations of travel time and monetary cutoffs.
-  # we generate two distributions, one that smoothly increases the monetary
-  # limits with only the specified temporal thresholds and another that smoothly
-  # increases the travel time limits with only the specified monetary cutoffs,
-  # and bind them together
+  # we generate a distribution that smoothly increases travel time and monetary
+  # costs thresholds to make nice visualizations
   
   monetary_thresholds <- monetary_thresholds_sublist[[1]]
   
   monetary_smooth_distribution <- if (type == "affordability") {
     seq(0, max(monetary_thresholds), 0.01)
   } else {
-    c(0, seq(3.8, max(monetary_thresholds), 0.05))
+    seq(0, max(monetary_thresholds), 0.2)
   }
   
-  specific_tt_all_mc <- expand.grid(
-    tt = travel_time_thresholds,
-    mc = monetary_smooth_distribution
-  ) 
-  specific_mc_all_tt <- expand.grid(
+  iterator <- expand.grid(
     tt = seq(1, max(travel_time_thresholds), 1),
-    mc = monetary_thresholds
+    mc = monetary_smooth_distribution
   )
-  iterator <- setDT(rbind(specific_tt_all_mc, specific_mc_all_tt))
-  iterator <- unique(iterator)
   
   routed_points <- fread(routed_points_path)
   monetary_column <- ifelse(
@@ -246,7 +238,7 @@ adjust_access <- function(access_path, type, problematic_hexs) {
   
   neighbors_list <- lapply(
     problematic_hexs,
-    function(hex) h3jsr::get_kring_list(hex, ring_size = 2)
+    function(hex) h3jsr::get_disk_list(hex, ring_size = 2)
   )
   names(neighbors_list) <- problematic_hexs
   
@@ -293,7 +285,8 @@ adjust_access <- function(access_path, type, problematic_hexs) {
     c("from_id", "mode", "travel_time", monetary_column)
   )
   
-  future::plan(future::multisession, workers = getOption("N_CORES"))
+  options(future.globals.maxSize = 700*1024^2)
+  future::plan(future::multisession, workers = getOption("N_CORES") / 3)
   
   access_dist[
     from_id %chin% problematic_hexs & 
