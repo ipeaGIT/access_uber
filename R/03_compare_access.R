@@ -533,12 +533,26 @@ create_single_diff_dist_map <- function(access_path,
 # grid_path <- tar_read(grid_res_8)
 # monetary_thresholds_list <- tar_read(monetary_thresholds)
 # line_chart_theme <- tar_read(line_chart_theme)
+# lang <- tar_read(lang)[1]
 create_diff_per_group_plot <- function(access_path,
                                        grid_path,
                                        monetary_thresholds_list,
-                                       line_chart_theme) {
+                                       line_chart_theme,
+                                       lang) {
   access <- lapply(access_path, readRDS)
   grid <- setDT(readRDS(grid_path))
+  
+  fg_labels <- if (lang == "en") {
+    list(
+      groups = c("Poorest", "Wealthiest"),
+      diff = "Accessibility difference\n(% of total jobs)"
+    )
+  } else {
+    list(
+      groups = c("Pobres", "Ricos"),
+      diff = "Diferença de acessibilidade\n(% do total de empregos)"
+    )
+  }
   
   monetary_thresholds <- lapply(
     monetary_thresholds_list,
@@ -554,10 +568,14 @@ create_diff_per_group_plot <- function(access_path,
     SIMPLIFY = FALSE,
     FUN = function(access_data, cutoffs, colname) {
       access_data <- access_data[travel_time == 60]
-      access_data <- access_data[get(colname) %in% cutoffs]
+      access_data <- access_data[my_near(get(colname), cutoffs)]
       access_data <- access_data[mode != "only_uber"]
       
-      access_diff <- dcast(access_data, ... ~ mode, value.var = "access")
+      access_diff <- dcast(
+        access_data,
+        from_id + travel_time + get(colname) ~ mode,
+        value.var = "access"
+      )
       access_diff[, diff := uber_fm_transit_combined - only_transit]
       
       access_diff[
@@ -576,11 +594,11 @@ create_diff_per_group_plot <- function(access_path,
         pop_group := factor(
           pop_group,
           levels = c("poorest_40", "richest_10"),
-          labels = c("Poorest", "Wealthiest")
+          labels = fg_labels$groups
         )
       ]
       
-      setnames(access_diff, old = colname, new = "cutoff")
+      setnames(access_diff, old = "colname", new = "cutoff")
     }
   )
   
@@ -611,14 +629,11 @@ create_diff_per_group_plot <- function(access_path,
     vapply(access_diff, function(.x) max(.x$diff), FUN.VALUE = numeric(1))
   )
   
-  y_axis_name <- c(
-    "Absolute monetary cost threshold",
-    "Relative monetary cost threshold"
-  )
-  
   plots <- lapply(
     access_diff,
-    function(access_diff_df, axis_name) {
+    function(access_diff_df) {
+      # ggplot2 3.4 raises a misleading warning with the plots below. we can
+      # safely ignore it
       ggplot(access_diff_df) +
         geom_boxplot(
           aes(
@@ -631,7 +646,7 @@ create_diff_per_group_plot <- function(access_path,
         ) +
         facet_wrap(~ cutoff, nrow = 1) +
         scale_y_continuous(
-          name = "Accessibility difference\n(% of total jobs)",
+          name = fg_labels$diff,
           labels = scales::label_percent(accuracy = 1, scale = 100 / total_jobs),
           limits = c(0, max_diff)
         ) +
@@ -655,8 +670,11 @@ create_diff_per_group_plot <- function(access_path,
   figures_dir <- "../figures"
   if (!dir.exists(figures_dir)) dir.create(figures_dir)
   
+  lang_dir <- file.path(figures_dir, lang)
+  if (!dir.exists(lang_dir)) dir.create(lang_dir)
+  
   figure_basename <- "combined_diff_per_group_60min.png"
-  figure_path <- file.path(figures_dir, figure_basename)
+  figure_path <- file.path(lang_dir, figure_basename)
   ggsave(
     figure_path,
     plot = p,
@@ -666,4 +684,13 @@ create_diff_per_group_plot <- function(access_path,
   )
   
   return(figure_path)
+}
+
+my_near <- function(x, y) {
+  near_ys <- lapply(
+    y, function(target) dplyr::near(x, target)
+  )
+  near_ys <- data.table::transpose(near_ys)
+  
+  is_near <- vapply(near_ys, any, logical(1))
 }

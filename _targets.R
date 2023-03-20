@@ -224,8 +224,10 @@ list(
       adjusted_accessibility,
       grid_res_8,
       monetary_thresholds,
-      line_chart_theme
+      line_chart_theme,
+      lang
     ),
+    pattern = map(lang),
     format = "file"
   ),
   tar_target(
