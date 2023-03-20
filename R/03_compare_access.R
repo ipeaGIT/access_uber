@@ -28,6 +28,7 @@ create_map_theme <- function() {
 # travel_time_cutoff <- tar_read(travel_time_thresholds)[1]
 # monetary_thresholds_sublist <- tar_read(monetary_thresholds)[1]
 # map_theme <- tar_read(map_theme)
+# lang <- tar_read(lang)[1]
 create_dist_maps <- function(access_path,
                              grid_path,
                              rio_city_path,
@@ -35,7 +36,8 @@ create_dist_maps <- function(access_path,
                              type,
                              travel_time_cutoff,
                              monetary_thresholds_sublist,
-                             map_theme) {
+                             map_theme,
+                             lang) {
   access <- readRDS(access_path)
   grid <- setDT(readRDS(grid_path))
   
@@ -48,6 +50,30 @@ create_dist_maps <- function(access_path,
     "absolute_cost"
   )
   
+  fg_labels <- if (lang == "en") {
+    list(
+      modes = c(
+        "Only transit",
+        "Ride-hailing first mile + Transit",
+        "Only ride-hailing"
+      ),
+      relative_cost = "Relative monetary cost threshold\n(% of income spent on transport)",
+      absolute_cost = "Absolute monetary cost threshold",
+      accessibility = "Accessibility\n(% of total jobs)"
+    )
+  } else {
+    list(
+      modes = c(
+        "Apenas transp. público",
+        "Primeira milha ride-hailing +\nTransp. público",
+        "Apenas ride-hailing"
+      ),
+      relative_cost = "Limite de custo relativo\n(% da renda gasta em transporte)",
+      absolute_cost = "Limite de custo absoluto",
+      accessibility = "Acessibilidade\n(% do total de empregos)"
+    )
+  }
+  
   access <- access[travel_time == travel_time_cutoff]
   access <- access[get(monetary_column) %in% monetary_thresholds]
   access[grid, on = c(from_id = "id_hex"), geometry := i.geometry]
@@ -55,12 +81,8 @@ create_dist_maps <- function(access_path,
     ,
     mode := factor(
       mode,
-      levels = c(
-        "only_transit",
-        "uber_fm_transit_combined",
-        "only_uber"
-      ),
-      labels = c("Only transit", "Ride-hailing first mile + Transit", "Only uber")
+      levels = c("only_transit", "uber_fm_transit_combined", "only_uber"),
+      labels = fg_labels$modes
     )
   ]
   
@@ -95,8 +117,8 @@ create_dist_maps <- function(access_path,
   
   y_axis_name <- ifelse(
     type == "affordability",
-    "Affordability (% of income spent on transport)",
-    "Monetary cost threshold"
+    fg_labels$relative_cost,
+    fg_labels$absolute_cost
   )
   
   p <- ggplot(access) +
@@ -106,7 +128,7 @@ create_dist_maps <- function(access_path,
     facet_grid(get(monetary_column) ~ mode, switch = "y") +
     coord_sf(xlim = xlim, ylim = ylim) +
     scale_fill_viridis_c(
-      name = "Accessibility\n(% of total jobs)",
+      name = fg_labels$accessibility,
       option = "inferno",
       labels = scales::label_percent(accuracy = 1, scale = 100 / total_jobs)
     ) +
@@ -117,7 +139,10 @@ create_dist_maps <- function(access_path,
   figures_dir <- "../figures"
   if (!dir.exists(figures_dir)) dir.create(figures_dir)
   
-  type_dir <- file.path(figures_dir, monetary_column)
+  lang_dir <- file.path(figures_dir, lang)
+  if (!dir.exists(lang_dir)) dir.create(lang_dir)
+  
+  type_dir <- file.path(lang_dir, monetary_column)
   if (!dir.exists(type_dir)) dir.create(type_dir)
   
   access_dist_dir <- file.path(type_dir, "access_dist_maps")

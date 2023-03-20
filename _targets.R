@@ -198,10 +198,11 @@ list(
       cost_type,
       travel_time_thresholds,
       monetary_thresholds,
-      map_theme
+      map_theme,
+      lang
     ),
     pattern = cross(
-      map(adjusted_accessibility, cost_type, monetary_thresholds),
+      cross(map(adjusted_accessibility, cost_type, monetary_thresholds), lang),
       travel_time_thresholds
     ),
     format = "file"
