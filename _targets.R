@@ -214,8 +214,10 @@ list(
       rio_city,
       rio_state,
       monetary_thresholds,
-      map_theme
+      map_theme,
+      lang
     ),
+    pattern = map(lang),
     format = "file"
   ),
   tar_target(
