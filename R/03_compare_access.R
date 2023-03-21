@@ -168,12 +168,14 @@ create_dist_maps <- function(access_path,
 # travel_time_thresholds <- tar_read(travel_time_thresholds)
 # monetary_thresholds_sublist <- tar_read(monetary_thresholds)[1]
 # type <- tar_read(cost_type)[1]
+# lang <- tar_read(lang)[1]
 create_avg_access_plot <- function(access_path,
                                    grid_path,
                                    line_chart_theme,
                                    travel_time_thresholds,
                                    monetary_thresholds_sublist,
-                                   type) {
+                                   type,
+                                   lang) {
   access <- readRDS(access_path)
   grid <- setDT(readRDS(grid_path))
   
@@ -186,7 +188,31 @@ create_avg_access_plot <- function(access_path,
     "absolute_cost"
   )
   
-  access <- access[get(monetary_column) %in% monetary_thresholds]
+  fg_labels <- if (lang == "en") {
+    list(
+      modes = c(
+        "Only transit",
+        "Ride-hailing first mile + Transit",
+        "Only ride-hailing"
+      ),
+      scenario = "Scenario",
+      travel_time = "Travel time threshold",
+      accessibility = "Average accessibility (% of total jobs)"
+    )
+  } else {
+    list(
+      modes = c(
+        "Apenas\ntransp. público",
+        "Primeira milha ride-hailing +\nTransp. público",
+        "Apenas\nride-hailing"
+      ),
+      scenario = "Cenário",
+      travel_time = "Limite de tempo de viagem",
+      accessibility = "Acessibilidade média (% do total de empregos)"
+    )
+  }
+  
+  access <- access[my_near(get(monetary_column), monetary_thresholds)]
   access[grid, on = c(from_id = "id_hex"), population := i.pop_total]
   access[
     ,
@@ -197,7 +223,7 @@ create_avg_access_plot <- function(access_path,
         "uber_fm_transit_combined",
         "only_uber"
       ),
-      labels = c("Only transit", "Ride-hailing first mile + Transit", "Only uber")
+      labels = fg_labels$modes
     )
   ]
   access <- access[
@@ -215,8 +241,8 @@ create_avg_access_plot <- function(access_path,
   ]
   access[, diff_from_prev := (avg_access - previous_value) / previous_value]
   access <- access[
-    mode != "Only uber" |
-      (mode == "Only uber" & (diff_from_prev > 0.001 | avg_access == 0))
+    mode != fg_labels$modes[3] |
+      (mode == fg_labels$modes[3] & (diff_from_prev > 0.001 | avg_access == 0))
   ]
   access[, c("previous_value", "diff_from_prev") := NULL]
   setnames(access, old = "cost_cutoff", new = monetary_column)
@@ -254,10 +280,10 @@ create_avg_access_plot <- function(access_path,
       )
     ) +
     facet_wrap(~ get(monetary_column), nrow = 2) +
-    scale_color_brewer(name = "Scenario", palette = "Paired") +
-    scale_x_continuous(name = "Travel time threshold", breaks = x_breaks) +
+    scale_color_brewer(name = fg_labels$scenario, palette = "Paired") +
+    scale_x_continuous(name = fg_labels$travel_time, breaks = x_breaks) +
     scale_y_continuous(
-      name = "Average accessibility (% of total jobs)",
+      name = fg_labels$accessibility,
       labels = scales::label_percent(accuracy = 1, scale = 100 / total_jobs)
     ) +
     line_chart_theme
@@ -265,7 +291,10 @@ create_avg_access_plot <- function(access_path,
   figures_dir <- "../figures"
   if (!dir.exists(figures_dir)) dir.create(figures_dir)
   
-  type_dir <- file.path(figures_dir, monetary_column)
+  lang_dir <- file.path(figures_dir, lang)
+  if (!dir.exists(lang_dir)) dir.create(lang_dir)
+  
+  type_dir <- file.path(lang_dir, monetary_column)
   if (!dir.exists(type_dir)) dir.create(type_dir)
   
   figure_path <- file.path(type_dir, "avg_access.jpg")
