@@ -229,6 +229,23 @@ list(
     format = "file"
   ),
   tar_target(
+    accessibility_heatmap,
+    create_access_heatmap(
+      adjusted_accessibility,
+      grid_res_8,
+      line_chart_theme,
+      travel_time_thresholds,
+      monetary_thresholds,
+      cost_type,
+      lang
+    ),
+    pattern = cross(
+      map(adjusted_accessibility, monetary_thresholds, cost_type),
+      lang
+    ),
+    format = "file"
+  ),
+  tar_target(
     avg_access,
     create_avg_access_plot(
       adjusted_accessibility,

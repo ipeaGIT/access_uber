@@ -784,6 +784,123 @@ create_diff_per_group_plot <- function(access_path,
   return(figure_path)
 }
 
+
+# access_path <- tar_read(adjusted_accessibility)[1]
+# grid_path <- tar_read(grid_res_8)
+# line_chart_theme <- tar_read(line_chart_theme)
+# travel_time_thresholds <- tar_read(travel_time_thresholds)
+# monetary_thresholds_sublist <- tar_read(monetary_thresholds)[1]
+# type <- tar_read(cost_type)[1]
+# lang <- tar_read(lang)[1]
+create_access_heatmap <- function(access_path,
+                                  grid_path,
+                                  line_chart_theme,
+                                  travel_time_thresholds,
+                                  monetary_thresholds_sublist,
+                                  type,
+                                  lang) {
+  access <- readRDS(access_path)
+  grid <- setDT(readRDS(grid_path))
+  
+  monetary_column <- ifelse(
+    type == "affordability",
+    "affordability",
+    "absolute_cost"
+  )
+  
+  fg_labels <- if (lang == "en") {
+    list(
+      modes = c(
+        "Only transit",
+        "Ride-hailing first mile +\nTransit",
+        "Only ride-hailing"
+      ),
+      absolute_cost = "Absolute monetary cost threshold (BRL)",
+      relative_cost = "Relative monetary cost threshold",
+      travel_time = "Travel time threshold",
+      accessibility = "Average\naccessibility\n(% of total jobs)"
+    )
+  } else {
+    list(
+      modes = c(
+        "Apenas\ntransp. público",
+        "Primeira milha\nride-hailing +\nTransp. público",
+        "Apenas\nride-hailing"
+      ),
+      absolute_cost = "Limite de custo absoluto (BRL)",
+      relative_cost = "Limite de custo relativo",
+      travel_time = "Limite de tempo de viagem",
+      accessibility = "Acessibilidade\nmédia (% do total\nde empregos)"
+    )
+  }
+  
+  access[grid, on = c(from_id = "id_hex"), population := i.pop_total]
+  access[
+    ,
+    mode := factor(
+      mode,
+      levels = c(
+        "only_transit",
+        "uber_fm_transit_combined",
+        "only_uber"
+      ),
+      labels = fg_labels$modes
+    )
+  ]
+  access <- access[
+    ,
+    .(avg_access = weighted.mean(access, w = population)),
+    keyby = .(mode, travel_time, cost_cutoff = get(monetary_column))
+  ]
+  
+  monetary_thresholds <- monetary_thresholds_sublist[[1]]
+  
+  total_jobs <- sum(grid$empregos_total)
+  x_breaks <- c(0, travel_time_thresholds)
+  y_axis_name <- ifelse(
+    type == "absolute",
+    fg_labels$absolute_cost,
+    fg_labels$relative_cost
+  )
+  
+  p <- ggplot(access) + 
+    geom_tile(aes(travel_time, cost_cutoff, fill = avg_access)) +
+    facet_grid(~ mode) +
+    scale_fill_viridis_c(
+      name = fg_labels$accessibility,
+      labels = scales::label_percent(accuracy = 1, scale = 100 / total_jobs)
+    ) +
+    scale_x_continuous(name = fg_labels$travel_time, breaks = x_breaks) +
+    scale_y_continuous(
+      name = y_axis_name,
+      breaks = monetary_thresholds
+    ) +
+    line_chart_theme +
+    theme(panel.grid = element_blank(), legend.position = "right")
+  
+  figures_dir <- "../figures"
+  if (!dir.exists(figures_dir)) dir.create(figures_dir)
+  
+  lang_dir <- file.path(figures_dir, lang)
+  if (!dir.exists(lang_dir)) dir.create(lang_dir)
+  
+  type_dir <- file.path(lang_dir, monetary_column)
+  if (!dir.exists(type_dir)) dir.create(type_dir)
+  
+  figure_basename <- "access_heatmap.png"
+  figure_path <- file.path(type_dir, figure_basename)
+  ggsave(
+    figure_path,
+    plot = p,
+    width = 15,
+    height = 9,
+    units = "cm"
+  )
+  
+  return(figure_path)
+}
+
+
 my_near <- function(x, y) {
   near_ys <- lapply(
     y, function(target) dplyr::near(x, target)
