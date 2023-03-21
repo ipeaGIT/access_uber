@@ -148,7 +148,7 @@ create_dist_maps <- function(access_path,
   access_dist_dir <- file.path(type_dir, "access_dist_maps")
   if (!dir.exists(access_dist_dir)) dir.create(access_dist_dir)
   
-  figure_basename <- paste0(travel_time_cutoff, "min.jpg")
+  figure_basename <- paste0(travel_time_cutoff, "min.png")
   figure_path <- file.path(access_dist_dir, figure_basename)
   ggsave(
     figure_path,
@@ -297,7 +297,7 @@ create_avg_access_plot <- function(access_path,
   type_dir <- file.path(lang_dir, monetary_column)
   if (!dir.exists(type_dir)) dir.create(type_dir)
   
-  figure_path <- file.path(type_dir, "avg_access.jpg")
+  figure_path <- file.path(type_dir, "avg_access.png")
   ggsave(
     figure_path,
     plot = p,
