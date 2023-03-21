@@ -1,5 +1,5 @@
 name|type|data|command|depend|seed|path|time|size|bytes|format|repository|iteration|parent|children|seconds|warnings|error
-.Random.seed|object|d2f638af4cdd441e|||||||||||||||
+.Random.seed|object|ad9a45ce91f70d8d|||||||||||||||
 access_dist|pattern|c4e174fccad33209|a379c336d742cbf2||1251667589||||3805001|file|local|vector||access_dist_5bddcd2f*access_dist_c3ad7513*access_dist_0a383b66*access_dist_b13f825b*access_dist_80ead164*access_dist_0aff150f*access_dist_3c7c2212*access_dist_ba79b21c*access_dist_911256e5*access_dist_644b3f69*access_dist_e56f0f62*access_dist_25af48f2|335.59||
 access_dist_0a383b66|branch|94461609cd08a6b3|a379c336d742cbf2|0717ee579421e708|1128521021|../figures/en/absolute_cost/access_dist_maps/90min.jpg|t19436.8669675926s|ef354f28ae328b8d|357741|file|local|vector|access_dist||39.7||
 access_dist_0aff150f|branch|a036bc1167cfcaa5|a379c336d742cbf2|e62a9450e2742994|-782505829|../figures/pt/absolute_cost/access_dist_maps/90min.jpg|t19436.8683564815s|847e9cf4294e0ad3|366311|file|local|vector|access_dist||39.55||
@@ -29,9 +29,11 @@ avg_access_aaa9b1eb|branch|0e4fa92875c2f70f|37e071bdf0af2aca|91709c88c9539b70|-6
 avg_access_b8a0ea18|branch|f7717076af714069|37e071bdf0af2aca|ac9872d8970a9d82|1472025896|../figures/en/absolute_cost/avg_access.jpg|t19437.621412037s|330c0580f7ec96c3|137870|file|local|vector|avg_access||106.32||
 avg_access_c6184dce|branch|41c62905f0d8a02a|37e071bdf0af2aca|27c179b2b8d9113c|568702103|../figures/en/affordability/avg_access.jpg|t19437.6228819444s|9a93847460e2763d|135900|file|local|vector|avg_access||41.7||
 avg_access_d6545f48|branch|212fdeab7c2378b5|37e071bdf0af2aca|e4073dd3275389d9|1904545342|../figures/pt/affordability/avg_access.jpg|t19437.6231944444s|5f3127334b5df311|148808|file|local|vector|avg_access||27.83||
-avg_access_per_group|pattern|645b1889be511f65|25490b07bf528e87||213256030||||300258|file|local|vector||avg_access_per_group_840203b1*avg_access_per_group_62630256|49.36||
-avg_access_per_group_62630256|branch|7a3c9756f7ae10a3|25490b07bf528e87|d414782e7afa2151|-426058953|../figures/affordability/avg_access_per_group.jpg|t19436.6352777778s|22bbfe58974f4833|138179|file|local|vector|avg_access_per_group||12.34||
-avg_access_per_group_840203b1|branch|2448a263c95affad|25490b07bf528e87|e8255f0bf785f870|1718253338|../figures/absolute_cost/avg_access_per_group.jpg|t19436.6351388889s|75cac5445088989b|162079|file|local|vector|avg_access_per_group||37.02||
+avg_access_per_group|pattern|37a0fd095cc0dbfc|437152ca0c5e4bcb||213256030||||139444|file|local|vector||avg_access_per_group_b8a0ea18*avg_access_per_group_aaa9b1eb*avg_access_per_group_c6184dce*avg_access_per_group_d6545f48|257.64||
+avg_access_per_group_aaa9b1eb|branch|0caa4465e72796c9|437152ca0c5e4bcb|5ba7c0f762b67a68|-1450630099|../figures/pt/absolute_cost/avg_access_per_group.png|t19437.6457407407s|6bbbbb26973966b2|36177|file|local|vector|avg_access_per_group||83.62||
+avg_access_per_group_b8a0ea18|branch|d06ff413f553fcd0|437152ca0c5e4bcb|abe3cdd03c789088|-1937131126|../figures/en/absolute_cost/avg_access_per_group.png|t19437.6447685185s|49ffa5dccb57d1a3|34759|file|local|vector|avg_access_per_group||107.56||
+avg_access_per_group_c6184dce|branch|2adf5d8cf6e62ba5|437152ca0c5e4bcb|51f2b3bdba079fec|511542895|../figures/en/affordability/avg_access_per_group.png|t19437.6461921296s|4a683886aa7ca77f|33473|file|local|vector|avg_access_per_group||39.14||
+avg_access_per_group_d6545f48|branch|b9a781b079ef662a|437152ca0c5e4bcb|33f022c7369a327e|-1602470919|../figures/pt/affordability/avg_access_per_group.png|t19437.6465046296s|c436c7f50f12f58f|35035|file|local|vector|avg_access_per_group||27.32||
 calculate_access|function|78d8bf9b4b199f0d|||||||||||||||
 calculate_affordability|function|e674e43515c09e0e|||||||||||||||
 calculate_affordability_access|function|1c853c631eeacc5a|||||||||||||||
@@ -46,7 +48,7 @@ context_map_theme|stem|0c8032efba18ce57|c4201d04b33ba0f5|46aefafe97b64809|399955
 cost_type|stem|1c4586620009f77c|e3922d63f8c29158|a3dad144c40657ed|1726624214||t19069.8402662037s|ebe208c31287198b|78|rds|local|vector|||0||
 create_avg_access_by_time_per_group_plot|function|08310365e8e7d94b|||||||||||||||
 create_avg_access_by_time_plot|function|46194c1fc67f335b|||||||||||||||
-create_avg_access_per_group_plot|function|28ba0820125a9d3a|||||||||||||||
+create_avg_access_per_group_plot|function|4dff85280d44ec83|||||||||||||||
 create_avg_access_plot|function|fe25bc9f9a6850f5|||||||||||||||
 create_comparison_scatter_plot|function|6bdd9144ba99b1d9|||||||||||||||
 create_context_map_theme|function|d774e2c7b9751981|||||||||||||||

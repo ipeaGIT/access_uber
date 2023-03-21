@@ -316,12 +316,14 @@ create_avg_access_plot <- function(access_path,
 # travel_time_thresholds <- tar_read(travel_time_thresholds)
 # monetary_thresholds_sublist <- tar_read(monetary_thresholds)[2]
 # type <- tar_read(cost_type)[2]
+# lang <- tar_read(lang)[1]
 create_avg_access_per_group_plot <- function(access_path,
                                              grid_path,
                                              line_chart_theme,
                                              travel_time_thresholds,
                                              monetary_thresholds_sublist,
-                                             type) {
+                                             type,
+                                             lang) {
   access <- readRDS(access_path)
   grid <- setDT(readRDS(grid_path))
   
@@ -334,7 +336,7 @@ create_avg_access_per_group_plot <- function(access_path,
     "absolute_cost"
   )
   
-  access <- access[get(monetary_column) %in% monetary_thresholds]
+  access <- access[my_near(get(monetary_column), monetary_thresholds)]
   access[
     grid,
     on = c(from_id = "id_hex"),
@@ -352,16 +354,40 @@ create_avg_access_per_group_plot <- function(access_path,
     keyby = .(group, mode, travel_time, cost_cutoff = get(monetary_column))
   ]
   
+  fg_labels <- if (lang == "en") {
+    list(
+      modes = c(
+        "Only transit",
+        "Ride-hailing first mile\n+ Transit",
+        "Only ride-hailing"
+      ),
+      group_names = c("Richest 10%", "Poorest 40%"),
+      scenario = "Scenario",
+      travel_time = "Travel time threshold",
+      accessibility = "Average accessibility (% of total jobs)",
+      group = "Group"
+    )
+  } else {
+    list(
+      modes = c(
+        "Apenas\ntransp. público",
+        "Primeira milha ride-hailing\n+ Transp. público",
+        "Apenas\nride-hailing"
+      ),
+      group_names = c("10%\nmais ricos", "40%\nmais pobres"),
+      scenario = "Cenário",
+      travel_time = "Limite de tempo de viagem",
+      accessibility = "Acessibilidade média (% do total de empregos)",
+      group = "Grupo"
+    )
+  }
+  
   access[
     ,
     mode := factor(
       mode,
-      levels = c(
-        "only_transit",
-        "uber_fm_transit_combined",
-        "only_uber"
-      ),
-      labels = c("Only transit", "Ride-hailing first mile +\nTransit", "Only uber")
+      levels = c("only_transit", "uber_fm_transit_combined", "only_uber"),
+      labels = fg_labels$modes
     )
   ]
   access[
@@ -369,7 +395,7 @@ create_avg_access_per_group_plot <- function(access_path,
     group := factor(
       group,
       levels = c("richest_10", "poorest_40"),
-      labels = c("Richest 10%", "Poorest 40%")
+      labels = fg_labels$group_names
     )
   ]
   
@@ -382,8 +408,8 @@ create_avg_access_per_group_plot <- function(access_path,
   ]
   access[, diff_from_prev := (avg_access - previous_value) / previous_value]
   access <- access[
-    mode != "Only uber" |
-      (mode == "Only uber" & (diff_from_prev > 0.001 | avg_access == 0))
+    mode != fg_labels$modes[3] |
+      (mode == fg_labels$modes[3] & (diff_from_prev > 0.001 | avg_access == 0))
   ]
   access[, c("previous_value", "diff_from_prev") := NULL]
   setnames(access, old = "cost_cutoff", new = monetary_column)
@@ -403,7 +429,7 @@ create_avg_access_per_group_plot <- function(access_path,
       absolute_cost := factor(
         absolute_cost,
         levels = monetary_thresholds,
-        labels = scales::label_number(prefix = " BRL")(monetary_thresholds)
+        labels = scales::label_number(suffix = " BRL")(monetary_thresholds)
       )
     ]
   }
@@ -421,25 +447,28 @@ create_avg_access_per_group_plot <- function(access_path,
       )
     ) +
     facet_wrap(~ get(monetary_column), nrow = 2) +
-    scale_color_brewer(name = "Scenario", palette = "Paired") +
-    scale_x_continuous(name = "Travel time threshold", breaks = x_breaks) +
+    scale_color_brewer(name = fg_labels$scenario, palette = "Paired") +
+    scale_x_continuous(name = fg_labels$travel_time, breaks = x_breaks) +
     scale_y_continuous(
-      name = "Average accessibility (% of total jobs)",
+      name = fg_labels$accessibility,
       labels = scales::label_percent(accuracy = 1, scale = 100 / total_jobs)
     ) +
     guides(
       color = guide_legend(nrow = 2, byrow = TRUE),
-      linetype = guide_legend(title = "Group", nrow = 2)
+      linetype = guide_legend(title = fg_labels$group, nrow = 2)
     ) +
     line_chart_theme
   
   figures_dir <- "../figures"
   if (!dir.exists(figures_dir)) dir.create(figures_dir)
   
-  type_dir <- file.path(figures_dir, monetary_column)
+  lang_dir <- file.path(figures_dir, lang)
+  if (!dir.exists(lang_dir)) dir.create(lang_dir)
+  
+  type_dir <- file.path(lang_dir, monetary_column)
   if (!dir.exists(type_dir)) dir.create(type_dir)
   
-  figure_path <- file.path(type_dir, "avg_access_per_group.jpg")
+  figure_path <- file.path(type_dir, "avg_access_per_group.png")
   ggsave(
     figure_path,
     plot = p,

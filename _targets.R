@@ -258,9 +258,13 @@ list(
       line_chart_theme,
       travel_time_thresholds,
       monetary_thresholds,
-      cost_type
+      cost_type,
+      lang
     ),
-    pattern = map(adjusted_accessibility, cost_type, monetary_thresholds),
+    pattern = cross(
+      map(adjusted_accessibility, cost_type, monetary_thresholds),
+      lang
+    ),
     format = "file"
   ),
   tar_target(
