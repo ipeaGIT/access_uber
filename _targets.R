@@ -31,11 +31,6 @@ list(
     format = "file"
   ),
   tar_target(
-    dropoff_data,
-    "../data/data-raw/rio_dropoffs.csv",
-    format = "file"
-  ),
-  tar_target(
     rapid_transit_stations,
     "../data/data-raw/aop_generated/rapid_transit_stations_city.csv",
     format = "file"
@@ -270,58 +265,6 @@ list(
   tar_target(
     north,
     create_north(rio_city)
-  ),
-  tar_target(
-    scalebar,
-    create_scalebar(rio_city)
-  ),
-  tar_target(
-    pop_density_map,
-    create_pop_density_map(
-      grid_res_9,
-      rio_city,
-      rio_state,
-      context_map_theme,
-      north,
-      scalebar
-    ),
-    format = "file"
-  ),
-  tar_target(
-    income_decile_map,
-    create_income_decile_map(
-      grid_res_9,
-      rio_city,
-      rio_state,
-      context_map_theme,
-      north,
-      scalebar
-    ),
-    format = "file"
-  ),
-  tar_target(
-    pickup_density_map,
-    create_pickup_density_map(
-      pickup_data,
-      rio_city,
-      rio_state,
-      context_map_theme,
-      north,
-      scalebar
-    ),
-    format = "file"
-  ),
-  tar_target(
-    dropoff_density_map,
-    create_dropoff_density_map(
-      dropoff_data,
-      rio_city,
-      rio_state,
-      context_map_theme,
-      north,
-      scalebar
-    ),
-    format = "file"
   ),
   tar_target(
     paper_context_figure,
