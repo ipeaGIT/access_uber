@@ -1,6 +1,6 @@
 <img align="right" src="cover_cities.jpg" width="180">
 
-# A time interval metric for cumulative opportunity accessibility 
+# Ride-hailing and transit accessibility considering the trade-off between time and money 
 
 This repository contains the code used to write the study:
 
