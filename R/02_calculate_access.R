@@ -43,7 +43,7 @@ calculate_access <- function(frontier_paths,
     "monetary_cost"
   )
 
-  future::plan(future::multisession, workers = getOption("N_CORES") / 3)
+  future::plan(future::multisession, workers = getOption("N_CORES") /2 )
   
   accessibility <- furrr::future_pmap(
     iterator,
@@ -286,7 +286,7 @@ adjust_access <- function(access_path, type, problematic_hexs) {
   )
   
   options(future.globals.maxSize = 700*1024^2)
-  future::plan(future::multisession, workers = getOption("N_CORES") / 3)
+  future::plan(future::multisession, workers = getOption("N_CORES") /2 )
   
   access_dist[
     from_id %chin% problematic_hexs & 

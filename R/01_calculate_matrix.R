@@ -42,7 +42,7 @@ calculate_walk_matrix <- function(points_path, graph_path) {
   
   walking_speed <- 3.6
   
-  walk_matrix <- travel_time_matrix(
+  walk_matrix <- r5r::travel_time_matrix(
     r5r_core,
     origins = points,
     destinations = points,
@@ -113,7 +113,7 @@ calculate_transit_frontier <- function(points_path,
   
   walking_speed <- 3.6
   
-  frontier <- pareto_frontier(
+  frontier <- r5r::pareto_frontier(
     r5r_core,
     origins = points,
     destinations = points,
@@ -587,7 +587,7 @@ calculate_uber_first_mile_frontier <- function(uber_matrix_path,
   
   uber_matrix <- readRDS(uber_matrix_path)
   uber_matrix <- uber_matrix[
-    travel_time <= 30 &
+    travel_time <= 119 &
       from_id %chin% points$id &
       to_id %chin% points$id
   ]
@@ -718,7 +718,6 @@ calculate_uber_first_mile_frontier <- function(uber_matrix_path,
     )
   )
   
-  frontier <- frontier[remaining_time >= first_mile_time]
   frontier[
     ,
     `:=`(

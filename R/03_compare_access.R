@@ -253,7 +253,10 @@ create_avg_access_plot <- function(access_path,
       affordability := factor(
         affordability,
         levels = monetary_thresholds,
-        labels = scales::label_percent(accuracy = 1)(monetary_thresholds)
+        labels = paste0(
+          scales::label_percent(accuracy = 1)(monetary_thresholds),
+          " of monthly income"
+        )
       )
     ]
   } else {
@@ -420,7 +423,10 @@ create_avg_access_per_group_plot <- function(access_path,
       affordability := factor(
         affordability,
         levels = monetary_thresholds,
-        labels = scales::label_percent(accuracy = 1)(monetary_thresholds)
+        labels =  paste0(
+          scales::label_percent(accuracy = 1)(monetary_thresholds),
+          " of monthly income"
+        )
       )
     ]
   } else {
@@ -541,7 +547,10 @@ create_single_diff_dist_map <- function(access_path,
     cutoff := factor(
       cutoff,
       levels = monetary_thresholds[[2]],
-      labels = scales::label_percent(accuracy = 1)(monetary_thresholds[[2]])
+      labels =  paste0(
+        scales::label_percent(accuracy = 1)(monetary_thresholds[[2]]),
+        " of monthly income"
+      )
     )
   ]
   
@@ -718,7 +727,10 @@ create_diff_per_group_plot <- function(access_path,
     cutoff := factor(
       cutoff,
       levels = monetary_thresholds[[2]],
-      labels = scales::label_percent(accuracy = 1)(monetary_thresholds[[2]])
+      labels =  paste0(
+        scales::label_percent(accuracy = 1)(monetary_thresholds[[2]]),
+        " of\nmonthly income"
+      )
     )
   ]
   
@@ -800,6 +812,8 @@ create_access_heatmap <- function(access_path,
                                   type,
                                   lang) {
   access <- readRDS(access_path)
+  access <- access[travel_time <= 60]
+  
   grid <- setDT(readRDS(grid_path))
   
   monetary_column <- ifelse(
@@ -856,7 +870,7 @@ create_access_heatmap <- function(access_path,
   monetary_thresholds <- monetary_thresholds_sublist[[1]]
   
   total_jobs <- sum(grid$empregos_total)
-  x_breaks <- c(0, travel_time_thresholds)
+  x_breaks <- c(0, setdiff(travel_time_thresholds, 90))
   y_axis_name <- ifelse(
     type == "absolute",
     fg_labels$absolute_cost,
@@ -864,9 +878,13 @@ create_access_heatmap <- function(access_path,
   )
   
   p <- ggplot(access) + 
-    geom_tile(aes(travel_time, cost_cutoff, fill = avg_access)) +
+    geom_tile(aes(travel_time, cost_cutoff, fill = avg_access, color=avg_access)) +
     facet_grid(~ mode) +
     scale_fill_viridis_c(
+      name = fg_labels$accessibility,
+      labels = scales::label_percent(accuracy = 1, scale = 100 / total_jobs)
+    ) +
+    scale_color_viridis_c(
       name = fg_labels$accessibility,
       labels = scales::label_percent(accuracy = 1, scale = 100 / total_jobs)
     ) +
